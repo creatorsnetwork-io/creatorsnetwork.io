@@ -1,0 +1,9 @@
+[build]
+  publish = "dist"
+
+# SPA fallback — route all requests to index.html so Sanity Studio's
+# client-side router handles navigation
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
