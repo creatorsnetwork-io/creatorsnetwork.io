@@ -82,8 +82,8 @@
     .hero-bg {
       position: absolute; inset: 0; will-change: transform;
       background:
-        linear-gradient(180deg, rgba(3,4,6,.10), rgba(3,4,6,.85)),
-        linear-gradient(90deg, rgba(0,0,0,.60), rgba(0,0,0,.10) 42%, rgba(0,0,0,.70)),
+        linear-gradient(180deg, rgba(3,4,6,.02), rgba(3,4,6,.60)),
+        linear-gradient(90deg, rgba(0,0,0,.35), rgba(0,0,0,.05) 42%, rgba(0,0,0,.40)),
         url("assets/open-city.jpg") center top / cover no-repeat;
     }
     .hero-content {
@@ -1186,8 +1186,8 @@
             var heroBg = document.getElementById('hero-bg');
             if (heroBg) {
               heroBg.style.background = [
-                'linear-gradient(180deg,rgba(3,4,6,.10),rgba(3,4,6,.85))',
-                'linear-gradient(90deg,rgba(0,0,0,.60),rgba(0,0,0,.10) 42%,rgba(0,0,0,.70))',
+                'linear-gradient(180deg,rgba(3,4,6,.02),rgba(3,4,6,.60))',
+                'linear-gradient(90deg,rgba(0,0,0,.35),rgba(0,0,0,.05) 42%,rgba(0,0,0,.40))',
                 'url("' + res.heroBgUrl + '") center top / cover no-repeat'
               ].join(',');
             }
