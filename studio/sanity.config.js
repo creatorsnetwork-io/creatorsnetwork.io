@@ -4,13 +4,13 @@ import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas/index'
 
 // Replace YOUR_PROJECT_ID with the Project ID from sanity.io/manage
-const PROJECT_ID = 'YOUR_PROJECT_ID'
+const PROJECT_ID = 'Yyodi9k1k'
 const DATASET = 'production'
 
 export default defineConfig({
   name: 'cn-studio',
   title: 'Creators Network',
-  projectId: PROJECT_ID,
+  projectId: yodi9k1k,
   dataset: DATASET,
 
   plugins: [
