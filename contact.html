@@ -578,5 +578,21 @@
         );
     });
   </script>
+  <!-- ── Sanity CMS: contact page image ── -->
+  <script>
+    (function () {
+      var PROJECT = 'yodi9k1k', DATASET = 'production';
+      var q = encodeURIComponent('*[_type=="contactPage"][0]{"bgUrl":bgImage.asset->url}');
+      fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var res = d.result;
+          if (!res || !res.bgUrl) return;
+          var bg = document.querySelector('.portrait-bg');
+          if (bg) bg.style.backgroundImage = 'url("' + res.bgUrl + '")';
+        })
+        .catch(function () {});
+    })();
+  </script>
 </body>
 </html>

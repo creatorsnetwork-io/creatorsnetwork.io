@@ -1122,5 +1122,33 @@
   })();
   </script>
 
+  <!-- ── Sanity CMS: team member images ── -->
+  <script>
+    (function () {
+      var PROJECT = 'yodi9k1k', DATASET = 'production';
+      var q = encodeURIComponent('*[_type=="teamMember"&&slug.current=="experiences"][0]{"portraitUrl":portraitFull.asset->url,"proofBgUrl":proofGatewayBgImage.asset->url}');
+      fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var res = d.result;
+          if (!res) return;
+          var styles = [];
+          if (res.portraitUrl) {
+            var bg = document.querySelector('.portrait-bg');
+            if (bg) bg.style.backgroundImage = 'url("' + res.portraitUrl + '")';
+            styles.push('.close-section::before{background-image:url("' + res.portraitUrl + '")!important;background-size:cover!important;background-position:center 12%!important}');
+          }
+          if (res.proofBgUrl) {
+            styles.push('.machine::before{background-image:url("' + res.proofBgUrl + '")!important}');
+          }
+          if (styles.length) {
+            var s = document.createElement('style');
+            s.textContent = styles.join('');
+            document.head.appendChild(s);
+          }
+        })
+        .catch(function () {});
+    })();
+  </script>
 </body>
 </html>

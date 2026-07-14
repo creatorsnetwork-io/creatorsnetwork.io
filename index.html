@@ -1157,22 +1157,35 @@
     })();
   </script>
 
-  <!-- ── Sanity CMS: pull live images ── -->
+  <!-- ── Sanity CMS: homepage content ── -->
   <script>
     (function () {
       var PROJECT = 'yodi9k1k', DATASET = 'production';
-      var q = encodeURIComponent('*[_type=="homePage"][0]{"heroBgUrl":heroBgImage.asset->url,"founderPortraitUrl":founderPortrait.asset->url}');
+      var q = encodeURIComponent(
+        '*[_type=="homePage"][0]{' +
+          '"heroBgUrl":heroBgImage.asset->url,' +
+          'openingLine,' +
+          '"proofBgUrl":proofGatewayBgImage.asset->url,' +
+          'proofGatewayLocations,' +
+          'proofGatewayYear,' +
+          'founderPreviewQuote,' +
+          '"founderPortraitUrl":founderPortrait.asset->url,' +
+          'closeEmail,' +
+          'closeCity,' +
+          '"panels":theFiveOrder[]->{name,"slug":slug.current,fivePanelHoverQuote,"panelBgUrl":portraitPanel.asset->url}' +
+        '}'
+      );
       fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
         .then(function (r) { return r.json(); })
         .then(function (d) {
           var res = d.result;
           if (!res) return;
 
-          /* Hero background */
+          /* ── Hero background ── */
           if (res.heroBgUrl) {
-            var el = document.getElementById('hero-bg');
-            if (el) {
-              el.style.background = [
+            var heroBg = document.getElementById('hero-bg');
+            if (heroBg) {
+              heroBg.style.background = [
                 'linear-gradient(180deg,rgba(3,4,6,.10),rgba(3,4,6,.85))',
                 'linear-gradient(90deg,rgba(0,0,0,.60),rgba(0,0,0,.10) 42%,rgba(0,0,0,.70))',
                 'url("' + res.heroBgUrl + '") center top / cover no-repeat'
@@ -1180,14 +1193,80 @@
             }
           }
 
-          /* Founder portrait — ::before pseudo-element, inject style override */
+          /* ── Opening line ── */
+          if (res.openingLine) {
+            var heroText = document.getElementById('hero-text');
+            if (heroText) heroText.textContent = res.openingLine;
+          }
+
+          /* ── Five panel backgrounds ── */
+          if (res.panels && res.panels.length) {
+            var styleRules = [];
+            res.panels.forEach(function (p) {
+              if (!p || !p.slug) return;
+              var panel = document.getElementById(p.slug);
+              if (panel) {
+                if (p.panelBgUrl) {
+                  panel.style.backgroundImage = 'url("' + p.panelBgUrl + '")';
+                }
+                if (p.fivePanelHoverQuote) {
+                  var stmt = panel.querySelector('.panel-statement');
+                  if (stmt) stmt.textContent = p.fivePanelHoverQuote;
+                }
+              }
+            });
+          }
+
+          /* ── Proof gateway background ── */
+          if (res.proofBgUrl) {
+            var proofBg = document.getElementById('proof-bg');
+            if (proofBg) proofBg.style.backgroundImage = 'url("' + res.proofBgUrl + '")';
+          }
+
+          /* ── Proof gateway text ── */
+          if (res.proofGatewayLocations && res.proofGatewayLocations.length) {
+            var locsEl = document.querySelector('.locations');
+            if (locsEl) locsEl.textContent = res.proofGatewayLocations.join(' · ');
+          }
+          if (res.proofGatewayYear) {
+            var yearsEl = document.querySelector('.years');
+            if (yearsEl) yearsEl.textContent = res.proofGatewayYear;
+          }
+
+          /* ── Founder portrait — ::before pseudo-element ── */
           if (res.founderPortraitUrl) {
             var s = document.createElement('style');
             s.textContent = '.founder::before{background-image:url("' + res.founderPortraitUrl + '")!important}';
             document.head.appendChild(s);
           }
+
+          /* ── Founder preview quote ── */
+          if (res.founderPreviewQuote) {
+            var founderLine = document.querySelector('.founder-line');
+            if (founderLine) founderLine.textContent = res.founderPreviewQuote;
+          }
+
+          /* ── Close section: email + city ── */
+          if (res.closeEmail) {
+            var emailEl = document.querySelector('.close-email');
+            if (emailEl) {
+              emailEl.textContent = res.closeEmail;
+              emailEl.href = 'mailto:' + res.closeEmail;
+            }
+          }
+          if (res.closeCity) {
+            var cityEl = document.querySelector('.close-location');
+            if (cityEl) cityEl.textContent = res.closeCity + ' | India';
+          }
+
+          /* ── Close section background (reuse hero image) ── */
+          if (res.heroBgUrl) {
+            var cs = document.createElement('style');
+            cs.textContent = '.close-section::before{background-image:url("' + res.heroBgUrl + '")!important;background-size:cover!important;background-position:center!important}';
+            document.head.appendChild(cs);
+          }
         })
-        .catch(function () { /* silent — falls back to local asset files */ });
+        .catch(function () { /* silent — falls back to CSS defaults */ });
     })();
   </script>
 </body>
