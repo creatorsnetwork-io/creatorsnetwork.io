@@ -10,7 +10,7 @@ const DATASET = 'production'
 export default defineConfig({
   name: 'cn-studio',
   title: 'Creators Network',
-  projectId: yodi9k1k,
+  projectId: PROJECT_ID,
   dataset: DATASET,
 
   plugins: [
