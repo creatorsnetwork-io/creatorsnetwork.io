@@ -1156,5 +1156,39 @@
       coin.addEventListener('click', dispense);
     })();
   </script>
+
+  <!-- ── Sanity CMS: pull live images ── -->
+  <script>
+    (function () {
+      var PROJECT = 'yodi9k1k', DATASET = 'production';
+      var q = encodeURIComponent('*[_type=="homePage"][0]{"heroBgUrl":heroBgImage.asset->url,"founderPortraitUrl":founderPortrait.asset->url}');
+      fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var res = d.result;
+          if (!res) return;
+
+          /* Hero background */
+          if (res.heroBgUrl) {
+            var el = document.getElementById('hero-bg');
+            if (el) {
+              el.style.background = [
+                'linear-gradient(180deg,rgba(3,4,6,.10),rgba(3,4,6,.85))',
+                'linear-gradient(90deg,rgba(0,0,0,.60),rgba(0,0,0,.10) 42%,rgba(0,0,0,.70))',
+                'url("' + res.heroBgUrl + '") center top / cover no-repeat'
+              ].join(',');
+            }
+          }
+
+          /* Founder portrait — ::before pseudo-element, inject style override */
+          if (res.founderPortraitUrl) {
+            var s = document.createElement('style');
+            s.textContent = '.founder::before{background-image:url("' + res.founderPortraitUrl + '")!important}';
+            document.head.appendChild(s);
+          }
+        })
+        .catch(function () { /* silent — falls back to local asset files */ });
+    })();
+  </script>
 </body>
 </html>
