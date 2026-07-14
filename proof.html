@@ -1,0 +1,1182 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Proof — Creators Network</title>
+  <meta name="description" content="Proof — selected work by Creators Network, 2020 onwards." />
+  <style>
+    :root {
+      --black: #030406;
+      --soft-white: #f4f4f1;
+      --muted: rgba(244,244,241,.68);
+      --line: rgba(255,255,255,.11);
+      --teal: #3dd8c5;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--black); }
+    body {
+      margin: 0; background: var(--black); color: var(--soft-white);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      overflow-x: hidden; text-rendering: geometricPrecision;
+    }
+    body::after {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 20; opacity: .10;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+      mix-blend-mode: screen;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Nav ── */
+    .nav {
+      position: fixed; z-index: 100; top: 28px; left: 30px; right: 30px;
+      display: flex; align-items: center; justify-content: space-between;
+      pointer-events: none;
+    }
+    .brand-logo { pointer-events: auto; width: 54px; height: auto; display: block; }
+    .nav-items {
+      pointer-events: auto; display: flex; align-items: center;
+      gap: clamp(16px, 2.2vw, 34px); padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,.075);
+      background: rgba(3,4,6,.20); backdrop-filter: blur(18px);
+    }
+    .nav-items a {
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 400; color: rgba(244,244,241,.80);
+      white-space: nowrap; transition: color .3s ease;
+    }
+    .nav-items a.is-current { color: var(--teal); }
+    .nav-items a:hover { color: rgba(244,244,241,1); }
+
+    /* ── Reveal ── */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .reveal-stagger   { transition-delay: .15s; }
+    .reveal-stagger-2 { transition-delay: .3s; }
+
+    /* ══ HERO ══ */
+    .portrait-world { position: relative; z-index: 1; }
+    .portrait-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: url("assets/proof-atmosphere.jpg") center top / cover no-repeat;
+      will-change: transform;
+    }
+    .portrait-bg::after {
+      content: ""; position: absolute; inset: 0;
+      background:
+        linear-gradient(180deg, rgba(3,4,6,.2), rgba(3,4,6,.4) 40%, rgba(3,4,6,.72) 82%, var(--black)),
+        linear-gradient(90deg, rgba(0,0,0,.5), rgba(0,0,0,.05) 45%, rgba(0,0,0,.45));
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      padding: calc(20vh + 300px) 34px 0;
+    }
+    .hero-eyebrow {
+      display: block; font-size: 13px; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 20px; font-weight: 400;
+    }
+    .hero-content h1 {
+      margin: 0;
+      font-size: clamp(72px, 12vw, 190px);
+      line-height: .95; letter-spacing: -.03em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .hero-locations {
+      margin: 34px 0 0; max-width: 620px;
+      font-size: clamp(17px, 2vw, 26px); line-height: 1.4;
+      font-weight: 300; color: rgba(244,244,241,.75);
+    }
+    .hero-years {
+      display: block; margin-top: 18px;
+      font-size: clamp(22px, 3vw, 40px); letter-spacing: -.03em;
+      font-weight: 300; color: rgba(244,244,241,.5);
+    }
+    .philosophy {
+      position: relative; z-index: 1;
+      padding: 12vh 34px 34vh;
+    }
+    .philosophy-inner { max-width: 760px; margin: 0 auto; }
+    .philosophy p {
+      font-size: clamp(21px, 2.4vw, 32px); line-height: 1.48;
+      font-weight: 300; color: rgba(244,244,241,.88); margin: 0;
+    }
+    .philosophy em { color: var(--soft-white); font-style: normal; }
+
+    /* ══ FEATURED SLIDER ══ */
+    .featured {
+      position: relative; z-index: 2; background: var(--black);
+      padding: 130px 0 90px;
+    }
+    .featured-head-row {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 30px; padding: 0 34px; max-width: 1400px; margin: 0 auto 60px;
+    }
+    .featured-head {
+      margin: 0; font-size: clamp(38px, 5vw, 72px);
+      line-height: 1; letter-spacing: -.03em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .slider-arrows { display: flex; gap: 10px; }
+    .slider-arrow {
+      width: 52px; height: 52px; display: grid; place-items: center;
+      border: 1px solid rgba(255,255,255,.2); background: transparent;
+      color: var(--soft-white); font-size: 18px; cursor: pointer;
+      transition: border-color .3s ease, background .3s ease;
+    }
+    .slider-arrow:hover { border-color: var(--teal); background: rgba(61,216,197,.08); }
+    .slider-track {
+      display: flex; gap: 14px; overflow-x: auto;
+      scroll-snap-type: x mandatory; padding: 0 34px;
+      scrollbar-width: none;
+    }
+    .slider-track::-webkit-scrollbar { display: none; }
+    .slide {
+      position: relative; flex: 0 0 min(82vw, 1020px);
+      aspect-ratio: 16 / 8.5; overflow: hidden;
+      scroll-snap-align: center;
+      border: 1px solid rgba(255,255,255,.105);
+      background-size: cover; background-position: center;
+      filter: saturate(.9) contrast(1.06);
+      display: flex; align-items: flex-end;
+    }
+    .slide::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.25) 50%, rgba(0,0,0,.82));
+    }
+    .slide-content { position: relative; padding: 34px; max-width: 640px; }
+    .slide-client {
+      display: block; font-size: 12px; letter-spacing: .15em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 12px; font-weight: 400;
+    }
+    .slide h3 {
+      margin: 0 0 14px; font-size: clamp(24px, 3vw, 44px);
+      line-height: 1.05; letter-spacing: -.02em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .slide p {
+      margin: 0 0 22px; font-size: clamp(14px, 1.4vw, 17px);
+      line-height: 1.6; font-weight: 300; color: rgba(244,244,241,.75);
+    }
+
+    /* ══ CASE LISTING GRID ══ */
+    .listing {
+      position: relative; z-index: 2; background: var(--black);
+      padding: 90px 34px 130px;
+    }
+    .listing-inner { max-width: 1400px; margin: 0 auto; }
+    .listing-head {
+      margin: 0 0 24px; font-size: clamp(38px, 5vw, 72px);
+      line-height: 1; letter-spacing: -.03em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .listing-sub {
+      margin: 0 0 70px; max-width: 560px;
+      font-size: clamp(15px, 1.5vw, 19px); line-height: 1.6;
+      font-weight: 300; color: rgba(244,244,241,.65);
+    }
+    .case-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    }
+    .case-card {
+      position: relative; overflow: hidden; display: flex; align-items: flex-end;
+      aspect-ratio: 4 / 3.4;
+      border: 1px solid rgba(255,255,255,.105);
+      background-color: #07090d; background-size: cover; background-position: center;
+      filter: saturate(.85) contrast(1.05);
+      transition: filter .6s cubic-bezier(.19,1,.22,1), transform .6s cubic-bezier(.19,1,.22,1);
+    }
+    .case-card:hover { filter: saturate(1.05) contrast(1.1) brightness(1.06); transform: translateY(-6px); }
+    .case-card::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.2) 50%, rgba(0,0,0,.85));
+    }
+    .case-card-content { position: relative; padding: 24px; }
+    .case-card-client {
+      display: block; font-size: 11px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 10px; font-weight: 400;
+    }
+    .case-card h3 {
+      margin: 0 0 12px; font-size: clamp(18px, 1.8vw, 26px);
+      line-height: 1.1; letter-spacing: -.01em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .case-card-cta {
+      font-size: 11px; letter-spacing: .13em; text-transform: uppercase;
+      color: rgba(244,244,241,.6); font-weight: 300;
+      display: inline-flex; align-items: center; gap: 12px;
+    }
+    .case-card-cta::after {
+      content: ""; display: block; width: 34px; height: 1px;
+      background: rgba(244,244,241,.4); transition: width .3s ease, background .3s ease;
+    }
+    .case-card:hover .case-card-cta { color: var(--soft-white); }
+    .case-card:hover .case-card-cta::after { width: 54px; background: var(--teal); }
+
+    /* ══ LOGO WALL — dual marquee ══ */
+    .logos {
+      position: relative; z-index: 2; background: var(--black);
+      padding: 110px 0 130px; overflow: hidden;
+      border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    }
+    .logos-eyebrow {
+      display: block; text-align: center; font-size: 13px; letter-spacing: .16em;
+      text-transform: uppercase; color: rgba(244,244,241,.45);
+      margin-bottom: 64px; font-weight: 400;
+    }
+    .marquee { display: flex; width: max-content; gap: 0; }
+    .marquee-row { margin-bottom: 44px; position: relative; }
+    .marquee-row::before, .marquee-row::after {
+      content: ""; position: absolute; top: 0; bottom: 0; width: 160px; z-index: 2; pointer-events: none;
+    }
+    .marquee-row::before { left: 0; background: linear-gradient(90deg, var(--black), transparent); }
+    .marquee-row::after { right: 0; background: linear-gradient(270deg, var(--black), transparent); }
+    .marquee-row { overflow: hidden; }
+    .marquee--fwd .marquee { animation: marq 46s linear infinite; }
+    .marquee--rev .marquee { animation: marq 52s linear infinite reverse; }
+    .marquee-row:hover .marquee { animation-play-state: paused; }
+    .logo-item {
+      flex: 0 0 auto; padding: 0 48px;
+      font-size: clamp(18px, 2.2vw, 32px); letter-spacing: .04em;
+      text-transform: uppercase; font-weight: 300;
+      color: rgba(244,244,241,.28); white-space: nowrap;
+      transition: color .4s ease, letter-spacing .4s ease;
+      position: relative;
+    }
+    .logo-item::after {
+      content: '·';
+      position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+      color: rgba(244,244,241,.12); font-size: .9em;
+    }
+    .logo-item:hover { color: rgba(244,244,241,.9); letter-spacing: .07em; }
+    .logo-item.logo-accent { color: rgba(61,216,197,.45); font-weight: 200; letter-spacing: .1em; }
+    .logo-item.logo-accent:hover { color: rgba(61,216,197,.9); }
+    .logo-item.logo-heavy { font-weight: 500; color: rgba(244,244,241,.22); font-size: clamp(15px, 1.8vw, 26px); letter-spacing: .08em; }
+    .logo-item.logo-heavy:hover { color: rgba(244,244,241,.85); }
+    @keyframes marq {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ══ CLOSE ══ */
+    .close-section {
+      position: relative; z-index: 2; min-height: 90vh;
+      display: grid; place-items: center; overflow: hidden;
+      background: var(--black); padding: 40px 32px;
+    }
+    .close-section::before {
+      content: ""; position: absolute; inset: 0; z-index: 0;
+      background: url("assets/proof-atmosphere.jpg") center / cover no-repeat;
+      opacity: .18;
+    }
+    .close-section::after {
+      content: ""; position: absolute; inset: 0; z-index: 1;
+      background: radial-gradient(ellipse at center, rgba(3,4,6,.6), rgba(3,4,6,.95));
+    }
+    .close-inner { position: relative; z-index: 2; text-align: center; max-width: 680px; }
+    .close-inner h2 {
+      margin: 0 0 28px; font-size: clamp(34px, 4.5vw, 62px);
+      line-height: 1.08; letter-spacing: -.02em; font-weight: 300;
+      text-transform: uppercase;
+    }
+    .close-links {
+      display: flex; align-items: center; justify-content: center;
+      gap: 40px; margin-top: 46px; flex-wrap: wrap;
+    }
+    .quiet-link {
+      display: inline-flex; align-items: center; gap: 20px;
+      color: rgba(244,244,241,.70); font-size: 12px; letter-spacing: .14em;
+      text-transform: uppercase; font-weight: 300; transition: color .3s ease;
+      background: none; border: none; cursor: pointer; font-family: inherit; padding: 0;
+    }
+    .quiet-link::after {
+      content: ""; display: block; width: 60px; height: 1px;
+      background: rgba(244,244,241,.48); transition: width .3s ease, background .3s ease;
+    }
+    .quiet-link:hover { color: rgba(244,244,241,1); }
+    .quiet-link:hover::after { width: 90px; background: rgba(244,244,241,.9); }
+    .quiet-link.teal { color: var(--teal); }
+    .quiet-link.teal::after { background: var(--teal); }
+
+    /* ══ LEAD MODAL ══ */
+    .lead-modal {
+      position: fixed; inset: 0; z-index: 500;
+      display: grid; place-items: center; padding: 24px;
+      background: rgba(3,4,6,.78); backdrop-filter: blur(14px);
+      opacity: 0; visibility: hidden; transition: opacity .4s ease, visibility .4s ease;
+    }
+    .lead-modal.is-open { opacity: 1; visibility: visible; }
+    .lead-box {
+      width: min(560px, 100%); max-height: 90vh; overflow-y: auto;
+      background: #07090d; border: 1px solid rgba(255,255,255,.14);
+      padding: 44px 40px;
+      transform: translateY(24px); transition: transform .4s cubic-bezier(.16,1,.3,1);
+    }
+    .lead-modal.is-open .lead-box { transform: translateY(0); }
+    .lead-box h3 {
+      margin: 0 0 8px; font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.05; letter-spacing: -.02em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .lead-box .lead-sub {
+      margin: 0 0 34px; font-size: 14px; line-height: 1.6;
+      font-weight: 300; color: rgba(244,244,241,.6);
+    }
+    .lead-field { margin-bottom: 20px; }
+    .lead-field label {
+      display: block; font-size: 11px; letter-spacing: .13em;
+      text-transform: uppercase; color: rgba(244,244,241,.55);
+      margin-bottom: 8px; font-weight: 400;
+    }
+    .lead-field input, .lead-field select, .lead-field textarea {
+      width: 100%; padding: 13px 14px;
+      background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.14);
+      color: var(--soft-white); font-family: inherit; font-size: 15px; font-weight: 300;
+      outline: none; transition: border-color .3s ease;
+    }
+    .lead-field input:focus, .lead-field select:focus, .lead-field textarea:focus { border-color: var(--teal); }
+    .lead-field select { appearance: none; }
+    .lead-field textarea { min-height: 96px; resize: vertical; }
+    .lead-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 30px; }
+    .lead-submit {
+      padding: 14px 34px; background: var(--teal); color: #032620;
+      border: none; cursor: pointer; font-family: inherit;
+      font-size: 12px; letter-spacing: .13em; text-transform: uppercase; font-weight: 500;
+      transition: filter .3s ease;
+    }
+    .lead-submit:hover { filter: brightness(1.1); }
+    .lead-cancel {
+      background: none; border: none; cursor: pointer; font-family: inherit;
+      font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(244,244,241,.5); font-weight: 300;
+    }
+    .lead-cancel:hover { color: rgba(244,244,241,.9); }
+
+    /* ══ VERTICAL VIDEO STRIP ══ */
+    .reel-strip {
+      position: relative; z-index: 2; background: var(--black);
+      padding: 80px 0 60px;
+      border-top: 1px solid var(--line);
+    }
+    .reel-strip-head {
+      padding: 0 34px; margin-bottom: 36px;
+      display: flex; align-items: baseline; gap: 24px;
+    }
+    .reel-strip-label {
+      font-size: .68rem; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--teal);
+    }
+    .reel-strip-sub {
+      font-size: .72rem; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(244,244,241,.3);
+    }
+    .reel-track {
+      display: flex; gap: 16px;
+      overflow-x: auto; scroll-snap-type: x mandatory;
+      padding: 0 34px 20px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.1) transparent;
+      cursor: grab;
+    }
+    .reel-track:active { cursor: grabbing; }
+    .reel-slot {
+      flex: 0 0 auto; width: 200px; aspect-ratio: 9/16;
+      position: relative; scroll-snap-align: start;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 4px; overflow: hidden;
+      background: #07090d;
+      transition: border-color .4s, transform .4s cubic-bezier(.16,1,.3,1);
+    }
+    .reel-slot:hover {
+      border-color: rgba(61,216,197,.4);
+      transform: translateY(-4px);
+    }
+    .reel-slot-bg {
+      position: absolute; inset: 0; z-index: 0;
+    }
+    .reel-slot-overlay {
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(180deg, rgba(3,4,6,.2) 0%, rgba(3,4,6,.1) 40%, rgba(3,4,6,.75) 100%);
+    }
+    .reel-slot-play {
+      position: absolute; z-index: 2;
+      top: 50%; left: 50%; transform: translate(-50%,-50%);
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(3,4,6,.55);
+      border: 1px solid rgba(61,216,197,.55);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .3s, border-color .3s, transform .3s;
+    }
+    .reel-slot:hover .reel-slot-play {
+      background: rgba(61,216,197,.18);
+      border-color: var(--teal);
+      transform: translate(-50%,-50%) scale(1.1);
+    }
+    .reel-slot-play svg { width: 14px; height: 14px; fill: var(--teal); margin-left: 2px; }
+    .reel-slot-meta {
+      position: absolute; z-index: 2; bottom: 0; left: 0; right: 0;
+      padding: 16px 14px 14px;
+      background: linear-gradient(to top, rgba(3,4,6,.88) 60%, transparent);
+    }
+    .reel-slot-client {
+      display: block; font-size: .58rem; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 4px; font-weight: 400;
+    }
+    .reel-slot-title {
+      font-size: .72rem; letter-spacing: -.005em;
+      color: rgba(244,244,241,.88); font-weight: 300; line-height: 1.3;
+    }
+
+    @media (max-width: 860px) {
+      .nav { top: 20px; left: 20px; right: 20px; }
+      .brand-logo { width: 48px; }
+      .nav-items { display: none; }
+      .hero-content { padding: calc(12vh + 160px) 22px 0; }
+      .philosophy { padding: 9vh 22px 22vh; }
+      .philosophy p { font-size: clamp(19px, 5vw, 24px); }
+      .featured { padding: 90px 0 60px; }
+      .featured-head-row { padding: 0 22px; margin-bottom: 40px; }
+      .slider-track { padding: 0 22px; }
+      .slide { flex: 0 0 88vw; aspect-ratio: 4 / 4.6; }
+      .listing { padding: 60px 22px 90px; }
+      .case-grid { grid-template-columns: 1fr; }
+      .case-card { aspect-ratio: 4 / 3; }
+      .logos { padding: 80px 0 90px; }
+      .lead-box { padding: 34px 24px; }
+      .close-links { flex-direction: column; gap: 22px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+
+    /* STAT COUNT-UP */
+    .stat-number {
+      transition: opacity .3s;
+    }
+
+    /* BEFORE/AFTER REVEAL SLIDER */
+    .reveal-slider {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      user-select: none;
+    }
+    .reveal-before {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .reveal-before img,
+    .reveal-before .slide-bg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: grayscale(1) brightness(.45) contrast(1.1);
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+    }
+    .reveal-after {
+      position: absolute;
+      inset: 0;
+      clip-path: inset(0 50% 0 0);
+      overflow: hidden;
+      transition: clip-path 0s;
+    }
+    .reveal-after img,
+    .reveal-after .slide-bg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+    }
+    .reveal-handle {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      bottom: 0;
+      width: 2px;
+      background: rgba(61,216,197,.8);
+      cursor: ew-resize;
+      z-index: 10;
+      transform: translateX(-50%);
+    }
+    .reveal-handle::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--black);
+      border: 2px solid var(--teal);
+    }
+    .reveal-handle::after {
+      content: '< >';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      font-size: .6rem;
+      color: var(--teal);
+      letter-spacing: .1em;
+      pointer-events: none;
+    }
+    .reveal-label-before,
+    .reveal-label-after {
+      position: absolute;
+      bottom: 1.2rem;
+      font-size: .6rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(244,244,241,.65);
+      z-index: 5;
+      pointer-events: none;
+      line-height: 1.5;
+    }
+    .reveal-label-before {
+      left: 1.2rem;
+    }
+    .reveal-label-after {
+      right: 1.2rem;
+      text-align: right;
+    }
+    .reveal-label-sub {
+      display: block;
+      font-size: .52rem;
+      letter-spacing: .08em;
+      color: rgba(244,244,241,.38);
+      text-transform: none;
+      font-weight: 300;
+    }
+    .reveal-label-after .reveal-label-main {
+      color: var(--teal);
+    }
+    .reveal-drag-hint {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 6;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      font-size: .55rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(244,244,241,.45);
+      white-space: nowrap;
+      transition: opacity .4s ease;
+    }
+    .reveal-slider.has-moved .reveal-drag-hint {
+      opacity: 0;
+    }
+    .reveal-drag-hint svg {
+      width: 14px; height: 14px; fill: none;
+      stroke: rgba(244,244,241,.5); stroke-width: 1.5;
+    }
+
+/* SOCIAL FOOTER */
+.social-footer {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1.4rem; padding: 2rem 34px;
+  border-top: 1px solid var(--line);
+  background: var(--black);
+  position: relative; z-index: 2;
+}
+.social-footer a {
+  display: flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: rgba(244,244,241,.4);
+  transition: color .3s, border-color .3s, transform .3s;
+}
+.social-footer a:hover {
+  color: var(--teal);
+  border-color: var(--teal);
+  transform: scale(1.1);
+}
+.social-footer svg { width: 15px; height: 15px; fill: currentColor; }
+  </style>
+</head>
+
+<body>
+  <nav class="nav" aria-label="Primary navigation">
+    <a href="index.html" aria-label="Creators Network home">
+      <img class="brand-logo" src="assets/cn-logo-color.png" alt="Creators Network" />
+    </a>
+    <div class="nav-items">
+      <a href="founder.html">The Founder</a>
+      <a href="campaigns.html">Campaigns</a>
+      <a href="studio.html">Studio</a>
+      <a href="experiences.html">Experiences</a>
+      <a href="engine.html">Engine</a>
+      <a href="lab.html">Lab</a>
+      <a href="proof.html" class="is-current">Proof</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ══ HERO ══ -->
+    <section class="portrait-world" aria-label="Proof">
+      <div class="portrait-bg" id="portrait-bg"></div>
+
+      <div class="hero-content">
+        <div>
+          <span class="hero-eyebrow reveal">Selected work, 2020 onwards</span>
+          <h1 class="reveal reveal-stagger">Proof</h1>
+          <p class="hero-locations reveal reveal-stagger-2">UAE · India · East Africa · Europe</p>
+          <span class="hero-years reveal reveal-stagger-2">2020—</span>
+        </div>
+      </div>
+
+      <div class="philosophy">
+        <div class="philosophy-inner">
+          <p class="reveal">No awards shelf, no vanity metrics. Just the work: <em>what the brief was, what we did, and what changed.</em></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ VERTICAL REEL STRIP ══ -->
+    <section class="reel-strip" aria-label="Work in motion">
+      <div class="reel-strip-head">
+        <span class="reel-strip-label">Work in motion</span>
+        <span class="reel-strip-sub">Short-form · Vertical · Social</span>
+      </div>
+      <div class="reel-track" id="reel-track">
+
+        <div class="reel-slot">
+          <canvas class="reel-slot-bg" data-reel="liberty"></canvas>
+          <div class="reel-slot-overlay"></div>
+          <div class="reel-slot-play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <div class="reel-slot-meta">
+            <span class="reel-slot-client">Liberty International</span>
+            <span class="reel-slot-title">Destination Campaign</span>
+          </div>
+        </div>
+
+        <div class="reel-slot">
+          <canvas class="reel-slot-bg" data-reel="safari"></canvas>
+          <div class="reel-slot-overlay"></div>
+          <div class="reel-slot-play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <div class="reel-slot-meta">
+            <span class="reel-slot-client">Secluded Africa</span>
+            <span class="reel-slot-title">Brand Film — Kenya</span>
+          </div>
+        </div>
+
+        <div class="reel-slot">
+          <canvas class="reel-slot-bg" data-reel="netflix"></canvas>
+          <div class="reel-slot-overlay"></div>
+          <div class="reel-slot-play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <div class="reel-slot-meta">
+            <span class="reel-slot-client">Netflix</span>
+            <span class="reel-slot-title">Fan Event Coverage</span>
+          </div>
+        </div>
+
+        <div class="reel-slot">
+          <canvas class="reel-slot-bg" data-reel="audi"></canvas>
+          <div class="reel-slot-overlay"></div>
+          <div class="reel-slot-play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <div class="reel-slot-meta">
+            <span class="reel-slot-client">Audi</span>
+            <span class="reel-slot-title">Experiential Reel</span>
+          </div>
+        </div>
+
+        <div class="reel-slot">
+          <canvas class="reel-slot-bg" data-reel="hindware"></canvas>
+          <div class="reel-slot-overlay"></div>
+          <div class="reel-slot-play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <div class="reel-slot-meta">
+            <span class="reel-slot-client">Hindware</span>
+            <span class="reel-slot-title">Launch Campaign</span>
+          </div>
+        </div>
+
+        <div class="reel-slot">
+          <canvas class="reel-slot-bg" data-reel="byc"></canvas>
+          <div class="reel-slot-overlay"></div>
+          <div class="reel-slot-play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <div class="reel-slot-meta">
+            <span class="reel-slot-client">BookYourCreator</span>
+            <span class="reel-slot-title">Creator Campaign</span>
+          </div>
+        </div>
+
+        <div class="reel-slot">
+          <canvas class="reel-slot-bg" data-reel="imex"></canvas>
+          <div class="reel-slot-overlay"></div>
+          <div class="reel-slot-play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <div class="reel-slot-meta">
+            <span class="reel-slot-client">IMEX Frankfurt</span>
+            <span class="reel-slot-title">Event Activation</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ FEATURED SLIDER ══ -->
+    <section class="featured" aria-label="Featured case studies">
+      <div class="featured-head-row">
+        <h2 class="featured-head reveal">Featured</h2>
+        <div class="slider-arrows">
+          <button class="slider-arrow" id="slide-prev" aria-label="Previous case">←</button>
+          <button class="slider-arrow" id="slide-next" aria-label="Next case">→</button>
+        </div>
+      </div>
+      <div class="slider-track" id="slider-track">
+        <a class="slide" href="case-liberty-global.html" style="background-image: url('assets/open-city.jpg');">
+          <div class="reveal-slider">
+            <div class="reveal-before">
+              <div class="slide-bg" style="background-image: url('assets/open-city.jpg');"></div>
+            </div>
+            <div class="reveal-after">
+              <div class="slide-bg" style="background-image: url('assets/open-city.jpg');"></div>
+            </div>
+            <div class="reveal-handle"></div>
+            <span class="reveal-label-before"><span class="reveal-label-main">Before CN</span><span class="reveal-label-sub">Invisible in the noise</span></span>
+            <span class="reveal-label-after"><span class="reveal-label-main">After CN</span><span class="reveal-label-sub">Seen. Remembered. Chosen.</span></span>
+            <span class="reveal-drag-hint">
+              <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Drag to reveal
+              <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+          </div>
+          <div class="slide-content">
+            <span class="slide-client">Liberty International Tourism Group</span>
+            <h3>From one pilot to a global mandate</h3>
+            <p>One IMEX Frankfurt activation in 2022 became three plus years as the global marketing agency for one of the world's largest DMC networks.</p>
+            <span class="case-card-cta">Read the case</span>
+          </div>
+        </a>
+        <a class="slide" href="case-wod.html" style="background-image: url('assets/proof-atmosphere.jpg');">
+          <div class="slide-content">
+            <span class="slide-client">World of Destinations</span>
+            <h3>Site inspections, without the flights</h3>
+            <p>Bambuser-powered video commerce turned B2B travel's most logistics-heavy ritual into a live remote experience.</p>
+            <span class="case-card-cta">Read the case</span>
+          </div>
+        </a>
+        <a class="slide" href="case-royal-enfield.html" style="background-image: url('assets/lab-abstract.jpg');">
+          <div class="slide-content">
+            <span class="slide-client">Royal Enfield</span>
+            <h3>The pitch that won the room</h3>
+            <p>A launch event concept for the Classic 350 that won on story, not budget.</p>
+            <span class="case-card-cta">Read the case</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ══ ALL CASES ══ -->
+    <section class="listing" aria-label="All case studies">
+      <div class="listing-inner">
+        <h2 class="listing-head reveal">All cases</h2>
+        <p class="listing-sub reveal reveal-stagger">Every engagement, told the same way: brief, work, change. More being written.</p>
+        <div class="case-grid">
+          <a class="case-card reveal" href="case-liberty-global.html" style="background-image: url('assets/open-city.jpg');">
+            <div class="case-card-content">
+              <span class="case-card-client">Liberty International</span>
+              <h3>Global marketing across timezones</h3>
+              <span class="case-card-cta">View case</span>
+            </div>
+          </a>
+          <a class="case-card reveal" href="case-liberty-imex.html" style="background-image: url('assets/experiences.jpg');">
+            <div class="case-card-content">
+              <span class="case-card-client">Liberty International</span>
+              <h3>Owning IMEX, the industry's biggest stage</h3>
+              <span class="case-card-cta">View case</span>
+            </div>
+          </a>
+          <a class="case-card reveal" href="case-litg-digital.html" style="background-image: url('assets/proof-atmosphere.jpg');">
+            <div class="case-card-content">
+              <span class="case-card-client">Liberty International</span>
+              <h3>A digital presence, transformed</h3>
+              <span class="case-card-cta">View case</span>
+            </div>
+          </a>
+          <a class="case-card reveal" href="case-wod.html" style="background-image: url('assets/proof-atmosphere.jpg');">
+            <div class="case-card-content">
+              <span class="case-card-client">World of Destinations</span>
+              <h3>Reinventing site inspections</h3>
+              <span class="case-card-cta">View case</span>
+            </div>
+          </a>
+          <a class="case-card reveal" href="case-secluded-africa.html" style="background-image: url('assets/experiences.jpg');">
+            <div class="case-card-content">
+              <span class="case-card-client">Secluded Africa</span>
+              <h3>Brand films from the wild</h3>
+              <span class="case-card-cta">View case</span>
+            </div>
+          </a>
+          <a class="case-card reveal" href="case-royal-enfield.html" style="background-image: url('assets/lab-abstract.jpg');">
+            <div class="case-card-content">
+              <span class="case-card-client">Royal Enfield</span>
+              <h3>The Classic 350 launch pitch</h3>
+              <span class="case-card-cta">View case</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ LOGO WALL ══ -->
+    <section class="logos" aria-label="Brands we have worked with">
+      <span class="logos-eyebrow reveal">Brands that trusted the work</span>
+      <div class="marquee-row marquee--fwd">
+        <div class="marquee">
+          <span class="logo-item logo-accent">Netflix</span><span class="logo-item logo-heavy">Audi</span><span class="logo-item">Liberty International</span><span class="logo-item logo-heavy">Hindware</span><span class="logo-item logo-accent">Royal Enfield</span><span class="logo-item">Tata Communications</span><span class="logo-item logo-heavy">JAWA</span><span class="logo-item">SBI</span>
+          <span class="logo-item logo-accent">Netflix</span><span class="logo-item logo-heavy">Audi</span><span class="logo-item">Liberty International</span><span class="logo-item logo-heavy">Hindware</span><span class="logo-item logo-accent">Royal Enfield</span><span class="logo-item">Tata Communications</span><span class="logo-item logo-heavy">JAWA</span><span class="logo-item">SBI</span>
+        </div>
+      </div>
+      <div class="marquee-row marquee--rev">
+        <div class="marquee">
+          <span class="logo-item">Jaipur Watch Company</span><span class="logo-item logo-accent">World of Destinations</span><span class="logo-item logo-heavy">Secluded Africa</span><span class="logo-item">Shobiz / Havas</span><span class="logo-item logo-accent">EO Delhi</span><span class="logo-item logo-heavy">Gravity Concepts</span><span class="logo-item">Tantraa</span>
+          <span class="logo-item">Jaipur Watch Company</span><span class="logo-item logo-accent">World of Destinations</span><span class="logo-item logo-heavy">Secluded Africa</span><span class="logo-item">Shobiz / Havas</span><span class="logo-item logo-accent">EO Delhi</span><span class="logo-item logo-heavy">Gravity Concepts</span><span class="logo-item">Tantraa</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CLOSE ══ -->
+    <section class="close-section" aria-label="Continue">
+      <div class="close-inner">
+        <h2 class="reveal">The next one could be yours</h2>
+        <div class="close-links reveal reveal-stagger">
+          <button class="quiet-link teal" data-lead-open>Start a conversation</button>
+          <a href="founder.html" class="quiet-link">Meet the founder</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- SOCIAL FOOTER -->
+  <footer class="social-footer" aria-label="Social media">
+    <a href="https://www.instagram.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    </a>
+    <a href="https://www.facebook.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="Facebook">
+      <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </a>
+    <a href="https://www.linkedin.com/company/creatorsnetwork" target="_blank" rel="noopener" aria-label="LinkedIn">
+      <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    </a>
+    <a href="https://x.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="X">
+      <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <a href="https://www.youtube.com/@creatorsnetwork" target="_blank" rel="noopener" aria-label="YouTube">
+      <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+  </footer>
+
+  <!-- ══ LEAD MODAL ══ -->
+  <div class="lead-modal" id="lead-modal" role="dialog" aria-modal="true" aria-label="Start a conversation">
+    <div class="lead-box">
+      <h3>Start a conversation</h3>
+      <p class="lead-sub">Tell us just enough. We reply like humans, usually within a day.</p>
+      <form id="lead-form">
+        <div class="lead-field">
+          <label for="lead-name">Name</label>
+          <input type="text" id="lead-name" name="name" required />
+        </div>
+        <div class="lead-field">
+          <label for="lead-email">Work email</label>
+          <input type="email" id="lead-email" name="email" required />
+        </div>
+        <div class="lead-field">
+          <label for="lead-company">Company</label>
+          <input type="text" id="lead-company" name="company" />
+        </div>
+        <div class="lead-field">
+          <label for="lead-interest">What brings you here</label>
+          <select id="lead-interest" name="interest">
+            <option>Campaigns</option>
+            <option>Studio</option>
+            <option>Experiences / Events</option>
+            <option>Engine / Digital builds</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+        <div class="lead-field">
+          <label for="lead-message">A line or two</label>
+          <textarea id="lead-message" name="message"></textarea>
+        </div>
+        <div class="lead-actions">
+          <button type="submit" class="lead-submit">Send</button>
+          <button type="button" class="lead-cancel" data-lead-close>Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /* Subtle parallax on the atmosphere */
+    (function () {
+      var world = document.querySelector(".portrait-world");
+      var bg = document.getElementById("portrait-bg");
+      if (!world || !bg) return;
+      var ticking = false;
+      function update() {
+        ticking = false;
+        var rect = world.getBoundingClientRect();
+        var p = Math.min(1, Math.max(0, -rect.top / (rect.height - window.innerHeight || 1)));
+        bg.style.transform = "translateY(" + (p * 60) + "px) scale(1.04)";
+      }
+      window.addEventListener("scroll", function () { if (!ticking) { requestAnimationFrame(update); ticking = true; } }, { passive: true });
+      window.addEventListener("resize", update);
+      update();
+    })();
+
+    /* Reveal on scroll */
+    (function () {
+      var reveals = document.querySelectorAll(".reveal");
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add("is-visible"); });
+      }, { threshold: 0.1, rootMargin: "0px 0px -30px 0px" });
+      reveals.forEach(function (el) { obs.observe(el); });
+    })();
+
+    /* Reel strip: placeholder canvases + drag scroll */
+    (function () {
+      // Cinematic placeholder renders for each reel slot
+      var palettes = {
+        liberty:  { bg: ['#060e18','#0a1520'], accent: 'rgba(61,180,216,.55)',  label: 'DESTINATION' },
+        safari:   { bg: ['#120b04','#1a1206'], accent: 'rgba(180,130,60,.55)',  label: 'SAFARI FILM' },
+        netflix:  { bg: ['#150404','#0a0202'], accent: 'rgba(216,40,40,.55)',   label: 'FAN EVENT'   },
+        audi:     { bg: ['#060606','#0c0c0c'], accent: 'rgba(180,180,180,.5)',  label: 'EXPERIENTIAL'},
+        hindware: { bg: ['#030e10','#060c10'], accent: 'rgba(61,216,197,.5)',   label: 'LAUNCH'      },
+        byc:      { bg: ['#0a0414','#060a18'], accent: 'rgba(140,80,220,.5)',   label: 'CREATOR'     },
+        imex:     { bg: ['#08100a','#040c06'], accent: 'rgba(80,180,100,.5)',   label: 'EVENT'       },
+      };
+
+      document.querySelectorAll('.reel-slot-bg').forEach(function(canvas) {
+        var key = canvas.dataset.reel;
+        var pal = palettes[key] || palettes.liberty;
+        var slot = canvas.parentElement;
+
+        function drawReel() {
+          var w = canvas.width = slot.offsetWidth;
+          var h = canvas.height = slot.offsetHeight;
+          if (!w || !h) return;
+          var ctx = canvas.getContext('2d');
+
+          // Background gradient
+          var bg = ctx.createLinearGradient(0, 0, 0, h);
+          bg.addColorStop(0, pal.bg[0]);
+          bg.addColorStop(1, pal.bg[1]);
+          ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+
+          // Bokeh circles
+          for (var i = 0; i < 8; i++) {
+            var bx = (i * 43 + 20) % w, by = (i * 61 + 30) % h;
+            var br = 14 + (i % 3) * 12;
+            var gr = ctx.createRadialGradient(bx, by, 0, bx, by, br);
+            gr.addColorStop(0, pal.accent);
+            gr.addColorStop(1, 'transparent');
+            ctx.fillStyle = gr; ctx.fillRect(0, 0, w, h);
+          }
+
+          // Subtle horizontal scan lines
+          for (var y = 0; y < h; y += 3) {
+            ctx.fillStyle = 'rgba(0,0,0,.12)';
+            ctx.fillRect(0, y, w, 1);
+          }
+
+          // Vignette
+          var vig = ctx.createRadialGradient(w*.5, h*.5, h*.1, w*.5, h*.5, h*.8);
+          vig.addColorStop(0, 'transparent');
+          vig.addColorStop(1, 'rgba(0,0,0,.72)');
+          ctx.fillStyle = vig; ctx.fillRect(0, 0, w, h);
+
+          // Small label at top
+          ctx.font = '400 ' + Math.round(h * .038) + 'px Helvetica Neue, sans-serif';
+          ctx.fillStyle = 'rgba(244,244,241,.25)';
+          ctx.letterSpacing = '2px';
+          ctx.fillText(pal.label, w * .08, h * .1);
+        }
+
+        var obs = new IntersectionObserver(function(entries) {
+          if (entries[0].isIntersecting) { drawReel(); obs.disconnect(); }
+        }, { threshold: 0.05 });
+        obs.observe(slot);
+        window.addEventListener('resize', drawReel);
+      });
+
+      // Drag-to-scroll
+      var track = document.getElementById('reel-track');
+      if (!track) return;
+      var isDown = false, startX, scrollLeft;
+      track.addEventListener('mousedown', function(e) {
+        isDown = true; startX = e.pageX - track.offsetLeft; scrollLeft = track.scrollLeft;
+      });
+      track.addEventListener('mouseleave', function() { isDown = false; });
+      track.addEventListener('mouseup', function() { isDown = false; });
+      track.addEventListener('mousemove', function(e) {
+        if (!isDown) return; e.preventDefault();
+        var x = e.pageX - track.offsetLeft;
+        track.scrollLeft = scrollLeft - (x - startX) * 1.2;
+      });
+    })();
+
+    /* Featured slider */
+    (function () {
+      var track = document.getElementById("slider-track");
+      var prev = document.getElementById("slide-prev");
+      var next = document.getElementById("slide-next");
+      if (!track || !prev || !next) return;
+      function step() {
+        var slide = track.querySelector(".slide");
+        return slide ? slide.getBoundingClientRect().width + 14 : 600;
+      }
+      prev.addEventListener("click", function () { track.scrollBy({ left: -step(), behavior: "smooth" }); });
+      next.addEventListener("click", function () { track.scrollBy({ left: step(), behavior: "smooth" }); });
+    })();
+
+    /* Lead modal */
+    (function () {
+      var modal = document.getElementById("lead-modal");
+      var form = document.getElementById("lead-form");
+      if (!modal || !form) return;
+      function open() { modal.classList.add("is-open"); }
+      function close() { modal.classList.remove("is-open"); }
+      document.querySelectorAll("[data-lead-open]").forEach(function (el) {
+        el.addEventListener("click", function (e) { e.preventDefault(); open(); });
+      });
+      document.querySelectorAll("[data-lead-close]").forEach(function (el) {
+        el.addEventListener("click", close);
+      });
+      modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var name = document.getElementById("lead-name").value;
+        var email = document.getElementById("lead-email").value;
+        var company = document.getElementById("lead-company").value;
+        var interest = document.getElementById("lead-interest").value;
+        var message = document.getElementById("lead-message").value;
+        var body = "Name: " + name + "%0D%0AEmail: " + email + "%0D%0ACompany: " + company + "%0D%0AInterest: " + interest + "%0D%0A%0D%0A" + encodeURIComponent(message);
+        window.location.href = "mailto:hello@creatorsnetwork.io?subject=" + encodeURIComponent("New conversation — " + (company || name)) + "&body=" + body;
+        close();
+      });
+    })();
+
+    // STATS COUNT-UP
+    (function() {
+      var statEls = document.querySelectorAll('[data-count-target]');
+      if (!statEls.length) return;
+
+      function easeOut(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function animateCount(el) {
+        var target = parseFloat(el.dataset.countTarget);
+        var suffix = el.dataset.countSuffix || '';
+        var prefix = el.dataset.countPrefix || '';
+        var isFloat = (el.dataset.countTarget.indexOf('.') > -1);
+        var duration = 1800;
+        var start = null;
+
+        function step(ts) {
+          if (!start) start = ts;
+          var progress = Math.min((ts - start) / duration, 1);
+          var value = easeOut(progress) * target;
+          el.textContent = prefix + (isFloat ? value.toFixed(1) : Math.round(value)) + suffix;
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (!entry.isIntersecting) return;
+          animateCount(entry.target);
+          obs.unobserve(entry.target);
+        });
+      }, { threshold: 0.5 });
+
+      statEls.forEach(function(el) { obs.observe(el); });
+    })();
+
+    // BEFORE/AFTER REVEAL SLIDER
+    (function() {
+      var slider = document.querySelector('.reveal-slider');
+      if (!slider) return;
+      var after = slider.querySelector('.reveal-after');
+      var handle = slider.querySelector('.reveal-handle');
+      if (!after || !handle) return;
+
+      var dragging = false;
+      var didMove = false;
+      var sliderRect;
+
+      function setPosition(x) {
+        sliderRect = slider.getBoundingClientRect();
+        var pct = Math.max(0, Math.min(1, (x - sliderRect.left) / sliderRect.width));
+        var pctRight = (1 - pct) * 100;
+        after.style.clipPath = 'inset(0 ' + pctRight + '% 0 0)';
+        handle.style.left = (pct * 100) + '%';
+        if (!slider.classList.contains('has-moved')) {
+          slider.classList.add('has-moved');
+        }
+      }
+
+      handle.addEventListener('mousedown', function(e) {
+        dragging = true;
+        didMove = false;
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      slider.addEventListener('mousedown', function(e) {
+        dragging = true;
+        didMove = false;
+        setPosition(e.clientX);
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!dragging) return;
+        didMove = true;
+        setPosition(e.clientX);
+      });
+      document.addEventListener('mouseup', function() { dragging = false; });
+
+      // Prevent link click after dragging
+      var slideLink = slider.closest('a');
+      if (slideLink) {
+        slideLink.addEventListener('click', function(e) {
+          if (didMove) { e.preventDefault(); didMove = false; }
+        });
+      }
+
+      // Touch support
+      handle.addEventListener('touchstart', function(e) {
+        dragging = true;
+        didMove = false;
+        e.preventDefault();
+        e.stopPropagation();
+      }, {passive: false});
+      document.addEventListener('touchmove', function(e) {
+        if (!dragging) return;
+        didMove = true;
+        setPosition(e.touches[0].clientX);
+      }, {passive: true});
+      document.addEventListener('touchend', function() { dragging = false; });
+    })();
+  </script>
+</body>
+</html>

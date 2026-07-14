@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact — Creators Network</title>
+  <meta name="description" content="Contact Creators Network. Dubai and India." />
+  <style>
+    :root {
+      --black: #030406;
+      --soft-white: #f4f4f1;
+      --muted: rgba(244,244,241,.68);
+      --line: rgba(255,255,255,.11);
+      --teal: #3dd8c5;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--black); }
+    body {
+      margin: 0; background: var(--black); color: var(--soft-white);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      overflow-x: hidden; text-rendering: geometricPrecision;
+    }
+    body::after {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 20; opacity: .10;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+      mix-blend-mode: screen;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* NAV */
+    .nav {
+      position: fixed; z-index: 100; top: 28px; left: 30px; right: 30px;
+      display: flex; align-items: center; justify-content: space-between;
+      pointer-events: none;
+    }
+    .brand-logo { pointer-events: auto; width: 54px; height: auto; display: block; }
+    .nav-items {
+      pointer-events: auto; display: flex; align-items: center;
+      gap: clamp(16px, 2.2vw, 34px); padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,.075);
+      background: rgba(3,4,6,.20); backdrop-filter: blur(18px);
+    }
+    .nav-items a {
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 400; color: rgba(244,244,241,.80);
+      white-space: nowrap; transition: color .3s ease;
+    }
+    .nav-items a.is-current { color: var(--teal); }
+    .nav-items a:hover { color: rgba(244,244,241,1); }
+
+    /* REVEAL */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .reveal-stagger   { transition-delay: .15s; }
+    .reveal-stagger-2 { transition-delay: .3s; }
+    .reveal-stagger-3 { transition-delay: .45s; }
+
+    /* HERO: SPLIT LAYOUT */
+    .portrait-world {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+    }
+    .portrait-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: url("assets/close-city.jpg") center / cover no-repeat;
+      will-change: transform;
+    }
+    .portrait-bg::after {
+      content: ""; position: absolute; inset: 0;
+      background:
+        linear-gradient(180deg, rgba(3,4,6,.25), rgba(3,4,6,.35) 50%, rgba(3,4,6,.7) 100%),
+        linear-gradient(90deg, rgba(0,0,0,.55), rgba(0,0,0,.05) 50%, rgba(0,0,0,.2));
+    }
+    .hero-split {
+      position: relative; z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+      align-items: center;
+      padding: 120px 60px 80px;
+      gap: 60px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .hero-copy { padding-top: 40px; }
+    .hero-eyebrow {
+      display: block; font-size: 13px; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 20px; font-weight: 400;
+    }
+    .hero-copy h1 {
+      margin: 0 0 24px;
+      font-size: clamp(48px, 7vw, 100px);
+      line-height: 1.04; letter-spacing: -.02em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .hero-statement {
+      max-width: 400px;
+      font-size: clamp(15px, 1.5vw, 19px); line-height: 1.6;
+      font-weight: 300; font-style: italic; color: rgba(244,244,241,.75);
+    }
+
+    /* HERO FORM PANEL */
+    .hero-form-panel {
+      background: rgba(3,4,6,.72);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,.1);
+      padding: 44px 40px;
+      border-radius: 4px;
+    }
+    .form-head {
+      margin: 0 0 8px; font-size: clamp(22px, 2.4vw, 32px);
+      line-height: 1.05; letter-spacing: -.02em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .form-sub {
+      margin: 0 0 32px; font-size: 13px; line-height: 1.6;
+      font-weight: 300; color: rgba(244,244,241,.55);
+    }
+    .lead-field { margin-bottom: 18px; }
+    .lead-field label {
+      display: block; font-size: 10px; letter-spacing: .13em;
+      text-transform: uppercase; color: rgba(244,244,241,.5);
+      margin-bottom: 7px; font-weight: 400;
+    }
+    .lead-field input, .lead-field select, .lead-field textarea {
+      width: 100%; padding: 12px 14px;
+      background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.14);
+      color: var(--soft-white); font-family: inherit; font-size: 14px; font-weight: 300;
+      outline: none; transition: border-color .3s ease;
+    }
+    .lead-field input:focus, .lead-field select:focus, .lead-field textarea:focus { border-color: var(--teal); }
+    .lead-field select { appearance: none; }
+    .lead-field textarea { min-height: 90px; resize: vertical; }
+    .lead-submit {
+      padding: 14px 36px; background: var(--teal); color: #032620;
+      border: none; cursor: pointer; font-family: inherit;
+      font-size: 11px; letter-spacing: .13em; text-transform: uppercase; font-weight: 500;
+      transition: filter .3s ease; margin-top: 6px; width: 100%;
+    }
+    .lead-submit:hover { filter: brightness(1.1); }
+
+    /* OFFICES SECTION */
+    .offices {
+      position: relative; z-index: 2; background: var(--black);
+      padding: 100px 60px;
+    }
+    .offices-label {
+      display: block; font-size: 11px; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--teal);
+      margin-bottom: 3rem; text-align: center;
+    }
+    .offices-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .office-box {
+      background: rgba(255,255,255,.025);
+      border: 1px solid var(--line);
+      padding: 50px 44px;
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+      cursor: default;
+      transition: border-color .4s, background .4s;
+      position: relative;
+      overflow: hidden;
+    }
+    .office-box::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 100%, rgba(61,216,197,.06), transparent 70%);
+      opacity: 0;
+      transition: opacity .5s;
+    }
+    .office-box:hover {
+      border-color: rgba(61,216,197,.5);
+      background: rgba(61,216,197,.03);
+    }
+    .office-box:hover::after { opacity: 1; }
+    .office-clock-wrap {
+      flex-shrink: 0;
+    }
+    .analog-clock {
+      display: block;
+      width: 100px;
+      height: 100px;
+    }
+    .office-info { flex: 1; }
+    .office-city {
+      font-size: .68rem; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--teal);
+      margin-bottom: .8rem; display: block;
+    }
+    .office-name {
+      font-size: clamp(1.4rem, 2.2vw, 2rem);
+      font-weight: 300;
+      margin: 0 0 1rem;
+      letter-spacing: -.01em;
+    }
+    .office-address {
+      font-size: .82rem;
+      line-height: 1.8;
+      color: var(--muted);
+      margin-bottom: 1.2rem;
+    }
+    .office-address strong {
+      display: block;
+      color: rgba(244,244,241,.85);
+      font-weight: 400;
+      font-size: .75rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-top: .8rem;
+      margin-bottom: .2rem;
+    }
+    .office-phone {
+      font-size: .88rem;
+      color: var(--soft-white);
+      letter-spacing: .04em;
+      transition: color .3s;
+    }
+    .office-box:hover .office-phone { color: var(--teal); }
+
+    /* EMAIL SECTION */
+    .email-section {
+      text-align: center;
+      padding: 6vh 34px 8vh;
+      border-top: 1px solid var(--line);
+    }
+    .email-label {
+      display: block; font-size: .65rem; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 1.2rem;
+    }
+    .email-link {
+      font-size: clamp(1.2rem, 2.5vw, 1.9rem);
+      font-weight: 300;
+      color: var(--soft-white);
+      letter-spacing: -.01em;
+      transition: color .3s;
+    }
+    .email-link:hover { color: var(--teal); }
+
+    /* CLOSE */
+    .close-section {
+      position: relative; z-index: 2; min-height: 40vh;
+      display: grid; place-items: center;
+      background: var(--black); padding: 80px 32px;
+      border-top: 1px solid var(--line);
+    }
+    .close-inner { position: relative; z-index: 2; text-align: center; }
+    .close-logo { width: min(30vw, 260px); height: auto; opacity: .92; }
+    .close-tag {
+      display: block; margin-top: 30px;
+      font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
+      color: rgba(244,244,241,.5); font-weight: 300;
+    }
+
+    /* SOCIAL FOOTER */
+    .social-footer {
+      display: flex; align-items: center; justify-content: center;
+      gap: 1.6rem; padding: 2rem 34px; border-top: 1px solid var(--line);
+    }
+    .social-footer a {
+      display: flex; align-items: center; justify-content: center;
+      width: 38px; height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--muted);
+      transition: color .3s, border-color .3s;
+    }
+    .social-footer a:hover { color: var(--teal); border-color: var(--teal); }
+    .social-footer svg { width: 16px; height: 16px; fill: currentColor; }
+
+    @media (max-width: 960px) {
+      .hero-split { grid-template-columns: 1fr; padding: 120px 34px 60px; }
+      .offices-grid { grid-template-columns: 1fr; }
+      .offices { padding: 80px 34px; }
+    }
+    @media (max-width: 860px) {
+      .nav { top: 20px; left: 20px; right: 20px; }
+      .brand-logo { width: 48px; }
+      .nav-items { display: none; }
+      .hero-split { padding: 100px 22px 50px; gap: 40px; }
+      .offices { padding: 60px 22px; }
+      .office-box { padding: 32px 24px; flex-direction: column; gap: 24px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="nav" aria-label="Primary navigation">
+    <a href="index.html" aria-label="Creators Network home">
+      <img class="brand-logo" src="assets/cn-logo-color.png" alt="Creators Network" />
+    </a>
+    <div class="nav-items">
+      <a href="founder.html">The Founder</a>
+      <a href="campaigns.html">Campaigns</a>
+      <a href="studio.html">Studio</a>
+      <a href="experiences.html">Experiences</a>
+      <a href="engine.html">Engine</a>
+      <a href="lab.html">Lab</a>
+      <a href="proof.html">Proof</a>
+      <a href="contact.html" class="is-current">Contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- HERO: split layout -->
+    <section class="portrait-world" aria-label="Contact">
+      <div class="portrait-bg" id="portrait-bg"></div>
+      <div class="hero-split">
+
+        <!-- Left: hero copy -->
+        <div class="hero-copy">
+          <span class="hero-eyebrow reveal">Contact</span>
+          <h1 class="reveal reveal-stagger">Talk to a human</h1>
+          <p class="hero-statement reveal reveal-stagger-2">No discovery-call funnels, no chatbots. Write to us, a person answers.</p>
+        </div>
+
+        <!-- Right: form panel floating over hero -->
+        <div class="hero-form-panel reveal reveal-stagger-2">
+          <h2 class="form-head">Start a conversation</h2>
+          <p class="form-sub">Tell us just enough. We reply within a day.</p>
+          <form id="lead-form">
+            <div class="lead-field">
+              <label for="lead-name">Name</label>
+              <input type="text" id="lead-name" name="name" required />
+            </div>
+            <div class="lead-field">
+              <label for="lead-email">Work email</label>
+              <input type="email" id="lead-email" name="email" required />
+            </div>
+            <div class="lead-field">
+              <label for="lead-company">Company</label>
+              <input type="text" id="lead-company" name="company" />
+            </div>
+            <div class="lead-field">
+              <label for="lead-interest">What brings you here</label>
+              <select id="lead-interest" name="interest">
+                <option>Campaigns</option>
+                <option>Studio</option>
+                <option>Experiences / Events</option>
+                <option>Engine / Digital builds</option>
+                <option>Not sure yet</option>
+              </select>
+            </div>
+            <div class="lead-field">
+              <label for="lead-message">A line or two</label>
+              <textarea id="lead-message" name="message"></textarea>
+            </div>
+            <button type="submit" class="lead-submit">Send it</button>
+          </form>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TWO OFFICE BOXES -->
+    <section class="offices" aria-label="Our offices">
+      <span class="offices-label reveal">Where we are</span>
+      <div class="offices-grid">
+
+        <!-- Dubai box -->
+        <div class="office-box reveal">
+          <div class="office-clock-wrap">
+            <canvas class="analog-clock" id="clock-dubai" data-tz="Asia/Dubai" width="100" height="100"></canvas>
+          </div>
+          <div class="office-info">
+            <span class="office-city">UAE</span>
+            <h3 class="office-name">Dubai</h3>
+            <div class="office-address">
+              <strong>HQ</strong>
+              Shams Business Center, Sharjah Media City Free Zone, UAE
+            </div>
+            <a href="tel:+971553653300" class="office-phone">+971 55 365 3300</a>
+          </div>
+        </div>
+
+        <!-- India box -->
+        <div class="office-box reveal reveal-stagger">
+          <div class="office-clock-wrap">
+            <canvas class="analog-clock" id="clock-india" data-tz="Asia/Kolkata" width="100" height="100"></canvas>
+          </div>
+          <div class="office-info">
+            <span class="office-city">India</span>
+            <h3 class="office-name">Mumbai + Delhi</h3>
+            <div class="office-address">
+              <strong>Mumbai</strong>
+              91 Springboard, Kalina, Bandra Kurla Complex
+              <strong>Delhi</strong>
+              ACY Aggarwal City Square, Rohini
+            </div>
+            <a href="tel:+918750828200" class="office-phone">+91 8750 82 82 00</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- EMAIL -->
+    <div class="email-section reveal">
+      <span class="email-label">Write to us directly</span>
+      <a href="mailto:hello@creatorsnetwork.io" class="email-link">hello@creatorsnetwork.io</a>
+    </div>
+
+    <!-- CLOSE -->
+    <section class="close-section" aria-label="Close">
+      <div class="close-inner">
+        <img class="close-logo" src="assets/cn-logo-white.png" alt="Creators Network" />
+        <span class="close-tag">Creators Network. Dubai, Mumbai, Delhi</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- SOCIAL FOOTER -->
+  <footer class="social-footer" aria-label="Social media">
+    <a href="https://www.instagram.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    </a>
+    <a href="https://www.facebook.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="Facebook">
+      <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </a>
+    <a href="https://www.linkedin.com/company/creatorsnetwork" target="_blank" rel="noopener" aria-label="LinkedIn">
+      <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    </a>
+    <a href="https://x.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="X (Twitter)">
+      <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <a href="https://www.youtube.com/@creatorsnetwork" target="_blank" rel="noopener" aria-label="YouTube">
+      <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+  </footer>
+
+  <script>
+    // Reveal observer
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-visible');
+          revealObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    revealEls.forEach(el => revealObs.observe(el));
+
+    // ANALOG CLOCKS
+    (function() {
+      var clocks = document.querySelectorAll('.analog-clock');
+      if (!clocks.length) return;
+
+      function drawClock(canvas) {
+        var tz = canvas.dataset.tz;
+        var ctx = canvas.getContext('2d');
+        var W = canvas.width;
+        var H = canvas.height;
+        var cx = W / 2;
+        var cy = H / 2;
+        var r = Math.min(W, H) / 2 - 4;
+
+        // Get time in timezone
+        var now = new Date();
+        var timeStr = now.toLocaleTimeString('en-US', {
+          timeZone: tz,
+          hour12: false,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        var parts = timeStr.split(':');
+        var hours = parseInt(parts[0], 10);
+        var minutes = parseInt(parts[1], 10);
+        var seconds = parseInt(parts[2], 10);
+
+        ctx.clearRect(0, 0, W, H);
+
+        // Clock face ring
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,.12)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Hour markers
+        for (var i = 0; i < 12; i++) {
+          var angle = (i / 12) * Math.PI * 2 - Math.PI / 2;
+          var isMain = (i % 3 === 0);
+          var len = isMain ? 8 : 4;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(angle) * (r - len), cy + Math.sin(angle) * (r - len));
+          ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+          ctx.strokeStyle = isMain ? 'rgba(255,255,255,.5)' : 'rgba(255,255,255,.2)';
+          ctx.lineWidth = isMain ? 1.5 : 1;
+          ctx.stroke();
+        }
+
+        // Hour hand
+        var hourAngle = ((hours % 12 + minutes / 60) / 12) * Math.PI * 2 - Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(hourAngle) * r * 0.55, cy + Math.sin(hourAngle) * r * 0.55);
+        ctx.strokeStyle = 'rgba(244,244,241,.9)';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Minute hand
+        var minAngle = ((minutes + seconds / 60) / 60) * Math.PI * 2 - Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(minAngle) * r * 0.78, cy + Math.sin(minAngle) * r * 0.78);
+        ctx.strokeStyle = 'rgba(244,244,241,.9)';
+        ctx.lineWidth = 1.5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Second hand
+        var secAngle = (seconds / 60) * Math.PI * 2 - Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(secAngle) * r * 0.88, cy + Math.sin(secAngle) * r * 0.88);
+        ctx.strokeStyle = 'rgba(61,216,197,.9)';
+        ctx.lineWidth = 1;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Second hand counter-tail
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx - Math.cos(secAngle) * r * 0.15, cy - Math.sin(secAngle) * r * 0.15);
+        ctx.strokeStyle = 'rgba(61,216,197,.6)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Center dot
+        ctx.beginPath();
+        ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(61,216,197,.9)';
+        ctx.fill();
+      }
+
+      function tick() {
+        clocks.forEach(function(c) { drawClock(c); });
+      }
+
+      tick();
+      setInterval(tick, 1000);
+    })();
+
+    // Form submit: compose mailto
+    document.getElementById('lead-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var name     = document.getElementById('lead-name').value;
+      var email    = document.getElementById('lead-email').value;
+      var company  = document.getElementById('lead-company').value;
+      var interest = document.getElementById('lead-interest').value;
+      var message  = document.getElementById('lead-message').value;
+      window.location.href =
+        'mailto:hello@creatorsnetwork.io'
+        + '?subject=' + encodeURIComponent('New enquiry from ' + name)
+        + '&body='    + encodeURIComponent(
+            'Name: '     + name     + '\n'
+          + 'Email: '    + email    + '\n'
+          + 'Company: '  + company  + '\n'
+          + 'Interest: ' + interest + '\n\n'
+          + 'Message:\n' + message
+        );
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Studio — Creators Network</title>
+  <meta name="description" content="Studio at Creators Network — design that feels intentional." />
+  <style>
+    :root {
+      --black: #030406;
+      --soft-white: #f4f4f1;
+      --muted: rgba(244,244,241,.68);
+      --line: rgba(255,255,255,.11);
+      --teal: #3dd8c5;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--black); }
+    body {
+      margin: 0; background: var(--black); color: var(--soft-white);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      overflow-x: hidden; text-rendering: geometricPrecision;
+    }
+    body::after {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 20; opacity: .10;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+      mix-blend-mode: screen;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Nav ── */
+    .nav {
+      position: fixed; z-index: 100; top: 28px; left: 30px; right: 30px;
+      display: flex; align-items: center; justify-content: space-between;
+      pointer-events: none;
+    }
+    .brand-logo { pointer-events: auto; width: 54px; height: auto; display: block; }
+    .nav-items {
+      pointer-events: auto; display: flex; align-items: center;
+      gap: clamp(16px, 2.2vw, 34px); padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,.075);
+      background: rgba(3,4,6,.20); backdrop-filter: blur(18px);
+    }
+    .nav-items a {
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 400; color: rgba(244,244,241,.80);
+      white-space: nowrap; transition: color .3s ease;
+    }
+    .nav-items a.is-current { color: var(--teal); }
+    .nav-items a:hover { color: rgba(244,244,241,1); }
+
+    /* ── Reveal ── */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .reveal-stagger   { transition-delay: .15s; }
+    .reveal-stagger-2 { transition-delay: .3s; }
+    .reveal-stagger-3 { transition-delay: .45s; }
+
+    /* ══ PORTRAIT WORLD ══ */
+    .portrait-world { position: relative; z-index: 1; }
+    .portrait-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: url("assets/shelly-studio-hero.jpg") center top / cover no-repeat;
+      will-change: transform;
+    }
+    .portrait-bg::after {
+      content: ""; position: absolute; inset: 0;
+      background:
+        linear-gradient(180deg, rgba(3,4,6,.15), rgba(3,4,6,.35) 40%, rgba(3,4,6,.72) 82%, var(--black)),
+        linear-gradient(90deg, rgba(0,0,0,.5), rgba(0,0,0,.05) 45%, rgba(0,0,0,.45));
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      padding: calc(20vh + 300px) 34px 0;
+    }
+    .hero-eyebrow {
+      display: block; font-size: 13px; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 20px; font-weight: 400;
+    }
+    .hero-content h1 {
+      margin: 0; max-width: 12ch;
+      font-size: clamp(48px, 7vw, 108px);
+      line-height: 1.04; letter-spacing: -.02em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .hero-statement {
+      max-width: 480px; margin: 30px 0 0;
+      font-size: clamp(16px, 1.6vw, 21px); line-height: 1.45;
+      font-weight: 300; font-style: italic; color: rgba(244,244,241,.75);
+    }
+    .hero-owner {
+      display: block; margin-top: 26px; font-size: 12px; letter-spacing: .16em;
+      text-transform: uppercase; font-weight: 400; color: rgba(244,244,241,.85);
+    }
+
+    /* Philosophy — flows right after intro, same portrait */
+    .philosophy {
+      position: relative; z-index: 1;
+      padding: 12vh 34px 38vh;
+    }
+    .philosophy-inner { max-width: 760px; margin: 0 auto; }
+    .philosophy p {
+      font-size: clamp(21px, 2.4vw, 32px); line-height: 1.48;
+      font-weight: 300; color: rgba(244,244,241,.88); margin: 0 0 30px;
+    }
+    .philosophy p:last-child { margin-bottom: 0; }
+    .philosophy em { color: var(--soft-white); font-style: normal; }
+
+    /* ══ THE WORK ══ */
+    .work {
+      position: relative; z-index: 2; background: var(--black);
+      padding: 130px 34px;
+    }
+    .work-inner { max-width: 1100px; margin: 0 auto; }
+    .work-head {
+      margin: 0 0 90px; font-size: clamp(38px, 5vw, 72px);
+      line-height: 1; letter-spacing: -.03em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .work-item {
+      display: grid; grid-template-columns: 110px 1fr; gap: 30px;
+      padding: 54px 0; border-top: 1px solid var(--line);
+    }
+    .work-item:last-child { border-bottom: 1px solid var(--line); }
+    .work-num {
+      font-size: clamp(28px, 3vw, 44px); line-height: 1;
+      letter-spacing: -.05em; font-weight: 300; color: rgba(244,244,241,.35);
+    }
+    .work-item h3 {
+      margin: 0 0 6px; font-size: clamp(22px, 2.4vw, 34px);
+      line-height: 1.1; letter-spacing: -.02em; font-weight: 300;
+      text-transform: uppercase;
+    }
+    .work-client {
+      display: block; font-size: 12px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 20px; font-weight: 400;
+    }
+    .work-item p {
+      margin: 0; max-width: 640px;
+      font-size: clamp(15px, 1.4vw, 18px); line-height: 1.65;
+      font-weight: 300; color: rgba(244,244,241,.72);
+    }
+
+    /* ══ THE CRAFT ══ */
+    .machine {
+      position: relative; z-index: 2; background: var(--black);
+      min-height: 90vh; display: grid; align-items: center;
+      padding: 120px 34px; overflow: hidden;
+    }
+    .machine::before {
+      content: ""; position: absolute; inset: 0; z-index: 0;
+      background: url("assets/lab-abstract.jpg") center / cover no-repeat;
+      opacity: .25;
+    }
+    .machine::after {
+      content: ""; position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(180deg, var(--black), rgba(3,4,6,.55) 30%, rgba(3,4,6,.55) 70%, var(--black));
+    }
+    .machine-inner { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; }
+    .machine p {
+      font-size: clamp(21px, 2.4vw, 32px); line-height: 1.48;
+      font-weight: 300; color: rgba(244,244,241,.88); margin: 0 0 30px;
+    }
+    .machine p:last-child { margin-bottom: 0; }
+    .machine em { color: var(--teal); font-style: normal; }
+
+    /* ══ VOICE ══ */
+    .voice {
+      position: relative; z-index: 2; background: var(--black);
+      min-height: 80vh; display: grid; align-items: center;
+      padding: 120px 34px;
+    }
+    .voice-inner { max-width: 860px; margin: 0 auto; }
+    .voice-quote {
+      font-size: clamp(26px, 3.4vw, 46px); line-height: 1.32;
+      font-weight: 300; font-style: italic; margin: 0 0 34px;
+      color: rgba(244,244,241,.94);
+    }
+    .voice-attribution {
+      font-size: 14px; letter-spacing: .04em; color: rgba(244,244,241,.6);
+    }
+    .voice-attribution strong { color: var(--teal); font-weight: 400; }
+
+    /* ══ CLOSE ══ */
+    .close-section {
+      position: relative; z-index: 2; min-height: 90vh;
+      display: grid; place-items: center; overflow: hidden;
+      background: var(--black); padding: 40px 32px;
+    }
+    .close-section::before {
+      content: ""; position: absolute; inset: 0; z-index: 0;
+      background: url("assets/shelly-studio-hero.jpg") center 12% / cover no-repeat;
+      opacity: .18;
+    }
+    .close-section::after {
+      content: ""; position: absolute; inset: 0; z-index: 1;
+      background: radial-gradient(ellipse at center, rgba(3,4,6,.6), rgba(3,4,6,.95));
+    }
+    .close-inner { position: relative; z-index: 2; text-align: center; max-width: 680px; }
+    .close-inner h2 {
+      margin: 0 0 28px; font-size: clamp(34px, 4.5vw, 62px);
+      line-height: 1.08; letter-spacing: -.02em; font-weight: 300;
+      text-transform: uppercase;
+    }
+    .close-links {
+      display: flex; align-items: center; justify-content: center;
+      gap: 40px; margin-top: 46px; flex-wrap: wrap;
+    }
+    .quiet-link {
+      display: inline-flex; align-items: center; gap: 20px;
+      color: rgba(244,244,241,.70); font-size: 12px; letter-spacing: .14em;
+      text-transform: uppercase; font-weight: 300; transition: color .3s ease;
+    }
+    .quiet-link::after {
+      content: ""; display: block; width: 60px; height: 1px;
+      background: rgba(244,244,241,.48); transition: width .3s ease, background .3s ease;
+    }
+    .quiet-link:hover { color: rgba(244,244,241,1); }
+    .quiet-link:hover::after { width: 90px; background: rgba(244,244,241,.9); }
+    .quiet-link.teal { color: var(--teal); }
+    .quiet-link.teal::after { background: var(--teal); }
+
+    @media (max-width: 860px) {
+      .nav { top: 20px; left: 20px; right: 20px; }
+      .brand-logo { width: 48px; }
+      .nav-items { display: none; }
+      .hero-content { padding: calc(12vh + 160px) 22px 0; }
+      .philosophy { padding: 9vh 22px 26vh; }
+      .philosophy p { font-size: clamp(19px, 5vw, 24px); }
+      .work { padding: 90px 22px; }
+      .work-item { grid-template-columns: 1fr; gap: 12px; padding: 40px 0; }
+      .machine, .voice { padding: 90px 22px; min-height: auto; }
+      .machine p { font-size: clamp(19px, 5vw, 24px); }
+      .close-links { flex-direction: column; gap: 22px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+
+    /* MOOD SELECTOR */
+    :root {
+      --mood-accent: var(--teal);
+    }
+    .mood-bar {
+      position: sticky;
+      top: 68px;
+      z-index: 50;
+      padding: 1rem 34px;
+      display: flex;
+      gap: .6rem;
+      flex-wrap: wrap;
+      background: linear-gradient(to bottom, rgba(3,4,6,.95) 70%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .mood-btn {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      padding: .45rem 1.2rem;
+      font-family: inherit;
+      font-size: .7rem;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 100px;
+      transition: border-color .3s, color .3s, background .3s, box-shadow .3s;
+    }
+    .mood-btn:hover {
+      border-color: rgba(255,255,255,.3);
+      color: var(--soft-white);
+    }
+    .mood-btn.active {
+      border-color: var(--mood-accent);
+      color: var(--mood-accent);
+      background: rgba(255,255,255,.05);
+      box-shadow: 0 0 14px rgba(0,0,0,.2), inset 0 0 8px rgba(255,255,255,.03);
+    }
+    .mood-label-tag {
+      display: none;
+      font-size: .62rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--mood-accent);
+      padding: .45rem .8rem;
+      align-items: center;
+      margin-left: auto;
+      opacity: .7;
+    }
+    body[data-mood] .mood-label-tag {
+      display: flex;
+    }
+
+    /* Mood overlay tint */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 80% 50%, var(--mood-accent), transparent 60%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity .8s;
+      mix-blend-mode: color;
+    }
+    body[data-mood]::before {
+      opacity: .04;
+    }
+
+    /* Work item mood states */
+    body[data-mood] .work-item {
+      opacity: .15;
+      transition: opacity .5s;
+    }
+    body[data-mood] .work-item.mood-match {
+      opacity: 1;
+    }
+
+    /* Mood-matched work item: client name gets mood color */
+    body[data-mood] .work-item.mood-match .work-client {
+      color: var(--mood-accent);
+      transition: color .4s;
+    }
+
+    /* Numbers on matching items also get mood accent */
+    body[data-mood] .work-item.mood-match .work-num {
+      color: var(--mood-accent);
+      transition: color .4s;
+    }
+
+    /* Section-label and work-head on the work section */
+    body[data-mood] .work .work-head {
+      color: var(--mood-accent);
+      transition: color .5s;
+    }
+
+    /* Teal references that should shift to mood accent */
+    body[data-mood] .section-label,
+    body[data-mood] .hero-eyebrow {
+      color: var(--mood-accent);
+      transition: color .5s;
+    }
+
+    /* Link hover color */
+    body[data-mood] a:hover {
+      color: var(--mood-accent);
+    }
+
+    /* VIDEO STRIP */
+    .video-strip {
+      padding: 8vh 0 10vh;
+      overflow: hidden;
+    }
+    .video-strip-label {
+      padding: 0 34px;
+      font-size: .7rem;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      display: block;
+    }
+    .video-strip-track {
+      display: flex;
+      gap: 1.4rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding: 0 34px 1.2rem;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,.1) transparent;
+      cursor: grab;
+    }
+    .video-strip-track:active {
+      cursor: grabbing;
+    }
+    .video-slot {
+      flex: 0 0 auto;
+      width: 180px;
+      aspect-ratio: 9/16;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+      scroll-snap-align: start;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--line);
+    }
+    .video-slot video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .video-slot-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: .8rem .7rem;
+      font-size: .62rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(244,244,241,.6);
+      background: linear-gradient(to top, rgba(3,4,6,.7) 60%, transparent);
+      pointer-events: none;
+    }
+    .video-slot-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(61,216,197,.18);
+      border: 1px solid var(--teal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+    .video-slot-icon svg {
+      width: 12px;
+      height: 12px;
+      fill: var(--teal);
+      margin-left: 2px;
+    }
+    .video-slot.playing .video-slot-icon {
+      opacity: 0;
+    }
+
+/* SOCIAL FOOTER */
+.social-footer {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1.4rem; padding: 2rem 34px;
+  border-top: 1px solid var(--line);
+  background: var(--black);
+  position: relative; z-index: 2;
+}
+.social-footer a {
+  display: flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: rgba(244,244,241,.4);
+  transition: color .3s, border-color .3s, transform .3s;
+}
+.social-footer a:hover {
+  color: var(--teal);
+  border-color: var(--teal);
+  transform: scale(1.1);
+}
+.social-footer svg { width: 15px; height: 15px; fill: currentColor; }
+  </style>
+</head>
+
+<body>
+  <nav class="nav" aria-label="Primary navigation">
+    <a href="index.html" aria-label="Creators Network home">
+      <img class="brand-logo" src="assets/cn-logo-color.png" alt="Creators Network" />
+    </a>
+    <div class="nav-items">
+      <a href="founder.html">The Founder</a>
+      <a href="campaigns.html">Campaigns</a>
+      <a href="studio.html" class="is-current">Studio</a>
+      <a href="experiences.html">Experiences</a>
+      <a href="engine.html">Engine</a>
+      <a href="lab.html">Lab</a>
+      <a href="proof.html">Proof</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ══ PORTRAIT WORLD ══ -->
+    <section class="portrait-world" aria-label="Studio">
+      <div class="portrait-bg" id="portrait-bg"></div>
+
+      <div class="hero-content">
+        <div>
+          <span class="hero-eyebrow reveal">02 — Studio</span>
+          <h1 class="reveal reveal-stagger">Design that feels intentional</h1>
+          <p class="hero-statement reveal reveal-stagger-2">If it doesn't look right, it doesn't work. And you always know when it doesn't look right</p>
+          <span class="hero-owner reveal reveal-stagger-3">Shelly — Design &amp; Creative Direction</span>
+        </div>
+      </div>
+
+      <div class="philosophy">
+        <div class="philosophy-inner">
+          <p class="reveal">Everyone can tell when something is designed well. Almost nobody can tell you why. <em>That gap is where the Studio lives</em>: the typography choices, the pacing of an edit, the two millimetres of spacing that separate premium from almost.</p>
+          <p class="reveal">The work here isn't decoration. It's direction. Before anything gets made, there's a visual decision about what it should feel like. A film, an identity, a deck, a feed: same rule. <em>Get that decision right and everything downstream gets easier.</em> Get it wrong and no amount of polish saves it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- MOOD SELECTOR -->
+    <div class="mood-bar">
+      <button class="mood-btn" data-mood="bold">Bold</button>
+      <button class="mood-btn" data-mood="quiet">Quiet</button>
+      <button class="mood-btn" data-mood="cultural">Cultural</button>
+      <button class="mood-btn" data-mood="cinematic">Cinematic</button>
+      <button class="mood-btn" data-mood="technical">Technical</button>
+      <span class="mood-label-tag" id="mood-label"></span>
+    </div>
+
+    <!-- ══ THE WORK ══ -->
+    <section class="work" aria-label="Selected work">
+      <div class="work-inner">
+        <h2 class="work-head reveal">The work</h2>
+
+        <div class="work-item reveal" data-moods="cinematic,cultural">
+          <span class="work-num">01</span>
+          <div>
+            <h3>Brand films from the wild</h3>
+            <span class="work-client">Secluded Africa</span>
+            <p>Films and social content shot in Kenya for a safari brand that refuses to look like a safari brochure. The brief was atmosphere over itinerary: what it feels like to be there, not what's included. Cinematic storytelling in the most literal sense.</p>
+          </div>
+        </div>
+
+        <div class="work-item reveal" data-moods="technical,quiet">
+          <span class="work-num">02</span>
+          <div>
+            <h3>A content system that never sleeps</h3>
+            <span class="work-client">Liberty International Tourism Group</span>
+            <p>Five hundred plus designed posts a year, across global markets, for over three years, without the feed ever looking like a template. Building a visual language strong enough to stay consistent and flexible enough to stay alive is the hardest kind of design work there is. It just doesn't look like it.</p>
+          </div>
+        </div>
+
+        <div class="work-item reveal" data-moods="bold,cinematic">
+          <span class="work-num">03</span>
+          <div>
+            <h3>Decks that win rooms</h3>
+            <span class="work-client">Royal Enfield &amp; others</span>
+            <p>Pitch and presentation design treated as a craft of its own, including the winning event pitch for the Royal Enfield Classic 350 launch. A deck has one job: make the room lean in before slide five. Everything about how we design them serves that.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIDEO STRIP -->
+    <section class="video-strip">
+      <span class="video-strip-label">Work in motion</span>
+      <div class="video-strip-track" id="video-track">
+
+        <!-- Slot 1: Replace src with actual video URL -->
+        <div class="video-slot" data-src="">
+          <video muted playsinline loop preload="none">
+            <!-- src: replace with video URL when available -->
+          </video>
+          <div class="video-slot-icon"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <span class="video-slot-label">Secluded Africa</span>
+        </div>
+
+        <!-- Slot 2: Replace src with actual video URL -->
+        <div class="video-slot" data-src="">
+          <video muted playsinline loop preload="none">
+            <!-- src: replace with video URL when available -->
+          </video>
+          <div class="video-slot-icon"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <span class="video-slot-label">Liberty Global</span>
+        </div>
+
+        <!-- Slot 3: Replace src with actual video URL -->
+        <div class="video-slot" data-src="">
+          <video muted playsinline loop preload="none">
+            <!-- src: replace with video URL when available -->
+          </video>
+          <div class="video-slot-icon"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <span class="video-slot-label">Brand Film</span>
+        </div>
+
+        <!-- Slot 4: Replace src with actual video URL -->
+        <div class="video-slot" data-src="">
+          <video muted playsinline loop preload="none">
+            <!-- src: replace with video URL when available -->
+          </video>
+          <div class="video-slot-icon"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <span class="video-slot-label">Social Content</span>
+        </div>
+
+        <!-- Slot 5: Replace src with actual video URL -->
+        <div class="video-slot" data-src="">
+          <video muted playsinline loop preload="none">
+            <!-- src: replace with video URL when available -->
+          </video>
+          <div class="video-slot-icon"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>
+          <span class="video-slot-label">Creator Campaign</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ══ THE CRAFT ══ -->
+    <section class="machine" aria-label="How the studio works">
+      <div class="machine-inner">
+        <p class="reveal">Every project here starts the same way: <em>a moodboard before a mockup, a direction before a deliverable.</em> Not because process is sacred, but because taste needs a reference point, something to hold the work accountable to.</p>
+        <p class="reveal">The Studio runs on that discipline. Video, identity, social, decks: different formats, same standard. If it doesn't look intentional, it goes back.</p>
+      </div>
+    </section>
+
+    <!-- ══ VOICE ══ -->
+    <section class="voice" aria-label="Client voice">
+      <div class="voice-inner">
+        <p class="voice-quote reveal">"They never said no, came up with great solutions and converted my vision into reality."</p>
+        <p class="voice-attribution reveal reveal-stagger"><strong>Kajal Kejriwal</strong> — Entrepreneurs Organization, Delhi</p>
+      </div>
+    </section>
+
+    <!-- ══ CLOSE ══ -->
+    <section class="close-section" aria-label="Continue">
+      <div class="close-inner">
+        <h2 class="reveal">Seen enough to be curious</h2>
+        <div class="close-links reveal reveal-stagger">
+          <a href="proof.html" class="quiet-link teal">Full case studies</a>
+          <a href="experiences.html" class="quiet-link">Next — Experiences</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- SOCIAL FOOTER -->
+  <footer class="social-footer" aria-label="Social media">
+    <a href="https://www.instagram.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    </a>
+    <a href="https://www.facebook.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="Facebook">
+      <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </a>
+    <a href="https://www.linkedin.com/company/creatorsnetwork" target="_blank" rel="noopener" aria-label="LinkedIn">
+      <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    </a>
+    <a href="https://x.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="X">
+      <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <a href="https://www.youtube.com/@creatorsnetwork" target="_blank" rel="noopener" aria-label="YouTube">
+      <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+  </footer>
+
+  <!-- LEAD MODAL (shared) -->
+  <style>
+    .lead-modal { position: fixed; inset: 0; z-index: 500; display: grid; place-items: center; padding: 24px; background: rgba(3,4,6,.78); backdrop-filter: blur(14px); opacity: 0; visibility: hidden; transition: opacity .4s ease, visibility .4s ease; }
+    .lead-modal.is-open { opacity: 1; visibility: visible; }
+    .lead-box { width: min(560px, 100%); max-height: 90vh; overflow-y: auto; background: #07090d; border: 1px solid rgba(255,255,255,.14); padding: 44px 40px; transform: translateY(24px); transition: transform .4s cubic-bezier(.16,1,.3,1); }
+    .lead-modal.is-open .lead-box { transform: translateY(0); }
+    .lead-box h3 { margin: 0 0 8px; font-size: clamp(24px, 3vw, 34px); line-height: 1.05; letter-spacing: -.02em; text-transform: uppercase; font-weight: 300; }
+    .lead-box .lead-sub { margin: 0 0 34px; font-size: 14px; line-height: 1.6; font-weight: 300; color: rgba(244,244,241,.6); }
+    .lead-field { margin-bottom: 20px; }
+    .lead-field label { display: block; font-size: 11px; letter-spacing: .13em; text-transform: uppercase; color: rgba(244,244,241,.55); margin-bottom: 8px; font-weight: 400; }
+    .lead-field input, .lead-field select, .lead-field textarea { width: 100%; padding: 13px 14px; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.14); color: var(--soft-white); font-family: inherit; font-size: 15px; font-weight: 300; outline: none; transition: border-color .3s ease; box-sizing: border-box; }
+    .lead-field input:focus, .lead-field select:focus, .lead-field textarea:focus { border-color: var(--teal); }
+    .lead-field select { appearance: none; }
+    .lead-field textarea { min-height: 96px; resize: vertical; }
+    .lead-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 30px; }
+    .lead-submit { padding: 14px 34px; background: var(--teal); color: #032620; border: none; cursor: pointer; font-family: inherit; font-size: 12px; letter-spacing: .13em; text-transform: uppercase; font-weight: 500; transition: filter .3s ease; }
+    .lead-submit:hover { filter: brightness(1.1); }
+    .lead-cancel { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: rgba(244,244,241,.5); font-weight: 300; }
+    .lead-cancel:hover { color: rgba(244,244,241,.9); }
+    @media (max-width: 860px) { .lead-box { padding: 34px 24px; } }
+  </style>
+  <div class="lead-modal" id="lead-modal" role="dialog" aria-modal="true" aria-label="Start a conversation">
+    <div class="lead-box">
+      <h3>Start a conversation</h3>
+      <p class="lead-sub">Tell us just enough. We reply like humans, usually within a day.</p>
+      <form id="lead-form">
+        <div class="lead-field"><label for="lead-name">Name</label><input type="text" id="lead-name" name="name" required /></div>
+        <div class="lead-field"><label for="lead-email">Work email</label><input type="email" id="lead-email" name="email" required /></div>
+        <div class="lead-field"><label for="lead-company">Company</label><input type="text" id="lead-company" name="company" /></div>
+        <div class="lead-field"><label for="lead-interest">What brings you here</label>
+          <select id="lead-interest" name="interest"><option>Campaigns</option><option>Studio</option><option>Experiences / Events</option><option>Engine / Digital builds</option><option>Not sure yet</option></select>
+        </div>
+        <div class="lead-field"><label for="lead-message">A line or two</label><textarea id="lead-message" name="message"></textarea></div>
+        <div class="lead-actions">
+          <button type="submit" class="lead-submit">Send</button>
+          <button type="button" class="lead-cancel" data-lead-close>Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <script>
+    /* Subtle parallax on the portrait */
+    (function () {
+      var world = document.querySelector(".portrait-world");
+      var bg = document.getElementById("portrait-bg");
+      if (!world || !bg) return;
+      var ticking = false;
+      function update() {
+        ticking = false;
+        var rect = world.getBoundingClientRect();
+        var p = Math.min(1, Math.max(0, -rect.top / (rect.height - window.innerHeight || 1)));
+        bg.style.transform = "translateY(" + (p * 60) + "px) scale(1.04)";
+      }
+      window.addEventListener("scroll", function () { if (!ticking) { requestAnimationFrame(update); ticking = true; } }, { passive: true });
+      window.addEventListener("resize", update);
+      update();
+    })();
+
+    /* Reveal on scroll */
+    (function () {
+      var reveals = document.querySelectorAll(".reveal");
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add("is-visible"); });
+      }, { threshold: 0.1, rootMargin: "0px 0px -30px 0px" });
+      reveals.forEach(function (el) { obs.observe(el); });
+    })();
+
+    // MOOD SELECTOR
+    (function() {
+      var moodAccents = {
+        bold: '#e85d3a',
+        quiet: '#8fa8c4',
+        cultural: '#c4a35a',
+        cinematic: '#3dd8c5',
+        technical: '#7b9ef0'
+      };
+      var moodLabels = {
+        bold: 'Bold',
+        quiet: 'Quiet',
+        cultural: 'Cultural',
+        cinematic: 'Cinematic',
+        technical: 'Technical'
+      };
+      var btns = document.querySelectorAll('.mood-btn');
+      var labelEl = document.getElementById('mood-label');
+
+      btns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var mood = btn.dataset.mood;
+          var isActive = btn.classList.contains('active');
+
+          if (isActive) {
+            // Toggle off
+            document.body.removeAttribute('data-mood');
+            document.documentElement.style.setProperty('--mood-accent', '#3dd8c5');
+            document.documentElement.style.setProperty('--teal', '#3dd8c5');
+            btns.forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.work-item').forEach(function(item) {
+              item.classList.remove('mood-match');
+            });
+            if (labelEl) labelEl.textContent = '';
+            return;
+          }
+
+          // Activate mood
+          document.body.setAttribute('data-mood', mood);
+          document.documentElement.style.setProperty('--mood-accent', moodAccents[mood]);
+          document.documentElement.style.setProperty('--teal', moodAccents[mood]);
+          btns.forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          if (labelEl) labelEl.textContent = moodLabels[mood];
+
+          // Highlight matching work items
+          document.querySelectorAll('.work-item').forEach(function(item) {
+            var moods = (item.dataset.moods || '').split(',').map(function(m) { return m.trim(); });
+            item.classList.toggle('mood-match', moods.indexOf(mood) > -1);
+          });
+        });
+      });
+    })();
+
+    // VIDEO STRIP
+    (function() {
+      var track = document.getElementById('video-track');
+      if (!track) return;
+
+      // Hover to play
+      track.querySelectorAll('.video-slot').forEach(function(slot) {
+        var video = slot.querySelector('video');
+        if (!video) return;
+
+        slot.addEventListener('mouseenter', function() {
+          if (video.src) {
+            video.play().then(function() {
+              slot.classList.add('playing');
+            }).catch(function(){});
+          }
+        });
+        slot.addEventListener('mouseleave', function() {
+          video.pause();
+          slot.classList.remove('playing');
+        });
+
+        // Click to toggle sound
+        slot.addEventListener('click', function() {
+          video.muted = !video.muted;
+        });
+      });
+
+      // Drag to scroll
+      var isDown = false, startX, scrollLeft;
+      track.addEventListener('mousedown', function(e) {
+        isDown = true;
+        startX = e.pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+      });
+      track.addEventListener('mouseleave', function() { isDown = false; });
+      track.addEventListener('mouseup', function() { isDown = false; });
+      track.addEventListener('mousemove', function(e) {
+        if (!isDown) return;
+        e.preventDefault();
+        var x = e.pageX - track.offsetLeft;
+        track.scrollLeft = scrollLeft - (x - startX) * 1.2;
+      });
+    })();
+  </script>
+
+  <script>
+    /* Lead modal (shared) */
+    (function () {
+      var modal = document.getElementById("lead-modal");
+      var form = document.getElementById("lead-form");
+      if (!modal || !form) return;
+      function open() { modal.classList.add("is-open"); }
+      function close() { modal.classList.remove("is-open"); }
+      document.querySelectorAll('[data-lead-open], .quiet-link[href="contact.html"]').forEach(function (el) {
+        el.addEventListener("click", function (e) { e.preventDefault(); open(); });
+      });
+      document.querySelectorAll("[data-lead-close]").forEach(function (el) { el.addEventListener("click", close); });
+      modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var name = document.getElementById("lead-name").value;
+        var email = document.getElementById("lead-email").value;
+        var company = document.getElementById("lead-company").value;
+        var interest = document.getElementById("lead-interest").value;
+        var message = document.getElementById("lead-message").value;
+        var body = "Name: " + name + "%0D%0AEmail: " + email + "%0D%0ACompany: " + company + "%0D%0AInterest: " + interest + "%0D%0A%0D%0A" + encodeURIComponent(message);
+        window.location.href = "mailto:hello@creatorsnetwork.io?subject=" + encodeURIComponent("New conversation - " + (company || name)) + "&body=" + body;
+        close();
+      });
+    })();
+  </script>
+
+</body>
+</html>

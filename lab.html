@@ -1,0 +1,1476 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lab — Creators Network</title>
+  <meta name="description" content="Lab at Creators Network — the strange ideas go here first." />
+  <style>
+    :root {
+      --black: #030406;
+      --soft-white: #f4f4f1;
+      --muted: rgba(244,244,241,.68);
+      --line: rgba(255,255,255,.11);
+      --teal: #3dd8c5;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--black); }
+    body {
+      margin: 0; background: var(--black); color: var(--soft-white);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      overflow-x: hidden; text-rendering: geometricPrecision;
+    }
+    body::after {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 20; opacity: .10;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+      mix-blend-mode: screen;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Nav ── */
+    .nav {
+      position: fixed; z-index: 100; top: 28px; left: 30px; right: 30px;
+      display: flex; align-items: center; justify-content: space-between;
+      pointer-events: none;
+    }
+    .brand-logo { pointer-events: auto; width: 54px; height: auto; display: block; }
+    .nav-items {
+      pointer-events: auto; display: flex; align-items: center;
+      gap: clamp(16px, 2.2vw, 34px); padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,.075);
+      background: rgba(3,4,6,.20); backdrop-filter: blur(18px);
+    }
+    .nav-items a {
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 400; color: rgba(244,244,241,.80);
+      white-space: nowrap; transition: color .3s ease;
+    }
+    .nav-items a.is-current { color: var(--teal); }
+    .nav-items a:hover { color: rgba(244,244,241,1); }
+
+    /* ── Reveal ── */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .reveal-stagger   { transition-delay: .15s; }
+    .reveal-stagger-2 { transition-delay: .3s; }
+    .reveal-stagger-3 { transition-delay: .45s; }
+
+    /* ══ ABSTRACT WORLD ══ */
+    .portrait-world { position: relative; z-index: 1; }
+    .portrait-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: url("assets/lab-abstract.jpg") center top / cover no-repeat;
+      will-change: transform;
+    }
+    .portrait-bg::after {
+      content: ""; position: absolute; inset: 0;
+      background:
+        linear-gradient(180deg, rgba(3,4,6,.2), rgba(3,4,6,.4) 40%, rgba(3,4,6,.72) 82%, var(--black)),
+        linear-gradient(90deg, rgba(0,0,0,.5), rgba(0,0,0,.05) 45%, rgba(0,0,0,.45));
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      padding: calc(20vh + 300px) 34px 0;
+    }
+    .hero-eyebrow {
+      display: block; font-size: 13px; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 20px; font-weight: 400;
+    }
+    .hero-content h1 {
+      margin: 0; max-width: 10ch;
+      font-size: clamp(52px, 8vw, 122px);
+      line-height: 1.04; letter-spacing: -.02em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .hero-statement {
+      max-width: 480px; margin: 30px 0 0;
+      font-size: clamp(16px, 1.6vw, 21px); line-height: 1.45;
+      font-weight: 300; font-style: italic; color: rgba(244,244,241,.75);
+    }
+    .hero-owner {
+      display: block; margin-top: 26px; font-size: 12px; letter-spacing: .16em;
+      text-transform: uppercase; font-weight: 400; color: rgba(244,244,241,.85);
+    }
+
+    /* Philosophy */
+    .philosophy {
+      position: relative; z-index: 1;
+      padding: 12vh 34px 38vh;
+    }
+    .philosophy-inner { max-width: 760px; margin: 0 auto; }
+    .philosophy p {
+      font-size: clamp(21px, 2.4vw, 32px); line-height: 1.48;
+      font-weight: 300; color: rgba(244,244,241,.88); margin: 0 0 30px;
+    }
+    .philosophy p:last-child { margin-bottom: 0; }
+    .philosophy em { color: var(--soft-white); font-style: normal; }
+
+    /* ══ EXPERIMENTS ══ */
+    .work {
+      position: relative; z-index: 2; background: var(--black);
+      padding: 130px 34px;
+    }
+    .work-inner { max-width: 1100px; margin: 0 auto; }
+    .work-head {
+      margin: 0 0 90px; font-size: clamp(38px, 5vw, 72px);
+      line-height: 1; letter-spacing: -.03em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .work-item {
+      display: grid; grid-template-columns: 110px 1fr; gap: 30px;
+      padding: 54px 0; border-top: 1px solid var(--line);
+    }
+    .work-item:last-child { border-bottom: 1px solid var(--line); }
+    .work-num {
+      font-size: clamp(28px, 3vw, 44px); line-height: 1;
+      letter-spacing: -.05em; font-weight: 300; color: rgba(244,244,241,.35);
+    }
+    .work-item h3 {
+      margin: 0 0 6px; font-size: clamp(22px, 2.4vw, 34px);
+      line-height: 1.1; letter-spacing: -.02em; font-weight: 300;
+      text-transform: uppercase;
+    }
+    .work-client {
+      display: block; font-size: 12px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 20px; font-weight: 400;
+    }
+    .work-item p {
+      margin: 0; max-width: 640px;
+      font-size: clamp(15px, 1.4vw, 18px); line-height: 1.65;
+      font-weight: 300; color: rgba(244,244,241,.72);
+    }
+
+    /* Experiment output visual */
+    .work-output {
+      margin-top: 28px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      height: 180px;
+      background: rgba(255,255,255,.025);
+    }
+    .work-output canvas {
+      display: block; width: 100%; height: 100%;
+    }
+    .work-output-label {
+      position: absolute; bottom: 10px; left: 12px;
+      font-size: .55rem; letter-spacing: .14em; text-transform: uppercase;
+      color: rgba(244,244,241,.35); pointer-events: none;
+    }
+    @media (max-width: 680px) {
+      .work-output { height: 130px; }
+    }
+
+    /* CHEMISTRY RECIPE */
+    .recipe {
+      padding: 12vh 34px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .recipe-inner { max-width: 700px; margin: 0 auto; }
+    .recipe-eyebrow {
+      font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 2rem; display: block;
+    }
+    .recipe-flask-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 2.4rem;
+      margin: 3rem 0;
+      flex-wrap: wrap;
+    }
+    .flask-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .8rem;
+      cursor: pointer;
+      transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+    }
+    .flask-item:hover {
+      transform: translateY(-8px) scale(1.06);
+    }
+    .flask-item:hover .flask-label {
+      color: var(--soft-white);
+    }
+    .flask-svg {
+      width: 70px;
+      height: 110px;
+      overflow: visible;
+    }
+    .flask-label {
+      font-size: .62rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      max-width: 80px;
+    }
+    .flask-pct {
+      font-size: .7rem;
+      letter-spacing: .05em;
+      color: rgba(244,244,241,.35);
+      font-weight: 300;
+    }
+    .liquid-fill {
+      animation: fillup 2.4s cubic-bezier(.34,1.56,.64,1) forwards;
+      transform-origin: bottom;
+      transform: scaleY(0);
+    }
+    .flask-item:nth-child(1) .liquid-fill { animation-delay: .2s; }
+    .flask-item:nth-child(2) .liquid-fill { animation-delay: .5s; }
+    .flask-item:nth-child(3) .liquid-fill { animation-delay: .8s; }
+    .flask-item:nth-child(4) .liquid-fill { animation-delay: 1.1s; }
+    @keyframes fillup {
+      from { transform: scaleY(0); }
+      to   { transform: scaleY(1); }
+    }
+    .drip {
+      animation: drip 1.2s ease-in forwards;
+      opacity: 0;
+    }
+    .flask-item:nth-child(1) .drip { animation-delay: 2.2s; }
+    .flask-item:nth-child(2) .drip { animation-delay: 2.5s; }
+    @keyframes drip {
+      0%   { opacity: 0; transform: translateY(0); }
+      10%  { opacity: 1; }
+      100% { opacity: 0; transform: translateY(20px); }
+    }
+    .bubble {
+      animation: bubble-rise 2s ease-in infinite;
+      opacity: 0;
+    }
+    .bubble:nth-child(1) { animation-delay: 1.5s; }
+    .bubble:nth-child(2) { animation-delay: 2.2s; }
+    .bubble:nth-child(3) { animation-delay: 2.8s; }
+    @keyframes bubble-rise {
+      0%   { opacity: 0; transform: translateY(0); }
+      20%  { opacity: .6; }
+      100% { opacity: 0; transform: translateY(-22px); }
+    }
+    .recipe-caption {
+      font-size: clamp(.85rem, 1.3vw, 1rem);
+      font-weight: 300; color: var(--muted);
+      line-height: 1.8; margin-top: 2rem;
+    }
+    .recipe-caption em { color: var(--teal); font-style: normal; }
+
+    /* ══ JOURNAL ══ */
+    .journal {
+      position: relative; z-index: 2; background: var(--black);
+      padding: 130px 34px;
+    }
+    .journal-inner { max-width: 900px; margin: 0 auto; }
+    .journal-head {
+      margin: 0 0 20px; font-size: clamp(38px, 5vw, 72px);
+      line-height: 1; letter-spacing: -.03em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .journal-sub {
+      margin: 0 0 70px; max-width: 560px;
+      font-size: clamp(15px, 1.5vw, 19px); line-height: 1.6;
+      font-weight: 300; color: rgba(244,244,241,.65);
+    }
+    .journal-item {
+      display: block; padding: 30px 0;
+      border-top: 1px solid var(--line);
+      transition: padding-left .4s cubic-bezier(.19,1,.22,1);
+    }
+    .journal-item:last-of-type { border-bottom: 1px solid var(--line); }
+    .journal-item:hover { padding-left: 16px; }
+    .journal-item h3 {
+      margin: 0 0 6px; font-size: clamp(18px, 2vw, 27px);
+      line-height: 1.2; letter-spacing: -.01em; font-weight: 300;
+    }
+    .journal-item:hover h3 { color: var(--teal); }
+    .journal-meta {
+      font-size: 11px; letter-spacing: .13em; text-transform: uppercase;
+      color: rgba(244,244,241,.45); font-weight: 300;
+    }
+
+    /* ══ CLOSE ══ */
+    .close-section {
+      position: relative; z-index: 2; min-height: 90vh;
+      display: grid; place-items: center; overflow: hidden;
+      background: var(--black); padding: 40px 32px;
+    }
+    .close-section::before {
+      content: ""; position: absolute; inset: 0; z-index: 0;
+      background: url("assets/lab-abstract.jpg") center / cover no-repeat;
+      opacity: .18;
+    }
+    .close-section::after {
+      content: ""; position: absolute; inset: 0; z-index: 1;
+      background: radial-gradient(ellipse at center, rgba(3,4,6,.6), rgba(3,4,6,.95));
+    }
+    .close-inner { position: relative; z-index: 2; text-align: center; max-width: 680px; }
+    .close-inner h2 {
+      margin: 0 0 28px; font-size: clamp(34px, 4.5vw, 62px);
+      line-height: 1.08; letter-spacing: -.02em; font-weight: 300;
+      text-transform: uppercase;
+    }
+    .close-links {
+      display: flex; align-items: center; justify-content: center;
+      gap: 40px; margin-top: 46px; flex-wrap: wrap;
+    }
+    .quiet-link {
+      display: inline-flex; align-items: center; gap: 20px;
+      color: rgba(244,244,241,.70); font-size: 12px; letter-spacing: .14em;
+      text-transform: uppercase; font-weight: 300; transition: color .3s ease;
+      background: none; border: none; cursor: pointer; font-family: inherit; padding: 0;
+    }
+    .quiet-link::after {
+      content: ""; display: block; width: 60px; height: 1px;
+      background: rgba(244,244,241,.48); transition: width .3s ease, background .3s ease;
+    }
+    .quiet-link:hover { color: rgba(244,244,241,1); }
+    .quiet-link:hover::after { width: 90px; background: rgba(244,244,241,.9); }
+    .quiet-link.teal { color: var(--teal); }
+    .quiet-link.teal::after { background: var(--teal); }
+
+    @media (max-width: 860px) {
+      .nav { top: 20px; left: 20px; right: 20px; }
+      .brand-logo { width: 48px; }
+      .nav-items { display: none; }
+      .hero-content { padding: calc(12vh + 160px) 22px 0; }
+      .philosophy { padding: 9vh 22px 26vh; }
+      .philosophy p { font-size: clamp(19px, 5vw, 24px); }
+      .work { padding: 90px 22px; }
+      .work-item { grid-template-columns: 1fr; gap: 12px; padding: 40px 0; }
+      .recipe { padding: 80px 22px 90px; }
+      .recipe-grid { grid-template-columns: 1fr 1fr; gap: 40px 20px; }
+      .journal { padding: 90px 22px; }
+      .close-links { flex-direction: column; gap: 22px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+
+    /* GENERATIVE BRIEF */
+    .brief-gen {
+      padding: 14vh 34px;
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+    .brief-gen-inner {
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .brief-gen-label {
+      font-size: .68rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 2rem;
+      display: block;
+    }
+    .brief-gen h2 {
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 300;
+      color: var(--soft-white);
+      margin: 0 0 3rem;
+      line-height: 1.3;
+      opacity: .7;
+    }
+    .brief-terminal {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid var(--teal);
+      padding-bottom: 1rem;
+      margin-bottom: 4rem;
+    }
+    .brief-terminal-prompt {
+      font-size: 1.1rem;
+      color: var(--teal);
+      font-family: 'Courier New', monospace;
+      flex-shrink: 0;
+    }
+    .brief-terminal-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: 'Courier New', monospace;
+      font-size: 1.1rem;
+      color: var(--soft-white);
+      caret-color: var(--teal);
+    }
+    .brief-terminal-input::placeholder {
+      color: rgba(244,244,241,.3);
+    }
+    .brief-terminal-btn {
+      background: transparent;
+      border: 1px solid var(--teal);
+      color: var(--teal);
+      padding: .4rem 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: .7rem;
+      letter-spacing: .1em;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: background .2s, color .2s;
+      flex-shrink: 0;
+    }
+    .brief-terminal-btn:hover {
+      background: var(--teal);
+      color: var(--black);
+    }
+    .brief-output {
+      min-height: 12rem;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+    .brief-output-text {
+      position: relative;
+      min-height: 0;
+      opacity: 0;
+      transition: opacity .4s;
+    }
+    .brief-output-text.visible {
+      opacity: 1;
+    }
+    .brief-word {
+      position: absolute;
+      font-weight: 300;
+      line-height: 1.2;
+      color: var(--soft-white);
+      opacity: 0;
+      transform: translateY(12px) scale(.9);
+      transition: opacity .5s, transform .5s cubic-bezier(.16,1,.3,1);
+      cursor: default;
+      white-space: nowrap;
+    }
+    .brief-word.popped {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .brief-word.teal {
+      color: var(--teal);
+    }
+    /* Sentence-based brief output */
+    .brief-sentence {
+      display: block;
+      font-size: clamp(16px, 1.7vw, 21px);
+      line-height: 1.75;
+      font-weight: 300;
+      color: rgba(244,244,241,.82);
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+      position: relative;
+      z-index: 1;
+    }
+    .brief-sentence + .brief-sentence { margin-top: 1em; }
+    .brief-sentence.popped { opacity: 1; transform: translateY(0); }
+    .brief-sentence em { color: var(--teal); font-style: normal; }
+    .brief-concept-bg {
+      position: absolute;
+      right: -1%;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: clamp(60px, 11vw, 130px);
+      font-weight: 300;
+      letter-spacing: -.03em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.03);
+      pointer-events: none;
+      user-select: none;
+      line-height: 1;
+      z-index: 0;
+      white-space: nowrap;
+    }
+    .brief-output-hint {
+      font-size: .72rem;
+      color: var(--muted);
+      letter-spacing: .08em;
+      margin-top: 1.4rem;
+      opacity: 0;
+      transition: opacity .4s .3s;
+    }
+    .brief-output-hint.visible {
+      opacity: 1;
+    }
+    .brief-actions {
+      display: flex;
+      gap: 1.2rem;
+      align-items: center;
+      flex-wrap: wrap;
+      opacity: 0;
+      transition: opacity .4s .5s;
+    }
+    .brief-actions.visible {
+      opacity: 1;
+    }
+    .brief-regen {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      padding: .7rem 1.6rem;
+      font-family: inherit;
+      font-size: .75rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: border-color .3s, color .3s;
+    }
+    .brief-regen:hover {
+      border-color: var(--soft-white);
+      color: var(--soft-white);
+    }
+    .brief-cta {
+      background: var(--teal);
+      border: none;
+      color: #030406;
+      padding: .7rem 2rem;
+      font-family: inherit;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: opacity .3s;
+    }
+    .brief-cta:hover {
+      opacity: .85;
+    }
+
+    /* TIME-SINK: constellation */
+    .time-sink {
+      padding: 10vh 34px 14vh;
+      text-align: center;
+      position: relative;
+    }
+    .time-sink-label {
+      font-size: .68rem; letter-spacing: .18em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 1.4rem; display: block;
+    }
+    .time-sink h2 {
+      font-size: clamp(1.4rem, 2.8vw, 2.2rem); font-weight: 300;
+      margin: 0 0 .8rem; color: var(--soft-white);
+    }
+    .time-sink-sub {
+      font-size: .85rem; color: var(--muted); margin-bottom: 3rem;
+      font-style: italic;
+    }
+    #constellation-canvas {
+      display: block; margin: 0 auto;
+      width: 100%; max-width: 900px;
+      height: 420px;
+      border: 1px solid var(--line);
+      cursor: crosshair;
+      border-radius: 4px;
+      background: rgba(255,255,255,.018);
+    }
+    .constellation-hint {
+      margin-top: 1.2rem; font-size: .7rem; letter-spacing: .1em;
+      color: rgba(244,244,241,.35); text-transform: uppercase;
+    }
+
+/* SOCIAL FOOTER */
+.social-footer {
+  display: flex; align-items: center; justify-content: center;
+  gap: 1.4rem; padding: 2rem 34px;
+  border-top: 1px solid var(--line);
+  background: var(--black);
+  position: relative; z-index: 2;
+}
+.social-footer a {
+  display: flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: rgba(244,244,241,.4);
+  transition: color .3s, border-color .3s, transform .3s;
+}
+.social-footer a:hover {
+  color: var(--teal);
+  border-color: var(--teal);
+  transform: scale(1.1);
+}
+.social-footer svg { width: 15px; height: 15px; fill: currentColor; }
+  </style>
+</head>
+
+<body>
+  <nav class="nav" aria-label="Primary navigation">
+    <a href="index.html" aria-label="Creators Network home">
+      <img class="brand-logo" src="assets/cn-logo-color.png" alt="Creators Network" />
+    </a>
+    <div class="nav-items">
+      <a href="founder.html">The Founder</a>
+      <a href="campaigns.html">Campaigns</a>
+      <a href="studio.html">Studio</a>
+      <a href="experiences.html">Experiences</a>
+      <a href="engine.html">Engine</a>
+      <a href="lab.html" class="is-current">Lab</a>
+      <a href="proof.html">Proof</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ══ ABSTRACT WORLD ══ -->
+    <section class="portrait-world" aria-label="Lab">
+      <div class="portrait-bg" id="portrait-bg"></div>
+
+      <div class="hero-content">
+        <div>
+          <span class="hero-eyebrow reveal">05 — Lab</span>
+          <h1 class="reveal reveal-stagger">The strange ideas go here first</h1>
+          <p class="hero-statement reveal reveal-stagger-2">Not everything here is finished. That's the point</p>
+          <span class="hero-owner reveal reveal-stagger-3">Everyone — no single owner, by design</span>
+        </div>
+      </div>
+
+      <div class="philosophy">
+        <div class="philosophy-inner">
+          <p class="reveal">Every agency claims to be innovative. Few give innovation a room of its own, with <em>no client, no deadline, and no guaranteed outcome.</em> The Lab is that room.</p>
+          <p class="reveal">It's where new tools get broken in before they touch client work, where the team's strangest ideas get a fair hearing, and where most experiments fail on purpose. <em>The ones that survive end up changing how everything else here gets made.</em></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ EXPERIMENTS ══ -->
+    <section class="work" aria-label="Experiments">
+      <div class="work-inner">
+        <h2 class="work-head reveal">Experiments</h2>
+
+        <div class="work-item reveal">
+          <span class="work-num">01</span>
+          <div>
+            <h3>Gandhi in 2024</h3>
+            <span class="work-client">AI × History</span>
+            <p>What would the most photographed man of his era look like in ours? A creative experiment placing Gandhi in the present day, built with generative imagery and a careful respect for the subject. Equal parts technology demo and question about how we remember.</p>
+            <div class="work-output">
+              <canvas id="exp-canvas-1"></canvas>
+              <span class="work-output-label">Generative output</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="work-item reveal">
+          <span class="work-num">02</span>
+          <div>
+            <h3>India Got Lit</h3>
+            <span class="work-client">AI × Diwali</span>
+            <p>A creative Diwali journey rendered with AI: familiar festival warmth through an unfamiliar lens. An experiment in whether generated imagery can carry genuine cultural emotion, not just aesthetic novelty.</p>
+            <div class="work-output">
+              <canvas id="exp-canvas-2"></canvas>
+              <span class="work-output-label">Generative output</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="work-item reveal">
+          <span class="work-num">03</span>
+          <div>
+            <h3>Tech meets tradition</h3>
+            <span class="work-client">AI × Branding</span>
+            <p>AI-powered Christmas trees that turned a seasonal brand moment into a design experiment. Proof that holiday content doesn't have to look like holiday content.</p>
+            <div class="work-output">
+              <canvas id="exp-canvas-3"></canvas>
+              <span class="work-output-label">Generative output</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="work-item reveal">
+          <span class="work-num">04</span>
+          <div>
+            <h3>A cozy AI experiment</h3>
+            <span class="work-client">AI × Atmosphere</span>
+            <p>A small study in whether machine-made imagery can feel warm. Spoiler: it can, if a human with taste is steering.</p>
+            <div class="work-output">
+              <canvas id="exp-canvas-4"></canvas>
+              <span class="work-output-label">Generative output</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHEMISTRY RECIPE -->
+    <section class="recipe" aria-label="The recipe">
+      <div class="recipe-inner">
+        <span class="recipe-eyebrow reveal">The recipe, measured loosely</span>
+
+        <div class="recipe-flask-wrap reveal reveal-stagger">
+
+          <!-- Flask 1: Craziness — 70% -->
+          <div class="flask-item">
+            <svg class="flask-svg" viewBox="0 0 70 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 8 L22 55 L6 92 Q4 100 12 100 L58 100 Q66 100 64 92 L48 55 L48 8 Z" stroke="rgba(255,255,255,.25)" stroke-width="1.5" fill="none"/>
+              <clipPath id="flask1-clip">
+                <path d="M22 8 L22 55 L6 92 Q4 100 12 100 L58 100 Q66 100 64 92 L48 55 L48 8 Z"/>
+              </clipPath>
+              <g clip-path="url(#flask1-clip)">
+                <rect class="liquid-fill" x="4" y="24" width="62" height="80" fill="rgba(61,216,197,.52)" rx="1"/>
+                <circle class="bubble" cx="22" cy="54" r="2.5" fill="rgba(61,216,197,.7)"/>
+                <circle class="bubble" cx="38" cy="46" r="1.8" fill="rgba(61,216,197,.5)"/>
+                <circle class="bubble" cx="30" cy="60" r="1.5" fill="rgba(61,216,197,.6)"/>
+              </g>
+              <rect x="22" y="0" width="26" height="12" rx="2" stroke="rgba(255,255,255,.25)" stroke-width="1.5" fill="none"/>
+              <ellipse class="drip" cx="35" cy="104" rx="2" ry="3" fill="rgba(61,216,197,.6)"/>
+            </svg>
+            <span class="flask-pct">70%</span>
+            <span class="flask-label">Craziness</span>
+          </div>
+
+          <!-- Flask 2: Exploration — 40% -->
+          <div class="flask-item">
+            <svg class="flask-svg" viewBox="0 0 70 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 8 L22 55 L6 92 Q4 100 12 100 L58 100 Q66 100 64 92 L48 55 L48 8 Z" stroke="rgba(255,255,255,.25)" stroke-width="1.5" fill="none"/>
+              <clipPath id="flask2-clip">
+                <path d="M22 8 L22 55 L6 92 Q4 100 12 100 L58 100 Q66 100 64 92 L48 55 L48 8 Z"/>
+              </clipPath>
+              <g clip-path="url(#flask2-clip)">
+                <rect class="liquid-fill" x="4" y="64" width="62" height="40" fill="rgba(200,160,80,.55)" rx="1"/>
+                <circle class="bubble" cx="24" cy="88" r="2" fill="rgba(200,160,80,.7)"/>
+                <circle class="bubble" cx="40" cy="82" r="1.6" fill="rgba(200,160,80,.5)"/>
+              </g>
+              <rect x="22" y="0" width="26" height="12" rx="2" stroke="rgba(255,255,255,.25)" stroke-width="1.5" fill="none"/>
+            </svg>
+            <span class="flask-pct">40%</span>
+            <span class="flask-label">Exploration</span>
+          </div>
+
+          <!-- Flask 3: Experimentation — 85% -->
+          <div class="flask-item">
+            <svg class="flask-svg" viewBox="0 0 70 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 8 L22 55 L6 92 Q4 100 12 100 L58 100 Q66 100 64 92 L48 55 L48 8 Z" stroke="rgba(255,255,255,.25)" stroke-width="1.5" fill="none"/>
+              <clipPath id="flask3-clip">
+                <path d="M22 8 L22 55 L6 92 Q4 100 12 100 L58 100 Q66 100 64 92 L48 55 L48 8 Z"/>
+              </clipPath>
+              <g clip-path="url(#flask3-clip)">
+                <rect class="liquid-fill" x="4" y="12" width="62" height="92" fill="rgba(170,90,180,.42)" rx="1"/>
+                <circle class="bubble" cx="26" cy="40" r="2.5" fill="rgba(170,90,180,.7)"/>
+                <circle class="bubble" cx="42" cy="30" r="1.8" fill="rgba(170,90,180,.6)"/>
+                <circle class="bubble" cx="34" cy="50" r="1.4" fill="rgba(170,90,180,.5)"/>
+              </g>
+              <rect x="22" y="0" width="26" height="12" rx="2" stroke="rgba(255,255,255,.25)" stroke-width="1.5" fill="none"/>
+              <ellipse class="drip" cx="35" cy="104" rx="2" ry="3" fill="rgba(170,90,180,.5)"/>
+            </svg>
+            <span class="flask-pct">85%</span>
+            <span class="flask-label">Experimentation</span>
+          </div>
+
+          <!-- Flask 4: Innovation — 20% -->
+          <div class="flask-item">
+            <svg class="flask-svg" viewBox="0 0 70 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 8 L22 55 L6 92 Q4 100 12 100 L58 100 Q66 100 64 92 L48 55 L48 8 Z" stroke="rgba(255,255,255,.25)" stroke-width="1.5" fill="none"/>
+              <clipPath id="flask4-clip">
+                <path d="M22 8 L22 55 L6 92 Q4 100 12 100 L58 100 Q66 100 64 92 L48 55 L48 8 Z"/>
+              </clipPath>
+              <g clip-path="url(#flask4-clip)">
+                <rect class="liquid-fill" x="4" y="82" width="62" height="22" fill="rgba(244,244,241,.22)" rx="1"/>
+                <circle class="bubble" cx="28" cy="92" r="2" fill="rgba(244,244,241,.5)"/>
+              </g>
+              <rect x="22" y="0" width="26" height="12" rx="2" stroke="rgba(255,255,255,.25)" stroke-width="1.5" fill="none"/>
+            </svg>
+            <span class="flask-pct">20%</span>
+            <span class="flask-label">Innovation</span>
+          </div>
+
+        </div>
+
+        <p class="recipe-caption reveal reveal-stagger-2">
+          There is no fixed formula. Only a <em>bias toward action</em>, a tolerance for wrong turns, and the patience to let the strange ones breathe.
+        </p>
+      </div>
+    </section>
+
+    <!-- ══ JOURNAL ══ -->
+    <section class="journal" aria-label="Journal">
+      <div class="journal-inner">
+        <h2 class="journal-head reveal">The journal</h2>
+        <p class="journal-sub reveal reveal-stagger">Thinking in public. Selected pieces from the team; the archive is migrating over.</p>
+
+        <a class="journal-item reveal" href="#">
+          <h3>The Creator Economy: Where's the Money in 2025?</h3>
+          <span class="journal-meta">Creator economy</span>
+        </a>
+        <a class="journal-item reveal" href="#">
+          <h3>The Power of Micro-Influencers: Why Small Creators Are Winning</h3>
+          <span class="journal-meta">Influencer marketing</span>
+        </a>
+        <a class="journal-item reveal" href="#">
+          <h3>Inside the Mind of a Social Media Manager</h3>
+          <span class="journal-meta">Agency life</span>
+        </a>
+        <a class="journal-item reveal" href="#">
+          <h3>The Psychology Behind Why Some Posts Go Viral</h3>
+          <span class="journal-meta">Strategy</span>
+        </a>
+        <a class="journal-item reveal" href="#">
+          <h3>Is AI Replacing Human Creativity? The Truth Behind Humans vs. Machines</h3>
+          <span class="journal-meta">AI × Creativity</span>
+        </a>
+        <a class="journal-item reveal" href="#">
+          <h3>The First-Ever Brand Collab Happened in 1765</h3>
+          <span class="journal-meta">History of influence</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- CONSTELLATION TIME-SINK -->
+    <section class="time-sink reveal">
+      <span class="time-sink-label">Lose track of time</span>
+      <h2>Click anywhere to build a constellation</h2>
+      <p class="time-sink-sub">Every star you place finds the nearest ones. Something forms.</p>
+      <canvas id="constellation-canvas"></canvas>
+      <p class="constellation-hint">Click to plant a star. Hover to see connections form.</p>
+    </section>
+
+    <!-- GENERATIVE BRIEF -->
+    <section class="brief-gen">
+      <div class="brief-gen-inner">
+        <span class="brief-gen-label">The Brief Generator</span>
+        <h2>Every campaign starts with a word. What is yours?</h2>
+        <div class="brief-terminal">
+          <span class="brief-terminal-prompt">&gt;_</span>
+          <input
+            type="text"
+            class="brief-terminal-input"
+            id="brief-input"
+            placeholder="type a word: identity, launch, belonging, noise..."
+            maxlength="60"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button class="brief-terminal-btn" id="brief-generate">Generate</button>
+        </div>
+        <div class="brief-output" id="brief-output-area">
+          <div class="brief-output-text" id="brief-output-text"></div>
+          <p class="brief-output-hint" id="brief-hint">Press Enter or Generate again for a new provocation.</p>
+        </div>
+        <div class="brief-actions" id="brief-actions">
+          <button class="brief-regen" id="brief-regen">Another one</button>
+          <button class="brief-cta" id="brief-cta">Bring this to CN</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CLOSE ══ -->
+    <section class="close-section" aria-label="Continue">
+      <div class="close-inner">
+        <h2 class="reveal">Come break something with us</h2>
+        <div class="close-links reveal reveal-stagger">
+          <button class="quiet-link teal" data-lead-open>Start a conversation</button>
+          <a href="proof.html" class="quiet-link">See the finished work</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- SOCIAL FOOTER -->
+  <footer class="social-footer" aria-label="Social media">
+    <a href="https://www.instagram.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    </a>
+    <a href="https://www.facebook.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="Facebook">
+      <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </a>
+    <a href="https://www.linkedin.com/company/creatorsnetwork" target="_blank" rel="noopener" aria-label="LinkedIn">
+      <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    </a>
+    <a href="https://x.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="X">
+      <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <a href="https://www.youtube.com/@creatorsnetwork" target="_blank" rel="noopener" aria-label="YouTube">
+      <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+  </footer>
+
+  <!-- LEAD MODAL (shared) -->
+  <style>
+    .lead-modal { position: fixed; inset: 0; z-index: 500; display: grid; place-items: center; padding: 24px; background: rgba(3,4,6,.78); backdrop-filter: blur(14px); opacity: 0; visibility: hidden; transition: opacity .4s ease, visibility .4s ease; }
+    .lead-modal.is-open { opacity: 1; visibility: visible; }
+    .lead-box { width: min(560px, 100%); max-height: 90vh; overflow-y: auto; background: #07090d; border: 1px solid rgba(255,255,255,.14); padding: 44px 40px; transform: translateY(24px); transition: transform .4s cubic-bezier(.16,1,.3,1); }
+    .lead-modal.is-open .lead-box { transform: translateY(0); }
+    .lead-box h3 { margin: 0 0 8px; font-size: clamp(24px, 3vw, 34px); line-height: 1.05; letter-spacing: -.02em; text-transform: uppercase; font-weight: 300; }
+    .lead-box .lead-sub { margin: 0 0 34px; font-size: 14px; line-height: 1.6; font-weight: 300; color: rgba(244,244,241,.6); }
+    .lead-field { margin-bottom: 20px; }
+    .lead-field label { display: block; font-size: 11px; letter-spacing: .13em; text-transform: uppercase; color: rgba(244,244,241,.55); margin-bottom: 8px; font-weight: 400; }
+    .lead-field input, .lead-field select, .lead-field textarea { width: 100%; padding: 13px 14px; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.14); color: var(--soft-white); font-family: inherit; font-size: 15px; font-weight: 300; outline: none; transition: border-color .3s ease; box-sizing: border-box; }
+    .lead-field input:focus, .lead-field select:focus, .lead-field textarea:focus { border-color: var(--teal); }
+    .lead-field select { appearance: none; }
+    .lead-field textarea { min-height: 96px; resize: vertical; }
+    .lead-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 30px; }
+    .lead-submit { padding: 14px 34px; background: var(--teal); color: #032620; border: none; cursor: pointer; font-family: inherit; font-size: 12px; letter-spacing: .13em; text-transform: uppercase; font-weight: 500; transition: filter .3s ease; }
+    .lead-submit:hover { filter: brightness(1.1); }
+    .lead-cancel { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: rgba(244,244,241,.5); font-weight: 300; }
+    .lead-cancel:hover { color: rgba(244,244,241,.9); }
+    @media (max-width: 860px) { .lead-box { padding: 34px 24px; } }
+  </style>
+  <div class="lead-modal" id="lead-modal" role="dialog" aria-modal="true" aria-label="Start a conversation">
+    <div class="lead-box">
+      <h3>Start a conversation</h3>
+      <p class="lead-sub">Tell us just enough. We reply like humans, usually within a day.</p>
+      <form id="lead-form">
+        <div class="lead-field"><label for="lead-name">Name</label><input type="text" id="lead-name" name="name" required /></div>
+        <div class="lead-field"><label for="lead-email">Work email</label><input type="email" id="lead-email" name="email" required /></div>
+        <div class="lead-field"><label for="lead-company">Company</label><input type="text" id="lead-company" name="company" /></div>
+        <div class="lead-field"><label for="lead-interest">What brings you here</label>
+          <select id="lead-interest" name="interest"><option>Campaigns</option><option>Studio</option><option>Experiences / Events</option><option>Engine / Digital builds</option><option>Not sure yet</option></select>
+        </div>
+        <div class="lead-field"><label for="lead-message">A line or two</label><textarea id="lead-message" name="message"></textarea></div>
+        <div class="lead-actions">
+          <button type="submit" class="lead-submit">Send</button>
+          <button type="button" class="lead-cancel" data-lead-close>Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /* ── Experiment output canvases ── */
+    (function() {
+      // Each canvas draws a distinct generative visual representing its AI experiment
+      var configs = [
+        // 01 Gandhi — monochrome portrait pixel art style
+        { id: 'exp-canvas-1', draw: function(ctx, w, h) {
+          // Sepia-toned layered rectangles suggesting a portrait
+          var bg = ctx.createLinearGradient(0, 0, w, h);
+          bg.addColorStop(0, '#1a130a'); bg.addColorStop(1, '#0d0a06');
+          ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+          // Noise-like squares suggesting a generated face
+          var s = [
+            [0.3,0.1,0.38,0.68,'rgba(180,140,90,.22)'],
+            [0.28,0.08,0.42,0.72,'rgba(200,160,100,.14)'],
+            [0.32,0.12,0.36,0.64,'rgba(160,120,70,.3)'],
+            [0.15,0,0.68,0.55,'rgba(120,90,55,.12)'],
+            [0.35,0.15,0.3,0.55,'rgba(210,170,120,.08)'],
+          ];
+          s.forEach(function(r) {
+            ctx.fillStyle = r[4]; ctx.fillRect(r[0]*w, r[1]*h, r[2]*w, r[3]*h);
+          });
+          // Vertical scan lines
+          for (var x = 0; x < w; x += 3) {
+            ctx.fillStyle = 'rgba(0,0,0,.18)';
+            ctx.fillRect(x, 0, 1, h);
+          }
+          // Central soft glow
+          var g = ctx.createRadialGradient(w*.5, h*.38, 0, w*.5, h*.38, w*.28);
+          g.addColorStop(0, 'rgba(200,160,100,.18)'); g.addColorStop(1, 'transparent');
+          ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+          // Label
+          ctx.font = '500 ' + Math.round(h*.07) + 'px Helvetica Neue, sans-serif';
+          ctx.fillStyle = 'rgba(200,160,90,.5)'; ctx.letterSpacing = '3px';
+          ctx.fillText('AI × HISTORY', w*.04, h*.92);
+        }},
+        // 02 India Got Lit — warm Diwali bokeh
+        { id: 'exp-canvas-2', draw: function(ctx, w, h) {
+          var bg = ctx.createLinearGradient(0, h, w, 0);
+          bg.addColorStop(0, '#0e0608'); bg.addColorStop(1, '#160c04');
+          ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+          // Bokeh lights
+          var lights = [
+            [.1,.7,18,'rgba(255,140,0,.55)'],[.22,.5,12,'rgba(255,200,60,.45)'],
+            [.38,.8,22,'rgba(255,80,20,.4)'],[.5,.4,15,'rgba(255,160,40,.5)'],
+            [.62,.75,10,'rgba(255,220,80,.35)'],[.75,.55,20,'rgba(255,100,10,.45)'],
+            [.88,.65,14,'rgba(255,180,50,.4)'],[.15,.3,8,'rgba(220,120,30,.3)'],
+            [.55,.2,18,'rgba(255,140,20,.38)'],[.8,.35,11,'rgba(255,200,70,.42)'],
+            [.42,.6,7,'rgba(255,240,100,.5)'],[.68,.3,16,'rgba(255,90,10,.35)'],
+          ];
+          lights.forEach(function(l) {
+            var grd = ctx.createRadialGradient(l[0]*w, l[1]*h, 0, l[0]*w, l[1]*h, l[2]);
+            grd.addColorStop(0, l[3]); grd.addColorStop(1, 'transparent');
+            ctx.fillStyle = grd; ctx.fillRect(0,0,w,h);
+          });
+          // Sparkle dots
+          for (var i = 0; i < 60; i++) {
+            var px = (i * 47.3) % w, py = (i * 31.7 + 20) % h;
+            ctx.beginPath(); ctx.arc(px, py, .8, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(255,220,120,' + (.2 + (i%5)*.1) + ')'; ctx.fill();
+          }
+          ctx.font = '500 ' + Math.round(h*.07) + 'px Helvetica Neue, sans-serif';
+          ctx.fillStyle = 'rgba(255,160,50,.55)';
+          ctx.fillText('AI × DIWALI', w*.04, h*.92);
+        }},
+        // 03 Tech meets tradition — Christmas tree geometry
+        { id: 'exp-canvas-3', draw: function(ctx, w, h) {
+          var bg = ctx.createLinearGradient(0, 0, 0, h);
+          bg.addColorStop(0, '#040c06'); bg.addColorStop(1, '#010401');
+          ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+          // Geometric tree layers
+          var cx = w * .5, base = h * .9, layers = 6;
+          for (var i = 0; i < layers; i++) {
+            var y = h * (.15 + i * .12), fw = w * (.06 + i * .08);
+            ctx.beginPath();
+            ctx.moveTo(cx, y); ctx.lineTo(cx + fw, y + h*.1); ctx.lineTo(cx - fw, y + h*.1);
+            ctx.closePath();
+            var alpha = .08 + i * .05;
+            ctx.fillStyle = 'rgba(61,216,197,' + alpha + ')';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(61,216,197,' + (alpha + .15) + ')';
+            ctx.lineWidth = .8; ctx.stroke();
+          }
+          // Trunk
+          ctx.fillStyle = 'rgba(100,70,40,.4)';
+          ctx.fillRect(cx-6, h*.85, 12, h*.1);
+          // Light dots
+          var dotCols = ['rgba(255,50,50,.7)','rgba(255,220,0,.7)','rgba(61,216,197,.8)','rgba(200,100,255,.6)'];
+          for (var j = 0; j < 28; j++) {
+            var dx = cx + ((j*73) % (w*.6) - w*.3), dy = h*(.2 + (j*41)%(h*.65)/h);
+            ctx.beginPath(); ctx.arc(dx, dy, 2.5, 0, Math.PI*2);
+            ctx.fillStyle = dotCols[j%4]; ctx.fill();
+          }
+          ctx.font = '500 ' + Math.round(h*.07) + 'px Helvetica Neue, sans-serif';
+          ctx.fillStyle = 'rgba(61,216,197,.55)';
+          ctx.fillText('AI × BRANDING', w*.04, h*.92);
+        }},
+        // 04 Cozy AI — warm noise texture with soft forms
+        { id: 'exp-canvas-4', draw: function(ctx, w, h) {
+          var bg = ctx.createLinearGradient(0, 0, w*.5, h);
+          bg.addColorStop(0, '#0c0908'); bg.addColorStop(1, '#08070a');
+          ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+          // Soft warm blobs
+          var blobs = [
+            [.3,.6,w*.3,'rgba(200,140,80,.12)'],[.7,.35,w*.25,'rgba(180,120,70,.1)'],
+            [.5,.75,w*.2,'rgba(220,160,90,.08)'],[.15,.4,w*.18,'rgba(190,130,75,.09)'],
+          ];
+          blobs.forEach(function(b) {
+            var g = ctx.createRadialGradient(b[0]*w, b[1]*h, 0, b[0]*w, b[1]*h, b[2]);
+            g.addColorStop(0, b[3]); g.addColorStop(1, 'transparent');
+            ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+          });
+          // Fine horizontal noise lines
+          for (var y = 0; y < h; y += 2) {
+            ctx.fillStyle = 'rgba(255,255,255,' + (Math.abs(Math.sin(y*.23))*.02) + ')';
+            ctx.fillRect(0, y, w, 1);
+          }
+          // Soft vignette
+          var vig = ctx.createRadialGradient(w*.5, h*.5, h*.1, w*.5, h*.5, h*.7);
+          vig.addColorStop(0, 'transparent'); vig.addColorStop(1, 'rgba(0,0,0,.55)');
+          ctx.fillStyle = vig; ctx.fillRect(0,0,w,h);
+          ctx.font = '500 ' + Math.round(h*.07) + 'px Helvetica Neue, sans-serif';
+          ctx.fillStyle = 'rgba(200,150,90,.5)';
+          ctx.fillText('AI × ATMOSPHERE', w*.04, h*.92);
+        }},
+      ];
+
+      configs.forEach(function(cfg) {
+        var canvas = document.getElementById(cfg.id);
+        if (!canvas) return;
+        function render() {
+          var w = canvas.offsetWidth, h = canvas.offsetHeight;
+          if (!w || !h) return;
+          canvas.width = w * (window.devicePixelRatio || 1);
+          canvas.height = h * (window.devicePixelRatio || 1);
+          var ctx = canvas.getContext('2d');
+          ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+          cfg.draw(ctx, w, h);
+        }
+        // Render when canvas is in view
+        var obs = new IntersectionObserver(function(entries) {
+          if (entries[0].isIntersecting) { render(); obs.disconnect(); }
+        }, { threshold: 0.1 });
+        obs.observe(canvas);
+        window.addEventListener('resize', render);
+      });
+    })();
+
+    /* Subtle parallax */
+    (function () {
+      var world = document.querySelector(".portrait-world");
+      var bg = document.getElementById("portrait-bg");
+      if (!world || !bg) return;
+      var ticking = false;
+      function update() {
+        ticking = false;
+        var rect = world.getBoundingClientRect();
+        var p = Math.min(1, Math.max(0, -rect.top / (rect.height - window.innerHeight || 1)));
+        bg.style.transform = "translateY(" + (p * 60) + "px) scale(1.04)";
+      }
+      window.addEventListener("scroll", function () { if (!ticking) { requestAnimationFrame(update); ticking = true; } }, { passive: true });
+      window.addEventListener("resize", update);
+      update();
+    })();
+
+    /* Reveal on scroll */
+    (function () {
+      var reveals = document.querySelectorAll(".reveal");
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add("is-visible"); });
+      }, { threshold: 0.1, rootMargin: "0px 0px -30px 0px" });
+      reveals.forEach(function (el) { obs.observe(el); });
+    })();
+
+    // FLASK HOVER BUBBLES
+    (function() {
+      var flasks = document.querySelectorAll('.flask-item');
+      var flaskColors = [
+        'rgba(61,216,197,.9)',
+        'rgba(200,160,80,.9)',
+        'rgba(170,90,180,.9)',
+        'rgba(244,244,241,.65)'
+      ];
+      flasks.forEach(function(item, flaskIdx) {
+        var color = flaskColors[flaskIdx % flaskColors.length];
+        var clipGroup = item.querySelector('g');
+        var hoverTimer = null;
+        var activeBubbles = [];
+        var spawnX = [18, 28, 38, 24, 32, 20, 36];
+        var spawnXIdx = 0;
+
+        function spawnHoverBubble() {
+          if (!clipGroup) return;
+          var ns = 'http://www.w3.org/2000/svg';
+          var cx = spawnX[spawnXIdx % spawnX.length];
+          spawnXIdx++;
+          var startY = 88 + (spawnXIdx % 3) * 5;
+          var r = 1.4 + (spawnXIdx % 4) * 0.55;
+          var circle = document.createElementNS(ns, 'circle');
+          circle.setAttribute('cx', cx);
+          circle.setAttribute('cy', startY);
+          circle.setAttribute('r', r);
+          circle.setAttribute('fill', color);
+          circle.setAttribute('opacity', '0');
+          clipGroup.appendChild(circle);
+          activeBubbles.push(circle);
+          var duration = 1100 + (spawnXIdx % 5) * 150;
+          var riseAmount = 52 + (spawnXIdx % 4) * 8;
+          var startTime = null;
+          function step(ts) {
+            if (!startTime) startTime = ts;
+            var t = Math.min(1, (ts - startTime) / duration);
+            var cy = startY - riseAmount * t;
+            var op = t < 0.18 ? t / 0.18 : t > 0.7 ? (1 - t) / 0.3 : 1;
+            circle.setAttribute('cy', cy);
+            circle.setAttribute('opacity', (op * 0.82).toFixed(3));
+            if (t < 1 && circle.parentNode) {
+              requestAnimationFrame(step);
+            } else {
+              if (circle.parentNode) clipGroup.removeChild(circle);
+              var idx = activeBubbles.indexOf(circle);
+              if (idx > -1) activeBubbles.splice(idx, 1);
+            }
+          }
+          requestAnimationFrame(step);
+        }
+
+        item.addEventListener('mouseenter', function() {
+          spawnHoverBubble();
+          setTimeout(spawnHoverBubble, 110);
+          setTimeout(spawnHoverBubble, 240);
+          hoverTimer = setInterval(function() {
+            spawnHoverBubble();
+            if (activeBubbles.length < 4) spawnHoverBubble();
+          }, 300);
+        });
+        item.addEventListener('mouseleave', function() {
+          clearInterval(hoverTimer);
+        });
+      });
+    })();
+
+    /* Lead modal (shared) */
+    (function () {
+      var modal = document.getElementById("lead-modal");
+      var form = document.getElementById("lead-form");
+      if (!modal || !form) return;
+      function open() { modal.classList.add("is-open"); }
+      function close() { modal.classList.remove("is-open"); }
+      document.querySelectorAll('[data-lead-open], .quiet-link[href="contact.html"]').forEach(function (el) {
+        el.addEventListener("click", function (e) { e.preventDefault(); open(); });
+      });
+      document.querySelectorAll("[data-lead-close]").forEach(function (el) { el.addEventListener("click", close); });
+      modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+      document.addEventListener("lead-open", open);
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var name = document.getElementById("lead-name").value;
+        var email = document.getElementById("lead-email").value;
+        var company = document.getElementById("lead-company").value;
+        var interest = document.getElementById("lead-interest").value;
+        var message = document.getElementById("lead-message").value;
+        var body = "Name: " + name + "%0D%0AEmail: " + email + "%0D%0ACompany: " + company + "%0D%0AInterest: " + interest + "%0D%0A%0D%0A" + encodeURIComponent(message);
+        window.location.href = "mailto:hello@creatorsnetwork.io?subject=" + encodeURIComponent("New conversation - " + (company || name)) + "&body=" + body;
+        close();
+      });
+    })();
+
+    // GENERATIVE BRIEF — sentence-based strategist output
+    (function() {
+      var input = document.getElementById('brief-input');
+      var generateBtn = document.getElementById('brief-generate');
+      var outputArea = document.getElementById('brief-output-text');
+      var outputHint = document.getElementById('brief-hint');
+      var actions = document.getElementById('brief-actions');
+      var regenBtn = document.getElementById('brief-regen');
+      var ctaBtn = document.getElementById('brief-cta');
+      if (!input || !outputArea) return;
+
+      // Sentence banks — each entry is 3 strategic provocation sentences
+      var sentenceBanks = {
+        identity: [
+          ["Most brands confuse {word} with aesthetics.", "What you look like is the costume. What you mean is the character.", "Strong {word} begins with what you refuse to become."],
+          ["{word} is built in the decisions no brief accounts for — the client you turned down, the price you refused to drop, the thing you didn't launch.", "Design makes it visible.", "Behaviour makes it real."],
+          ["The hardest part of strong {word} is subtraction.", "What gets cut, what stays off the website, what doesn't get said — that's where the actual character lives.", "Everything that stays has to earn its place."]
+        ],
+        launch: [
+          ["A {word} is not a moment. It's a posture shift.", "Something true has to exist before you can announce it.", "The work is making sure the reality can carry the noise."],
+          ["Most {word}s fail from lack of sequence, not lack of effort.", "You can't skip to belief — people need to know before they trust, and trust before they act.", "Map the journey, not just the campaign."],
+          ["The question isn't what to say at your {word}.", "It's what to say first, to whom, in what order, and what you need them to believe by Friday.", "Everything else is a delivery problem."]
+        ],
+        belonging: [
+          ["You can't manufacture {word}.", "You can design the conditions for it — shared language, shared reference points, a door that opens from both sides.", "Most brands only build one side of the door."],
+          ["Real {word} has friction in it.", "If everyone qualifies, no one belongs.", "The most loyal communities required something to get in — not money, but meaning."],
+          ["{word} is the most underwritten brief in marketing.", "Everyone says community. Few earn it.", "The difference is whether people come back when there's nothing to buy."]
+        ],
+        noise: [
+          ["The answer to {word} is never more content.", "It's sharper thinking about what actually needs saying, for a real person, on a real Tuesday.", "Volume is cheap. Relevance is earned."],
+          ["To cut through {word}, be specific about something most people stay vague about.", "The more precisely you describe someone's actual situation, the more they feel seen.", "Feeling seen is the beginning of trust."],
+          ["Every brand thinks it's adding signal. Most are adding {word}.", "The one that earns attention usually says less, means more, and shows up consistently for longer than anyone expected.", "Quieter than the room is sometimes the loudest thing in it."]
+        ],
+        trust: [
+          ["{word} is the outcome, not the strategy.", "You can't brief for it directly — only for the things that produce it: honesty, consistency, and proving you know what you're talking about.", "The rest is hope."],
+          ["The fastest way to build {word} is to do something hard to fake.", "Not a promise — a proof.", "What does doing the actual work look like, and are you willing to show it?"],
+          ["{word} breaks when reality doesn't match the story.", "The brand that lasts undersells and over-delivers, every time.", "Every claim is a debt. Make sure you can pay it."]
+        ],
+        movement: [
+          ["{word} doesn't start with a campaign. It starts with a position worth travelling toward.", "Something has to be true before anyone will march.", "What is the thing, and why now?"],
+          ["The brief for real {word} is this: why would someone put their name on it?", "Not their money — their name.", "That's the bar. Everything below it is advertising."],
+          ["{word} needs an obvious first step, a reason to bring someone else in, and something to be against as much as something to be for.", "Most campaigns have the first.", "Almost none have all three."]
+        ],
+        campaign: [
+          ["A great {word} solves one problem, for one person, at one critical moment.", "The longer the brief gets, the weaker the work gets.", "Cut until it hurts. Then cut again."],
+          ["{word} strategy isn't about covering every channel.", "It's about picking the one where your audience is most persuadable — and doing something genuinely useful there.", "Everything else is optional."],
+          ["Before the {word} begins, answer this: what does success look like in human terms?", "Not impressions. Not clicks.", "What does someone believe, or do, differently that they didn't before?"]
+        ],
+        brand: [
+          ["{word} is not what you say about yourself.", "It's what people say when you're not in the room — and whether it matches what you intended.", "Closing that gap is the whole job."],
+          ["A {word} that tries to mean everything to everyone means nothing to anyone.", "Specificity isn't limiting — it's how you become someone's first choice instead of everyone's adequate option.", "Choose your people. The rest will sort itself."],
+          ["The strongest {word}s are built on things that are genuinely hard to imitate.", "Not aesthetics. Not taglines.", "The proof underneath, and the position that holds even when the market moves."]
+        ],
+        creative: [
+          ["{word} without constraint is just preference.", "The brief is where creativity begins — not where it ends.", "The best work comes from someone who understood the problem better than the client expected."],
+          ["Good {word} looks inevitable in hindsight.", "The idea that lands feels like it was always the right answer, not a clever solution.", "That's the standard: not 'wow' — 'of course.'"],
+          ["The most dangerous word in a {word} brief is 'unexpected.'", "Unexpected compared to what? For whom?", "Surprise without context isn't bold — it's just strange."]
+        ],
+        digital: [
+          ["{word} strategy that starts with the platform usually ends with the platform's constraints.", "Start with the person and the decision they're trying to make.", "Then figure out where they are and what they need to believe."],
+          ["The algorithm is not the enemy. Blandness is.", "Most {word} content fails because it was built for approval, not impact.", "It passed review. It didn't change anyone's mind."],
+          ["In {word}, the thing that gets measured is rarely the thing that matters.", "What matters is the shift in perception, intent, or behaviour your activity actually caused.", "Everything else is a proxy."]
+        ],
+        influencer: [
+          ["The best {word} briefs leave room for the creator's actual voice.", "Audiences follow creators because of who they are.", "The moment the brand takes over, everyone notices — and discounts it accordingly."],
+          ["{word} marketing works when the fit is undeniable — not aspirational, actual.", "If you have to explain why the creator is a match, they probably aren't.", "Fit is felt before it's argued."],
+          ["Most {word} campaigns are measured on reach and delivered on novelty.", "The ones that last are built on relationships — creators who believe in what they're amplifying.", "That's not a metric. It's a discipline."]
+        ],
+        default: [
+          ["Every brief is a theory about what will change someone's mind.", "Most briefs are wrong. But a good wrong brief beats no theory — at least it creates a disagreement worth having.", "Start there."],
+          ["Before strategy, there is always a person.", "Not a demographic — a specific human in a specific situation, deciding something.", "Everything that follows is in service of that moment."],
+          ["Good work starts with a sharp observation, not a clever idea.", "Spend more time on the problem than the solution.", "The idea will come. The observation is the hard part."],
+          ["The question isn't what should we make.", "It's what do we need people to believe — and what would make them believe it?", "Answer that, and the format solves itself."]
+        ]
+      };
+
+      var lastVariant = -1;
+
+      function getBank(word) {
+        var w = (word || '').toLowerCase().trim();
+        for (var key in sentenceBanks) {
+          if (key === 'default') continue;
+          if (w === key || w.indexOf(key) > -1 || key.indexOf(w) > -1) {
+            return { key: key, bank: sentenceBanks[key] };
+          }
+        }
+        return { key: 'default', bank: sentenceBanks.default };
+      }
+
+      function generate() {
+        var word = input.value.trim();
+        var matched = getBank(word);
+        var bank = matched.bank;
+        var idx = (lastVariant + 1) % bank.length;
+        lastVariant = idx;
+        var sentences = bank[idx].map(function(s) {
+          return s.replace(/\{word\}/g, word || 'this');
+        });
+
+        outputArea.innerHTML = '';
+        outputArea.classList.remove('visible');
+        outputHint.classList.remove('visible');
+        actions.classList.remove('visible');
+
+        setTimeout(function() {
+          outputArea.classList.add('visible');
+          var conceptBg = document.createElement('div');
+          conceptBg.className = 'brief-concept-bg';
+          conceptBg.textContent = (word || matched.key).toUpperCase().slice(0, 14);
+          outputArea.appendChild(conceptBg);
+
+          sentences.forEach(function(s, i) {
+            var p = document.createElement('p');
+            p.className = 'brief-sentence';
+            p.textContent = s;
+            p.style.transitionDelay = (i * 0.18) + 's';
+            outputArea.appendChild(p);
+            setTimeout(function() { p.classList.add('popped'); }, 80 + i * 200);
+          });
+
+          setTimeout(function() {
+            outputHint.classList.add('visible');
+            actions.classList.add('visible');
+          }, 80 + sentences.length * 200 + 260);
+        }, 150);
+      }
+
+      generateBtn.addEventListener('click', generate);
+      regenBtn.addEventListener('click', generate);
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); generate(); }
+      });
+
+      // "Bring this to CN" opens lead modal
+      if (ctaBtn) {
+        ctaBtn.addEventListener('click', function() {
+          var sentences = Array.from(outputArea.querySelectorAll('.brief-sentence')).map(function(p) { return p.textContent; }).join(' ');
+          var modal = document.getElementById('lead-modal');
+          var msgArea = modal ? modal.querySelector('#lead-message') : null;
+          if (msgArea && sentences) {
+            msgArea.value = 'From the brief generator — concept: "' + (input.value || 'identity') + '"\n\n' + sentences + '\n\nI would like to explore this with CN.';
+          }
+          if (modal) modal.classList.add('is-open');
+          else {
+            var btn = document.querySelector('[data-lead-open]');
+            if (btn) btn.click();
+          }
+        });
+      }
+
+      // Seed on load
+      setTimeout(function() { input.value = 'identity'; lastVariant = -1; generate(); }, 800);
+    })();
+
+    // CONSTELLATION TIME-SINK
+    (function() {
+      var canvas = document.getElementById('constellation-canvas');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      var stars = [];
+      var mouse = {x: -9999, y: -9999};
+      var MAX_STARS = 60;
+      var CONNECT_DIST = 120;
+      var animating = false;
+
+      function resize() {
+        var rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
+
+      function Star(x, y) {
+        this.x = x; this.y = y;
+        this.r = 1.2 + Math.random() * 1.5;
+        this.alpha = 0;
+        this.born = Date.now();
+        this.vx = (Math.random() - .5) * .15;
+        this.vy = (Math.random() - .5) * .15;
+      }
+
+      function addStar(x, y) {
+        if (stars.length >= MAX_STARS) stars.shift();
+        stars.push(new Star(x, y));
+        if (!animating) { animating = true; draw(); }
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        var now = Date.now();
+
+        // Draw connections
+        for (var i = 0; i < stars.length; i++) {
+          for (var j = i + 1; j < stars.length; j++) {
+            var dx = stars[i].x - stars[j].x;
+            var dy = stars[i].y - stars[j].y;
+            var dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < CONNECT_DIST) {
+              var opacity = (1 - dist/CONNECT_DIST) * 0.35 * Math.min(stars[i].alpha, stars[j].alpha);
+              ctx.beginPath();
+              ctx.moveTo(stars[i].x, stars[i].y);
+              ctx.lineTo(stars[j].x, stars[j].y);
+              ctx.strokeStyle = 'rgba(61,216,197,' + opacity + ')';
+              ctx.lineWidth = .8;
+              ctx.stroke();
+            }
+          }
+        }
+
+        // Draw mouse proximity connections
+        stars.forEach(function(s) {
+          var dx = s.x - mouse.x; var dy = s.y - mouse.y;
+          var dist = Math.sqrt(dx*dx+dy*dy);
+          if (dist < 140) {
+            var op = (1 - dist/140) * 0.45 * s.alpha;
+            ctx.beginPath();
+            ctx.moveTo(s.x, s.y);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.strokeStyle = 'rgba(244,244,241,' + op + ')';
+            ctx.lineWidth = .6;
+            ctx.stroke();
+          }
+        });
+
+        // Draw stars and update positions
+        stars.forEach(function(s) {
+          var age = (now - s.born) / 800;
+          s.alpha = Math.min(1, age);
+          s.x += s.vx; s.y += s.vy;
+
+          // Bounce off edges
+          if (s.x < 0 || s.x > canvas.width) s.vx *= -1;
+          if (s.y < 0 || s.y > canvas.height) s.vy *= -1;
+
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+          ctx.fillStyle = 'rgba(244,244,241,' + (s.alpha * .9) + ')';
+          ctx.fill();
+
+          // Teal glow for newer stars
+          if (age < 1.5) {
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r * 2.5, 0, Math.PI*2);
+            ctx.fillStyle = 'rgba(61,216,197,' + ((1 - age/1.5) * .18) + ')';
+            ctx.fill();
+          }
+        });
+
+        if (stars.length > 0) requestAnimationFrame(draw);
+        else animating = false;
+      }
+
+      canvas.addEventListener('click', function(e) {
+        var rect = canvas.getBoundingClientRect();
+        addStar(e.clientX - rect.left, e.clientY - rect.top);
+      });
+
+      canvas.addEventListener('mousemove', function(e) {
+        var rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+        if (stars.length > 0 && !animating) { animating = true; draw(); }
+      });
+
+      canvas.addEventListener('mouseleave', function() { mouse.x = -9999; mouse.y = -9999; });
+
+      window.addEventListener('resize', resize);
+      resize();
+    })();
+  </script>
+</body>
+</html>

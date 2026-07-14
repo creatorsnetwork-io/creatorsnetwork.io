@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Founder — Creators Network</title>
+  <meta name="description" content="Himanshu Arora — founder of Creators Network." />
+  <style>
+    :root {
+      --black: #030406;
+      --soft-white: #f4f4f1;
+      --muted: rgba(244,244,241,.68);
+      --line: rgba(255,255,255,.11);
+      --teal: #3dd8c5;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--black); }
+    body {
+      margin: 0; background: var(--black); color: var(--soft-white);
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      overflow-x: hidden; text-rendering: geometricPrecision;
+    }
+    body::after {
+      content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 20; opacity: .10;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+      mix-blend-mode: screen;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Ambient wash (D) ── */
+    #ambient-wash {
+      position: fixed; inset: 0; z-index: 50;
+      pointer-events: none;
+      background: transparent;
+      transition: background 2.8s cubic-bezier(.16,1,.3,1);
+    }
+
+    /* ── Nav ── */
+    .nav {
+      position: fixed; z-index: 100; top: 28px; left: 30px; right: 30px;
+      display: flex; align-items: center; justify-content: space-between;
+      pointer-events: none;
+    }
+    .brand-logo { pointer-events: auto; width: 54px; height: auto; display: block; }
+    .nav-items {
+      pointer-events: auto; display: flex; align-items: center;
+      gap: clamp(16px, 2.2vw, 34px); padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,.075);
+      background: rgba(3,4,6,.20); backdrop-filter: blur(18px);
+    }
+    .nav-items a {
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 400; color: rgba(244,244,241,.80);
+      white-space: nowrap; transition: color .3s ease;
+    }
+    .nav-items a.is-current { color: var(--teal); }
+    .nav-items a:hover { color: rgba(244,244,241,1); }
+
+    /* ── Reveal ── */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .reveal-stagger   { transition-delay: .15s; }
+    .reveal-stagger-2 { transition-delay: .3s; }
+    .reveal-stagger-3 { transition-delay: .45s; }
+
+    /* ══ PORTRAIT WORLD ══ */
+    .portrait-world { position: relative; z-index: 1; }
+    .portrait-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: url("assets/himanshu-founder-hero.jpg") center top / cover no-repeat;
+      will-change: transform;
+    }
+    .portrait-bg::after {
+      content: ""; position: absolute; inset: 0;
+      background:
+        linear-gradient(180deg, rgba(3,4,6,.15), rgba(3,4,6,.35) 40%, rgba(3,4,6,.72) 82%, var(--black)),
+        linear-gradient(90deg, rgba(0,0,0,.5), rgba(0,0,0,.05) 45%, rgba(0,0,0,.45));
+    }
+
+    .hero-content {
+      position: relative; z-index: 1;
+      padding: calc(20vh + 300px) 34px 0;
+    }
+    .hero-eyebrow {
+      display: block; font-size: 13px; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 20px; font-weight: 400;
+    }
+    .hero-content h1 {
+      margin: 0; max-width: 9ch;
+      font-size: clamp(52px, 8vw, 122px);
+      line-height: 1.04; letter-spacing: -.02em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .hero-statement {
+      max-width: 480px; margin: 30px 0 0;
+      font-size: clamp(16px, 1.6vw, 21px); line-height: 1.45;
+      font-weight: 300; font-style: italic; color: rgba(244,244,241,.75);
+    }
+    .hero-owner {
+      display: block; margin-top: 26px; font-size: 12px; letter-spacing: .16em;
+      text-transform: uppercase; font-weight: 400; color: rgba(244,244,241,.85);
+    }
+
+    /* Philosophy over the same portrait */
+    .philosophy {
+      position: relative; z-index: 1;
+      padding: 12vh 34px 38vh;
+    }
+    .philosophy-inner { max-width: 760px; margin: 0 auto; }
+    .philosophy p {
+      font-size: clamp(21px, 2.4vw, 32px); line-height: 1.48;
+      font-weight: 300; color: rgba(244,244,241,.88); margin: 0 0 30px;
+    }
+    .philosophy p:last-child { margin-bottom: 0; }
+    .philosophy em { color: var(--soft-white); font-style: normal; }
+
+    /* ══ BEFORE THE NETWORK — event credits ══ */
+    .credits {
+      position: relative; z-index: 2; background: var(--black);
+      min-height: 90vh; display: grid; align-items: center;
+      padding: 130px 34px; overflow: hidden;
+    }
+    .credits::before {
+      content: ""; position: absolute; inset: 0; z-index: 0;
+      background: url("assets/experiences.jpg") center / cover no-repeat;
+      opacity: .22;
+    }
+    .credits::after {
+      content: ""; position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(180deg, var(--black), rgba(3,4,6,.5) 30%, rgba(3,4,6,.5) 70%, var(--black));
+    }
+    .credits-inner { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; }
+    .credits p {
+      font-size: clamp(21px, 2.4vw, 32px); line-height: 1.48;
+      font-weight: 300; color: rgba(244,244,241,.88); margin: 0 0 54px;
+    }
+    .credits em { color: var(--teal); font-style: normal; }
+    .credit-roll {
+      display: flex; flex-wrap: wrap; gap: 12px;
+    }
+    .credit {
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+      padding: 10px 18px; border: 1px solid rgba(255,255,255,.16);
+      color: rgba(244,244,241,.78); font-weight: 300;
+      transition: border-color .4s ease, color .4s ease, transform .4s cubic-bezier(.16,1,.3,1);
+      cursor: default;
+    }
+    .credit:hover {
+      border-color: rgba(61,216,197,.5);
+      color: rgba(244,244,241,1);
+      transform: translateY(-2px);
+    }
+
+    /* ══ TIMELINE ══ */
+    .timeline {
+      position: relative; z-index: 2; background: var(--black);
+      overflow: hidden;
+    }
+    .milestone {
+      position: relative;
+      min-height: 80vh;
+      display: flex; align-items: center;
+      padding: 80px 34px;
+      border-top: 1px solid var(--line);
+      overflow: hidden;
+    }
+    .milestone:first-child { border-top: none; }
+    .milestone-year-bg {
+      position: absolute;
+      right: -2vw; top: 50%;
+      transform: translateY(-50%) translateX(60px);
+      font-size: clamp(140px, 22vw, 340px);
+      line-height: .85; letter-spacing: -.06em; font-weight: 300;
+      color: rgba(255,255,255,.028);
+      pointer-events: none;
+      transition: transform 1.2s cubic-bezier(.16,1,.3,1), color 1.2s;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .milestone.ms-revealed .milestone-year-bg {
+      transform: translateY(-50%) translateX(0);
+      color: rgba(255,255,255,.038);
+    }
+    .milestone-content {
+      position: relative; z-index: 1;
+      max-width: 640px;
+      opacity: 0; transform: translateX(-40px);
+      transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1);
+    }
+    .milestone.ms-revealed .milestone-content {
+      opacity: 1; transform: translateX(0);
+    }
+    .milestone-year {
+      display: block;
+      font-size: clamp(72px, 11vw, 160px);
+      line-height: .9; letter-spacing: -.05em; font-weight: 300;
+      margin-bottom: 28px;
+      transition: color .8s ease;
+    }
+    .milestone-title {
+      font-size: clamp(22px, 2.8vw, 40px);
+      line-height: 1.1; letter-spacing: -.02em; font-weight: 300;
+      text-transform: uppercase; margin: 0 0 20px;
+      color: rgba(244,244,241,.9);
+    }
+    .milestone-copy {
+      font-size: clamp(15px, 1.45vw, 19px); line-height: 1.7;
+      font-weight: 300; color: rgba(244,244,241,.62);
+      margin: 0; max-width: 540px;
+    }
+    /* Color temperature per milestone */
+    .ms-2020 .milestone-year { color: #c4874a; }
+    .ms-2022 .milestone-year { color: #a89878; }
+    .ms-2025 .milestone-year { color: #6a8fbe; }
+    .ms-2026 .milestone-year { color: #3dd8c5; }
+
+    /* ══ THE CAST ══ */
+    .cast {
+      position: relative; z-index: 2; background: var(--black);
+      padding: 130px 34px 150px;
+    }
+    .cast-inner { max-width: 1300px; margin: 0 auto; }
+    .cast-head {
+      margin: 0 0 24px; font-size: clamp(38px, 5vw, 72px);
+      line-height: 1; letter-spacing: -.03em;
+      text-transform: uppercase; font-weight: 300;
+    }
+    .cast-sub {
+      margin: 0 0 70px; max-width: 560px;
+      font-size: clamp(15px, 1.5vw, 19px); line-height: 1.6;
+      font-weight: 300; color: rgba(244,244,241,.65);
+    }
+    .cast-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    }
+    .cast-card {
+      position: relative; overflow: hidden; display: block;
+      aspect-ratio: 3 / 4.4;
+      border: 1px solid rgba(255,255,255,.105);
+      background-color: #07090d; background-size: cover; background-position: center 20%;
+      filter: saturate(.9) contrast(1.05);
+      transition: filter .6s cubic-bezier(.19,1,.22,1), transform .6s cubic-bezier(.19,1,.22,1);
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .cast-card:hover { filter: saturate(1.05) contrast(1.1) brightness(1.05); }
+    .cast-card::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.15) 55%, rgba(0,0,0,.78));
+      transition: background .5s ease;
+    }
+    .cast-card:hover::before {
+      background: linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.3) 35%, rgba(0,0,0,.85));
+    }
+    .cast-card-content {
+      position: absolute; inset: 0; padding: 20px;
+      display: flex; flex-direction: column; justify-content: flex-end;
+    }
+    .cast-name {
+      font-size: clamp(18px, 1.7vw, 24px); letter-spacing: -.01em;
+      text-transform: uppercase; font-weight: 300; margin: 0 0 4px;
+      transition: transform .4s cubic-bezier(.16,1,.3,1);
+    }
+    .cast-card:hover .cast-name { transform: translateY(-4px); }
+    .cast-role {
+      font-size: 11px; letter-spacing: .13em; text-transform: uppercase;
+      color: var(--teal); font-weight: 400;
+      transition: transform .4s cubic-bezier(.16,1,.3,1);
+    }
+    .cast-card:hover .cast-role { transform: translateY(-4px); }
+    /* Bio overlay */
+    .cast-bio {
+      position: absolute; inset: 0; padding: 24px 20px;
+      display: flex; flex-direction: column; justify-content: flex-start;
+      opacity: 0; transform: translateY(-8px);
+      transition: opacity .45s ease, transform .45s cubic-bezier(.16,1,.3,1);
+      pointer-events: none;
+    }
+    .cast-card:hover .cast-bio { opacity: 1; transform: translateY(0); }
+    .cast-bio-text {
+      font-size: clamp(12px, 1.1vw, 14px); line-height: 1.65;
+      font-weight: 300; color: rgba(244,244,241,.88); max-width: 220px;
+    }
+
+    /* ══ WORDS / PRESS ══ */
+    .words {
+      position: relative; z-index: 2; background: var(--black);
+      padding: 100px 60px; border-top: 1px solid var(--line);
+    }
+    .words-inner { max-width: 1100px; margin: 0 auto; }
+    .words-label {
+      display: block; font-size: 11px; letter-spacing: .16em;
+      text-transform: uppercase; color: var(--teal);
+      margin-bottom: 70px; font-weight: 400;
+    }
+    .words-cols {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 80px;
+    }
+    .words-col-head {
+      font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+      color: rgba(244,244,241,.35); margin: 0 0 32px; font-weight: 400;
+    }
+    .press-item {
+      display: block; padding: 24px 0; border-top: 1px solid var(--line);
+      transition: border-top-color .3s;
+      text-decoration: none;
+    }
+    .press-item:last-child { border-bottom: 1px solid var(--line); }
+    .press-item:hover { border-top-color: rgba(61,216,197,.3); }
+    .press-tag {
+      display: inline-block; font-size: 9px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 8px; font-weight: 400;
+    }
+    .press-pub {
+      font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(244,244,241,.4); margin-bottom: 8px; font-weight: 400; display: block;
+    }
+    .press-title {
+      font-size: clamp(14px, 1.4vw, 18px); line-height: 1.4;
+      font-weight: 300; color: var(--soft-white);
+      transition: color .3s;
+    }
+    .press-item:hover .press-title { color: rgba(244,244,241,1); }
+    .press-arrow {
+      display: inline-block; margin-left: 8px; color: var(--teal);
+      opacity: 0; transform: translateX(-6px);
+      transition: opacity .3s, transform .3s;
+    }
+    .press-item:hover .press-arrow { opacity: 1; transform: translateX(0); }
+
+    /* ══ VOICE ══ */
+    .voice {
+      position: relative; z-index: 2; background: var(--black);
+      display: grid; align-items: center;
+      padding: 60px 34px 140px;
+    }
+    .voice-inner { max-width: 860px; margin: 0 auto; }
+    .voice-quote {
+      font-size: clamp(26px, 3.4vw, 46px); line-height: 1.32;
+      font-weight: 300; font-style: italic; margin: 0 0 34px;
+      color: rgba(244,244,241,.94);
+    }
+    .voice-attribution {
+      font-size: 14px; letter-spacing: .04em; color: rgba(244,244,241,.6);
+    }
+    .voice-attribution strong { color: var(--teal); font-weight: 400; }
+
+    /* ══ CLOSE ══ */
+    .close-section {
+      position: relative; z-index: 2; min-height: 90vh;
+      display: grid; place-items: center; overflow: hidden;
+      background: var(--black); padding: 40px 32px;
+    }
+    .close-section::before {
+      content: ""; position: absolute; inset: 0; z-index: 0;
+      background: url("assets/himanshu-founder-hero.jpg") center 12% / cover no-repeat;
+      opacity: .18;
+    }
+    .close-section::after {
+      content: ""; position: absolute; inset: 0; z-index: 1;
+      background: radial-gradient(ellipse at center, rgba(3,4,6,.6), rgba(3,4,6,.95));
+    }
+    .close-inner { position: relative; z-index: 2; text-align: center; max-width: 680px; }
+    .close-inner h2 {
+      margin: 0 0 28px; font-size: clamp(34px, 4.5vw, 62px);
+      line-height: 1.08; letter-spacing: -.02em; font-weight: 300;
+      text-transform: uppercase;
+    }
+    .close-links {
+      display: flex; align-items: center; justify-content: center;
+      gap: 40px; margin-top: 46px; flex-wrap: wrap;
+    }
+    .quiet-link {
+      display: inline-flex; align-items: center; gap: 20px;
+      color: rgba(244,244,241,.70); font-size: 12px; letter-spacing: .14em;
+      text-transform: uppercase; font-weight: 300; transition: color .3s ease;
+    }
+    .quiet-link::after {
+      content: ""; display: block; width: 60px; height: 1px;
+      background: rgba(244,244,241,.48); transition: width .3s ease, background .3s ease;
+    }
+    .quiet-link:hover { color: rgba(244,244,241,1); }
+    .quiet-link:hover::after { width: 90px; background: rgba(244,244,241,.9); }
+    .quiet-link.teal { color: var(--teal); }
+    .quiet-link.teal::after { background: var(--teal); }
+
+    /* PORTRAIT PARALLAX */
+    :root { --px: 0px; --py: 0px; }
+    .portrait-world { transform-style: preserve-3d; perspective: 1000px; }
+    .portrait-bg {
+      background-position: calc(50% + var(--px)) var(--py) !important;
+      transition: background-position .12s cubic-bezier(.16,1,.3,1);
+    }
+    .hero-content > div {
+      will-change: transform;
+      transition: transform .18s cubic-bezier(.16,1,.3,1);
+    }
+
+    /* Milestone responsive */
+    @media (max-width: 860px) {
+      .milestone { min-height: 60vh; padding: 60px 22px; }
+      .milestone-year-bg { font-size: clamp(100px, 28vw, 160px); right: -4vw; }
+    }
+
+    /* SOCIAL FOOTER */
+    .social-footer {
+      display: flex; align-items: center; justify-content: center;
+      gap: 1.4rem; padding: 2rem 34px;
+      border-top: 1px solid var(--line);
+      background: var(--black);
+      position: relative; z-index: 2;
+    }
+    .social-footer a {
+      display: flex; align-items: center; justify-content: center;
+      width: 38px; height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: rgba(244,244,241,.4);
+      transition: color .3s, border-color .3s, transform .3s;
+    }
+    .social-footer a:hover {
+      color: var(--teal); border-color: var(--teal); transform: scale(1.1);
+    }
+    .social-footer svg { width: 15px; height: 15px; fill: currentColor; }
+
+    @media (max-width: 860px) {
+      .nav { top: 20px; left: 20px; right: 20px; }
+      .brand-logo { width: 48px; }
+      .nav-items { display: none; }
+      .hero-content { padding: calc(12vh + 160px) 22px 0; }
+      .philosophy { padding: 9vh 22px 26vh; }
+      .philosophy p { font-size: clamp(19px, 5vw, 24px); }
+      .credits { padding: 90px 22px; min-height: auto; }
+      .credits p { font-size: clamp(19px, 5vw, 24px); }
+      .cast { padding: 90px 22px; }
+      .cast-grid { grid-template-columns: 1fr 1fr; }
+      .words { padding: 70px 22px; }
+      .words-cols { grid-template-columns: 1fr; gap: 50px; }
+      .voice { padding: 90px 22px; }
+      .close-links { flex-direction: column; gap: 22px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Ambient color wash (D) -->
+  <div id="ambient-wash" aria-hidden="true"></div>
+
+  <nav class="nav" aria-label="Primary navigation">
+    <a href="index.html" aria-label="Creators Network home">
+      <img class="brand-logo" src="assets/cn-logo-color.png" alt="Creators Network" />
+    </a>
+    <div class="nav-items">
+      <a href="founder.html" class="is-current">The Founder</a>
+      <a href="campaigns.html">Campaigns</a>
+      <a href="studio.html">Studio</a>
+      <a href="experiences.html">Experiences</a>
+      <a href="engine.html">Engine</a>
+      <a href="lab.html">Lab</a>
+      <a href="proof.html">Proof</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ══ PORTRAIT WORLD ══ -->
+    <section class="portrait-world" aria-label="The Founder">
+      <div class="portrait-bg" id="portrait-bg"></div>
+      <div class="hero-content">
+        <div>
+          <span class="hero-eyebrow reveal">The Founder</span>
+          <h1 class="reveal reveal-stagger">Movement, stories, play</h1>
+          <p class="hero-statement reveal reveal-stagger-2">I'm someone who needs movement, stories, and play to stay alive</p>
+          <span class="hero-owner reveal reveal-stagger-3">Himanshu Arora — Founder &amp; CEO</span>
+        </div>
+      </div>
+
+      <div class="philosophy">
+        <div class="philosophy-inner">
+          <p class="reveal">Creators Network didn't start with a business plan. It started with a call that said, let's try. <em>An idea held together by Google Docs, hustle, and belief.</em> No investors, no safety nets, a borrowed laptop, and a pandemic outside the window.</p>
+          <p class="reveal">Six years later it's still run the same way: one founder, no board, boutique by choice. <em>Built to do good work, not to do more of it.</em></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ BEFORE THE NETWORK ══ -->
+    <section class="credits" aria-label="Before the network">
+      <div class="credits-inner">
+        <p class="reveal">Before the network, there were rooms. Ten years of them: stadiums, ceremonies, arenas, stages. The kind of events where <em>a hundred thousand people show up</em> and nothing is allowed to go wrong. That decade is still the spine of how CN thinks: begin with the story, not the setup.</p>
+        <div class="credit-roll reveal reveal-stagger">
+          <span class="credit">IIFA 2019</span>
+          <span class="credit">Khelo India Opening Ceremony</span>
+          <span class="credit">OnePlus Music Festival — Katy Perry &amp; Dua Lipa</span>
+          <span class="credit">Miss India · Miss Diva</span>
+          <span class="credit">Netflix Fan Events</span>
+          <span class="credit">Audi Experiential</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ TIMELINE ══ -->
+    <section class="timeline" aria-label="The years">
+
+      <div class="milestone ms-2020">
+        <div class="milestone-year-bg" aria-hidden="true">2020</div>
+        <div class="milestone-content">
+          <span class="milestone-year">2020</span>
+          <h3 class="milestone-title">The call</h3>
+          <p class="milestone-copy">Started during COVID with no team and no roadmap. A borrowed laptop, a pandemic outside the window, and the first clients arriving before the company felt real. Sometimes the conditions for starting something are never right — so you start anyway.</p>
+        </div>
+      </div>
+
+      <div class="milestone ms-2022">
+        <div class="milestone-year-bg" aria-hidden="true">2022</div>
+        <div class="milestone-content">
+          <span class="milestone-year">2022</span>
+          <h3 class="milestone-title">Taking charge</h3>
+          <p class="milestone-copy">CN turned international. The agency's centre of gravity shifted from Indian market noise to cross-border B2B work — Middle East, Europe, beyond. This was the year it stopped feeling like a startup and started feeling like a company.</p>
+        </div>
+      </div>
+
+      <div class="milestone ms-2025">
+        <div class="milestone-year-bg" aria-hidden="true">2025</div>
+        <div class="milestone-content">
+          <span class="milestone-year">2025</span>
+          <h3 class="milestone-title">Testing new waters</h3>
+          <p class="milestone-copy">The UAE entity was registered. Dubai stopped being a plan and became a commitment. CN began exploring the GCC market — quieter, more deliberate, the kind of groundwork that doesn't announce itself before it's ready.</p>
+        </div>
+      </div>
+
+      <div class="milestone ms-2026">
+        <div class="milestone-year-bg" aria-hidden="true">2026</div>
+        <div class="milestone-content">
+          <span class="milestone-year">2026</span>
+          <h3 class="milestone-title">All the way in</h3>
+          <p class="milestone-copy">From testing the waters to full commitment. CN moved its base to Dubai, set its sights on the GCC and beyond, and began building the kind of client relationships the region deserves — strategic, long-term, built on trust rather than transactions.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══ THE CAST ══ -->
+    <section class="cast" aria-label="The Cast">
+      <div class="cast-inner">
+        <h2 class="cast-head reveal">The cast</h2>
+        <p class="cast-sub reveal reveal-stagger">A founder is only the narrator. These are the people who carry the story.</p>
+        <div class="cast-grid">
+          <a class="cast-card reveal" href="campaigns.html" style="background-image: url('assets/priyanka-campaigns-hero.jpg');">
+            <div class="cast-bio">
+              <p class="cast-bio-text">Led every major CN campaign. Built the Liberty account from a Frankfurt pilot into a global mandate. Knows the difference between a strategy that looks good and one that converts.</p>
+            </div>
+            <div class="cast-card-content">
+              <h3 class="cast-name">Priyanka</h3>
+              <span class="cast-role">01 — Campaigns</span>
+            </div>
+          </a>
+          <a class="cast-card reveal reveal-stagger" href="studio.html" style="background-image: url('assets/shelly-studio-hero.jpg');">
+            <div class="cast-bio">
+              <p class="cast-bio-text">Design and creative direction. Responsible for how CN looks and holds together across every format. If it goes out with the CN name on it, it went through her.</p>
+            </div>
+            <div class="cast-card-content">
+              <h3 class="cast-name">Shelly</h3>
+              <span class="cast-role">02 — Studio</span>
+            </div>
+          </a>
+          <a class="cast-card reveal reveal-stagger-2" href="experiences.html" style="background-image: url('assets/bharat-experiences-hero.jpg');">
+            <div class="cast-bio">
+              <p class="cast-bio-text">Grew up backstage. Produced events across India's biggest stages for over a hundred thousand people. When he says something will run on time, it runs on time.</p>
+            </div>
+            <div class="cast-card-content">
+              <h3 class="cast-name">Bharat</h3>
+              <span class="cast-role">03 — Experiences</span>
+            </div>
+          </a>
+          <a class="cast-card reveal reveal-stagger-3" href="engine.html" style="background-image: url('assets/asif-engine-hero.jpg');">
+            <div class="cast-bio">
+              <p class="cast-bio-text">The architecture underneath everything CN builds digitally. Websites, platforms, CRM systems, booking engines. If the frontend looks clean, Asif made sure the backend earns it.</p>
+            </div>
+            <div class="cast-card-content">
+              <h3 class="cast-name">Asif</h3>
+              <span class="cast-role">04 — Engine</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ WORDS / PRESS ══ -->
+    <section class="words" aria-label="Words and press">
+      <div class="words-inner">
+        <span class="words-label reveal">Words</span>
+        <div class="words-cols">
+          <div>
+            <p class="words-col-head reveal">In the press</p>
+            <a class="press-item reveal" href="https://business.republicnewsindia.com/from-rs-0-to-rs-1-crore-how-this-entrepreneur-built-a-digital-startup-from-home/" target="_blank" rel="noopener">
+              <span class="press-tag">Featured</span>
+              <span class="press-pub">Republic News India</span>
+              <span class="press-title">From Rs.0 to Rs.1 Crore: How This Entrepreneur Built a Digital Startup from Home<span class="press-arrow">↗</span></span>
+            </a>
+            <a class="press-item reveal" href="https://www.exchange4media.com/influence-zone-news/influencer-economy-in-2025-when-creators-turned-newsmakers-150612.html" target="_blank" rel="noopener">
+              <span class="press-tag">Quoted</span>
+              <span class="press-pub">Exchange4media</span>
+              <span class="press-title">Influencer Economy in 2025: When Creators Turned Newsmakers<span class="press-arrow">↗</span></span>
+            </a>
+            <a class="press-item reveal" href="https://www.linkedin.com/posts/adtech-today_guestcolumn-ugc-influencermarketing-activity-7343143515322757122-9xrN" target="_blank" rel="noopener">
+              <span class="press-tag">Guest Column</span>
+              <span class="press-pub">Adtech Today</span>
+              <span class="press-title">Influencer Marketing: A Guest Column<span class="press-arrow">↗</span></span>
+            </a>
+          </div>
+          <div>
+            <p class="words-col-head reveal">Written</p>
+            <a class="press-item reveal" href="https://startuptalky.com/measure-influencer-marketing-roi/" target="_blank" rel="noopener">
+              <span class="press-tag">Article</span>
+              <span class="press-pub">Startuptalky</span>
+              <span class="press-title">How to Measure Influencer Marketing ROI: Beyond Likes &amp; Shares<span class="press-arrow">↗</span></span>
+            </a>
+            <a class="press-item reveal" href="https://www.adgully.com/post/1678/instagrams-teen-account-update-a-much-needed-filter-on-a-noisy-platform" target="_blank" rel="noopener">
+              <span class="press-tag">Article</span>
+              <span class="press-pub">Adgully</span>
+              <span class="press-title">Instagram's Teen Account Update: A Much-Needed Filter on a Noisy Platform<span class="press-arrow">↗</span></span>
+            </a>
+            <a class="press-item reveal" href="https://www.linkedin.com/pulse/healthy-vs-toxic-workplaces-take-work-in-progress-culture-arora-8swjf" target="_blank" rel="noopener">
+              <span class="press-tag">LinkedIn Article</span>
+              <span class="press-pub">LinkedIn</span>
+              <span class="press-title">Healthy vs Toxic Workplaces: A Take on Work-in-Progress Culture<span class="press-arrow">↗</span></span>
+            </a>
+            <a class="press-item reveal" href="https://www.linkedin.com/pulse/70-hours-week-we-building-nation-burnouts-himanshu-arora-fcdnf" target="_blank" rel="noopener">
+              <span class="press-tag">LinkedIn Article</span>
+              <span class="press-pub">LinkedIn</span>
+              <span class="press-title">70 Hours a Week: Are We Building the Nation or Just Burnouts?<span class="press-arrow">↗</span></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ VOICE ══ -->
+    <section class="voice" aria-label="Client voice">
+      <div class="voice-inner">
+        <p class="voice-quote reveal">"We can always rely on Creators Network to guide, support, and even challenge us, helping us reach the next level in our corporate journey."</p>
+        <p class="voice-attribution reveal reveal-stagger"><strong>Gerald Amoudruz</strong> — Liberty International Tourism Group</p>
+      </div>
+    </section>
+
+    <!-- ══ CLOSE ══ -->
+    <section class="close-section" aria-label="Continue">
+      <div class="close-inner">
+        <h2 class="reveal">The story is still being written</h2>
+        <div class="close-links reveal reveal-stagger">
+          <a href="experiences.html" class="quiet-link teal">The events chapter</a>
+          <a href="contact.html" class="quiet-link">Start a conversation</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- SOCIAL FOOTER -->
+  <footer class="social-footer" aria-label="Social media">
+    <a href="https://www.instagram.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+    </a>
+    <a href="https://www.facebook.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="Facebook">
+      <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </a>
+    <a href="https://www.linkedin.com/company/creatorsnetwork" target="_blank" rel="noopener" aria-label="LinkedIn">
+      <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+    </a>
+    <a href="https://x.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="X">
+      <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </a>
+    <a href="https://www.youtube.com/@creatorsnetwork" target="_blank" rel="noopener" aria-label="YouTube">
+      <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+  </footer>
+
+  <!-- LEAD MODAL (shared) -->
+  <style>
+    .lead-modal { position: fixed; inset: 0; z-index: 500; display: grid; place-items: center; padding: 24px; background: rgba(3,4,6,.78); backdrop-filter: blur(14px); opacity: 0; visibility: hidden; transition: opacity .4s ease, visibility .4s ease; }
+    .lead-modal.is-open { opacity: 1; visibility: visible; }
+    .lead-box { width: min(560px, 100%); max-height: 90vh; overflow-y: auto; background: #07090d; border: 1px solid rgba(255,255,255,.14); padding: 44px 40px; transform: translateY(24px); transition: transform .4s cubic-bezier(.16,1,.3,1); }
+    .lead-modal.is-open .lead-box { transform: translateY(0); }
+    .lead-box h3 { margin: 0 0 8px; font-size: clamp(24px, 3vw, 34px); line-height: 1.05; letter-spacing: -.02em; text-transform: uppercase; font-weight: 300; }
+    .lead-box .lead-sub { margin: 0 0 34px; font-size: 14px; line-height: 1.6; font-weight: 300; color: rgba(244,244,241,.6); }
+    .lead-field { margin-bottom: 20px; }
+    .lead-field label { display: block; font-size: 11px; letter-spacing: .13em; text-transform: uppercase; color: rgba(244,244,241,.55); margin-bottom: 8px; font-weight: 400; }
+    .lead-field input, .lead-field select, .lead-field textarea { width: 100%; padding: 13px 14px; background: rgba(255,255,255,.045); border: 1px solid rgba(255,255,255,.14); color: var(--soft-white); font-family: inherit; font-size: 15px; font-weight: 300; outline: none; transition: border-color .3s ease; box-sizing: border-box; }
+    .lead-field input:focus, .lead-field select:focus, .lead-field textarea:focus { border-color: var(--teal); }
+    .lead-field select { appearance: none; }
+    .lead-field textarea { min-height: 96px; resize: vertical; }
+    .lead-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 30px; }
+    .lead-submit { padding: 14px 34px; background: var(--teal); color: #032620; border: none; cursor: pointer; font-family: inherit; font-size: 12px; letter-spacing: .13em; text-transform: uppercase; font-weight: 500; transition: filter .3s ease; }
+    .lead-submit:hover { filter: brightness(1.1); }
+    .lead-cancel { background: none; border: none; cursor: pointer; font-family: inherit; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: rgba(244,244,241,.5); font-weight: 300; }
+    .lead-cancel:hover { color: rgba(244,244,241,.9); }
+    @media (max-width: 860px) { .lead-box { padding: 34px 24px; } }
+  </style>
+  <div class="lead-modal" id="lead-modal" role="dialog" aria-modal="true" aria-label="Start a conversation">
+    <div class="lead-box">
+      <h3>Start a conversation</h3>
+      <p class="lead-sub">Tell us just enough. We reply like humans, usually within a day.</p>
+      <form id="lead-form">
+        <div class="lead-field"><label for="lead-name">Name</label><input type="text" id="lead-name" name="name" required /></div>
+        <div class="lead-field"><label for="lead-email">Work email</label><input type="email" id="lead-email" name="email" required /></div>
+        <div class="lead-field"><label for="lead-company">Company</label><input type="text" id="lead-company" name="company" /></div>
+        <div class="lead-field"><label for="lead-interest">What brings you here</label>
+          <select id="lead-interest" name="interest"><option>Campaigns</option><option>Studio</option><option>Experiences / Events</option><option>Engine / Digital builds</option><option>Not sure yet</option></select>
+        </div>
+        <div class="lead-field"><label for="lead-message">A line or two</label><textarea id="lead-message" name="message"></textarea></div>
+        <div class="lead-actions">
+          <button type="submit" class="lead-submit">Send</button>
+          <button type="button" class="lead-cancel" data-lead-close>Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /* Parallax + reveal */
+    (function () {
+      var world = document.querySelector(".portrait-world");
+      var bg = document.getElementById("portrait-bg");
+      if (!world || !bg) return;
+      var ticking = false;
+      function update() {
+        ticking = false;
+        var rect = world.getBoundingClientRect();
+        var p = Math.min(1, Math.max(0, -rect.top / (rect.height - window.innerHeight || 1)));
+        bg.style.transform = "translateY(" + (p * 60) + "px) scale(1.04)";
+      }
+      window.addEventListener("scroll", function () { if (!ticking) { requestAnimationFrame(update); ticking = true; } }, { passive: true });
+      window.addEventListener("resize", update);
+      update();
+    })();
+
+    (function () {
+      var reveals = document.querySelectorAll(".reveal");
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add("is-visible"); });
+      }, { threshold: 0.1, rootMargin: "0px 0px -30px 0px" });
+      reveals.forEach(function (el) { obs.observe(el); });
+    })();
+
+    /* Portrait 3D parallax */
+    (function () {
+      var portraitEl = document.querySelector('.portrait-world');
+      if (!portraitEl) return;
+      var textLayer = portraitEl.querySelector('.hero-content > div');
+      document.addEventListener('mousemove', function (e) {
+        var cx = window.innerWidth / 2;
+        var cy = window.innerHeight / 2;
+        var dx = (e.clientX - cx) / cx;
+        var dy = (e.clientY - cy) / cy;
+        document.documentElement.style.setProperty('--px', (dx * 22) + 'px');
+        document.documentElement.style.setProperty('--py', (dy * 12) + 'px');
+        if (textLayer) textLayer.style.transform = 'translate3d(' + (dx * 6) + 'px,' + (dy * 4) + 'px,0)';
+      });
+      document.addEventListener('mouseleave', function () {
+        document.documentElement.style.setProperty('--px', '0px');
+        document.documentElement.style.setProperty('--py', '0px');
+        if (textLayer) textLayer.style.transform = '';
+      });
+    })();
+
+    /* Milestone scroll reveal */
+    (function () {
+      var milestones = document.querySelectorAll('.milestone');
+      if (!milestones.length) return;
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) entry.target.classList.add('ms-revealed');
+        });
+      }, { threshold: 0.18 });
+      milestones.forEach(function (m) { obs.observe(m); });
+    })();
+  </script>
+
+  <script>
+    /* ══ D: AMBIENT COLOR TEMPERATURE ══ */
+    (function () {
+      var wash = document.getElementById('ambient-wash');
+      if (!wash) return;
+
+      /*
+        Colors match the milestone year palette — very desaturated, very low alpha.
+        Applied as a flat rgba wash so the temperature shift registers on dark bg.
+      */
+      var palette = {
+        'ms-2020': 'rgba(190, 88, 22, 0.082)',   /* ember amber  */
+        'ms-2022': 'rgba(148, 118, 72, 0.066)',   /* warm tan     */
+        'ms-2025': 'rgba(44,  82, 152, 0.078)',   /* steel blue   */
+        'ms-2026': 'rgba(18, 120, 110, 0.088)'    /* deep teal    */
+      };
+
+      var milestones  = document.querySelectorAll('.milestone');
+      var intersecting = {};
+      var currentKey  = null;
+
+      function getYearClass(el) {
+        var found = null;
+        el.classList.forEach(function (c) {
+          if (c.startsWith('ms-2')) found = c;
+        });
+        return found;
+      }
+
+      function applyBest() {
+        var bestKey   = null;
+        var bestRatio = 0;
+        Object.keys(intersecting).forEach(function (k) {
+          if (intersecting[k] > bestRatio) {
+            bestRatio = intersecting[k];
+            bestKey   = k;
+          }
+        });
+
+        if (bestKey === currentKey) return;
+        currentKey = bestKey;
+
+        if (!bestKey || !palette[bestKey]) {
+          wash.style.background = 'transparent';
+        } else {
+          wash.style.background = palette[bestKey];
+        }
+      }
+
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var key = getYearClass(entry.target);
+          if (!key) return;
+          if (entry.isIntersecting) {
+            intersecting[key] = entry.intersectionRatio;
+          } else {
+            delete intersecting[key];
+          }
+        });
+        applyBest();
+      }, {
+        threshold: [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
+      });
+
+      milestones.forEach(function (m) { obs.observe(m); });
+
+      /* Clear wash when timeline leaves viewport entirely */
+      var timelineEl = document.querySelector('.timeline');
+      if (timelineEl) {
+        var tlObs = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) {
+              intersecting = {};
+              applyBest();
+            }
+          });
+        }, { threshold: 0 });
+        tlObs.observe(timelineEl);
+      }
+    })();
+  </script>
+
+  <script>
+    /* Cast card magnetic tilt */
+    (function () {
+      var cards = document.querySelectorAll('.cast-card');
+      cards.forEach(function (card) {
+        card.addEventListener('mousemove', function (e) {
+          var rect = card.getBoundingClientRect();
+          var cx = rect.left + rect.width  / 2;
+          var cy = rect.top  + rect.height / 2;
+          var dx = (e.clientX - cx) / (rect.width  / 2);
+          var dy = (e.clientY - cy) / (rect.height / 2);
+          card.style.transform = 'perspective(700px) rotateY(' + (dx * 7) + 'deg) rotateX(' + (-dy * 5) + 'deg) translateY(-6px)';
+        });
+        card.addEventListener('mouseleave', function () {
+          card.style.transform = '';
+        });
+      });
+    })();
+  </script>
+
+  <script>
+    /* Lead modal */
+    (function () {
+      var modal = document.getElementById("lead-modal");
+      var form  = document.getElementById("lead-form");
+      if (!modal || !form) return;
+      function open()  { modal.classList.add("is-open"); }
+      function close() { modal.classList.remove("is-open"); }
+      document.querySelectorAll('[data-lead-open], .quiet-link[href="contact.html"]').forEach(function (el) {
+        el.addEventListener("click", function (e) { e.preventDefault(); open(); });
+      });
+      document.querySelectorAll("[data-lead-close]").forEach(function (el) { el.addEventListener("click", close); });
+      modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var name     = document.getElementById("lead-name").value;
+        var email    = document.getElementById("lead-email").value;
+        var company  = document.getElementById("lead-company").value;
+        var interest = document.getElementById("lead-interest").value;
+        var message  = document.getElementById("lead-message").value;
+        var body = "Name: " + name + "%0D%0AEmail: " + email + "%0D%0ACompany: " + company + "%0D%0AInterest: " + interest + "%0D%0A%0D%0A" + encodeURIComponent(message);
+        window.location.href = "mailto:hello@creatorsnetwork.io?subject=" + encodeURIComponent("New conversation - " + (company || name)) + "&body=" + body;
+        close();
+      });
+    })();
+  </script>
+
+</body>
+</html>
