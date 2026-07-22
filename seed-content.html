@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>CN — Seed CMS Content</title>
+<style>
+  body { font-family: monospace; background: #0a0a0a; color: #f4f4f1; padding: 40px; max-width: 720px; }
+  h1 { font-size: 16px; letter-spacing:.1em; text-transform:uppercase; color:#3dd8c5; margin:0 0 32px; }
+  .item { padding: 10px 0; border-bottom: 1px solid #1a1a1a; font-size: 13px; }
+  .item.ok  { color: #3dd8c5; }
+  .item.err { color: #e05; }
+  .item.pending { color: #888; }
+  #summary { margin-top: 32px; font-size: 15px; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>Creators Network — CMS Content Seed</h1>
+<div id="log"></div>
+<div id="summary">Running…</div>
+<script>
+const TOKEN = 'skU1o3C33fpT27WqsROjkVjH5Chzy9a4ibVNZb57sIYB75H3qOF1HKg1MWnqeahTBVfEE4AZ8N8p6zLbTDd7PiiexlY2hp7PAp83IsI5H1u0TTS0lBoYhTVcBzfAcCwbAwE0ijKcnZe6bHVeBoca7Idh1079KmDjapt2srh0Rx3pQfHduXT5';
+const URL = 'https://yodi9k1k.api.sanity.io/v2021-06-07/data/mutate/production';
+
+const log = document.getElementById('log');
+const summary = document.getElementById('summary');
+
+function addLine(label, status) {
+  const d = document.createElement('div');
+  d.className = 'item ' + status;
+  d.textContent = (status === 'ok' ? '✓' : status === 'err' ? '✗' : '…') + '  ' + label;
+  log.appendChild(d);
+  return d;
+}
+
+function block(key, text) {
+  return {
+    _type: 'block', _key: key, style: 'normal', markDefs: [],
+    children: [{ _type: 'span', _key: key + 'c0', text: text, marks: [] }]
+  };
+}
+
+const BATCHES = [
+  {
+    label: 'Founder Page — opening quote, closing line, bio, timeline',
+    mutations: [{
+      patch: {
+        id: 'founderPage',
+        setIfMissing: {
+          openingQuote: "I'm someone who needs movement, stories, and play to stay alive",
+          closingLine: "The story is still being written",
+          bio: [
+            block('bio1', "Creators Network didn't start with a business plan. It started with a call that said, let's try. An idea held together by Google Docs, hustle, and belief. No investors, no safety nets, a borrowed laptop, and a pandemic outside the window."),
+            block('bio2', "Six years later it's still run the same way: one founder, no board, boutique by choice. Built to do good work, not to do more of it.")
+          ],
+          timeline: [
+            { _key: 'tl2020', _type: 'milestone', year: '2020', event: 'Started CN during COVID — a borrowed laptop, no team, no roadmap. First clients arrived before the company felt real.' },
+            { _key: 'tl2022', _type: 'milestone', year: '2022', event: 'CN turned international. Centre of gravity shifted from Indian market to cross-border B2B — Middle East, Europe, beyond.' },
+            { _key: 'tl2025', _type: 'milestone', year: '2025', event: 'UAE entity registered. Dubai stopped being a plan and became a commitment. BookYourCreator launched.' },
+            { _key: 'tl2026', _type: 'milestone', year: '2026', event: 'Relocated to Dubai. Building client relationships in the GCC that are strategic, long-term, built on trust.' }
+          ]
+        }
+      }
+    }]
+  },
+  {
+    label: 'Proof Page — closing statement',
+    mutations: [{
+      patch: {
+        id: 'proofPage',
+        setIfMissing: { closingStatement: 'The next one could be yours' }
+      }
+    }]
+  },
+  {
+    label: 'Campaigns — arrival quote, philosophy, closing line',
+    mutations: [{
+      patch: {
+        filter: '_type == "teamMember" && slug.current == "campaigns"',
+        setIfMissing: {
+          scroll01ArrivalQuote: "A campaign is a bet. My job is to make sure it's an informed one before it's a loud one",
+          scroll02Pov: [
+            block('camp1', "Every brand walks in with a version of the same request: make us visible. The easy answer is more posts, more spend, more noise. The harder answer, the one that actually works, is listening first: to the culture a brand sits inside, the market it's entering, the specific thing its audience already cares about."),
+            block('camp2', "That's where a campaign starts. Not with a content calendar. With a read on what's actually true about a brand's place in the world, and a bet on how to move it. What lands in Mumbai doesn't automatically land in Dubai. Cultural fluency isn't a nice-to-have here. It's the entire craft.")
+          ],
+          scroll05ClosingLine: 'The work behind the work.'
+        }
+      }
+    }]
+  },
+  {
+    label: 'Studio — arrival quote, philosophy, closing line',
+    mutations: [{
+      patch: {
+        filter: '_type == "teamMember" && slug.current == "studio"',
+        setIfMissing: {
+          scroll01ArrivalQuote: "If it doesn't look right, it doesn't work. And you always know when it doesn't look right",
+          scroll02Pov: [
+            block('stud1', "Everyone can tell when something is designed well. Almost nobody can tell you why. That gap is where the Studio lives: the typography choices, the pacing of an edit, the two millimetres of spacing that separate premium from almost."),
+            block('stud2', "The work here isn't decoration. It's direction. Before anything gets made, there's a visual decision about what it should feel like. A film, an identity, a deck, a feed: same rule. Get that decision right and everything downstream gets easier. Get it wrong and no amount of polish saves it.")
+          ],
+          scroll05ClosingLine: 'Seen enough to be curious'
+        }
+      }
+    }]
+  },
+  {
+    label: 'Experiences — arrival quote, philosophy, closing line',
+    mutations: [{
+      patch: {
+        filter: '_type == "teamMember" && slug.current == "experiences"',
+        setIfMissing: {
+          scroll01ArrivalQuote: 'We begin with the story, not the setup',
+          scroll02Pov: [
+            block('exp1', "Most event briefs start with a venue, a date, and a headcount. Ours start with a different question: what should this event do? Not what should it include. What should it change in the people who were there."),
+            block('exp2', "Because a room is only powerful if people carry it out with them. The best events don't end at the exit. They turn into content, conversation, and momentum that outlives the night by months.")
+          ],
+          scroll05ClosingLine: 'Got a room in mind'
+        }
+      }
+    }]
+  },
+  {
+    label: 'Engine — arrival quote, philosophy, closing line',
+    mutations: [{
+      patch: {
+        filter: '_type == "teamMember" && slug.current == "engine"',
+        setIfMissing: {
+          scroll01ArrivalQuote: "Nobody notices the build when it works. That's the point",
+          scroll02Pov: [
+            block('eng1', "A beautiful website that loads slowly is a slow website. A clever campaign running on a broken funnel is a broken campaign. Whatever the surface promises, the system underneath has to keep it."),
+            block('eng2', "That's the Engine's job. The platforms, the builds, the integrations, the search foundations: the unglamorous layer that decides whether everything above it actually works. Visible polish on top of invisible chaos is not a product. Here, the chaos gets engineered out first.")
+          ],
+          scroll05ClosingLine: 'See what it powers'
+        }
+      }
+    }]
+  },
+  {
+    label: 'Lab — arrival quote, philosophy, closing line',
+    mutations: [{
+      patch: {
+        filter: '_type == "teamMember" && slug.current == "lab"',
+        setIfMissing: {
+          scroll01ArrivalQuote: "Not everything here is finished. That's the point",
+          scroll02Pov: [
+            block('lab1', "Every agency claims to be innovative. Few give innovation a room of its own, with no client, no deadline, and no guaranteed outcome. The Lab is that room."),
+            block('lab2', "It's where new tools get broken in before they touch client work, where the team's strangest ideas get a fair hearing, and where most experiments fail on purpose. The ones that survive end up changing how everything else here gets made.")
+          ],
+          scroll05ClosingLine: 'Come break something with us'
+        }
+      }
+    }]
+  }
+];
+
+async function run() {
+  let ok = 0, fail = 0;
+  for (const batch of BATCHES) {
+    const line = addLine(batch.label, 'pending');
+    try {
+      const res = await fetch(URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+        body: JSON.stringify({ mutations: batch.mutations })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        line.className = 'item ok';
+        line.textContent = '✓  ' + batch.label;
+        ok++;
+      } else {
+        line.className = 'item err';
+        line.textContent = '✗  ' + batch.label + ' — ' + (data.message || data.error || res.status);
+        fail++;
+      }
+    } catch(e) {
+      line.className = 'item err';
+      line.textContent = '✗  ' + batch.label + ' — ' + e.message;
+      fail++;
+    }
+  }
+  summary.textContent = fail === 0
+    ? '✓ All ' + ok + ' batches seeded. You can close this tab.'
+    : ok + ' succeeded, ' + fail + ' failed. Check errors above.';
+  summary.style.color = fail === 0 ? '#3dd8c5' : '#e05555';
+}
+
+run();
+</script>
+</body>
+</html>
