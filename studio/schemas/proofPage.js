@@ -27,13 +27,6 @@ export default defineType({
       options: {hotspot: true},
     }),
     defineField({
-      name: 'heroLocations',
-      title: 'Hero location credits',
-      type: 'string',
-      description: 'Shown below the hero text — e.g. "UAE · India · East Africa · Europe"',
-      initialValue: 'UAE · India · East Africa · Europe',
-    }),
-    defineField({
       name: 'heroYears',
       title: 'Hero years',
       type: 'string',
@@ -47,6 +40,13 @@ export default defineType({
       rows: 3,
       description: 'Short editorial statement shown below the hero. Plain text only.',
       initialValue: 'No awards shelf, no vanity metrics. Just the work: what the brief was, what we did, and what changed.',
+    }),
+    defineField({
+      name: 'closingStatement',
+      title: 'Closing statement',
+      type: 'string',
+      description: 'Final line shown in the close section above the CTA buttons. Defaults to "The next one could be yours" if left blank.',
+      initialValue: 'The next one could be yours',
     }),
 
     // Reel strip

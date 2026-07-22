@@ -1557,8 +1557,16 @@
   <script>
     (function () {
       var PROJECT = 'yodi9k1k', DATASET = 'production';
+      function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
       var q = encodeURIComponent(
-        '*[_type=="teamMember"&&slug.current=="lab"][0]{"portraitUrl":portraitFull.asset->url,"videos":videos[active!=false]{caption,sourceType,videoUrlOrId}}'
+        '*[_type=="teamMember"&&slug.current=="lab"][0]{' +
+          '"portraitUrl":portraitFull.asset->url,' +
+          '"videos":videos[active!=false]{caption,sourceType,videoUrlOrId},' +
+          'scroll01ArrivalQuote,' +
+          '"scroll02Pov":scroll02Pov[]{_key,"texts":children[].text},' +
+          'scroll05ClosingLine,' +
+          '"featuredCaseStudies":featuredCaseStudies[]->{title,clientName,"slug":slug.current,oneLinerSummary}' +
+        '}'
       );
       fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
         .then(function (r) { return r.json(); })
@@ -1584,6 +1592,39 @@
             // Hide the strip if no videos configured
             var strip = document.querySelector('.video-strip');
             if (strip) strip.style.display = 'none';
+          }
+          if (res.scroll01ArrivalQuote) {
+            var hs = document.querySelector('.hero-statement');
+            if (hs) hs.textContent = res.scroll01ArrivalQuote;
+          }
+          if (res.scroll02Pov && res.scroll02Pov.length) {
+            var inner = document.querySelector('.philosophy-inner');
+            if (inner) {
+              inner.innerHTML = res.scroll02Pov.map(function(b) {
+                return '<p class="reveal">' + esc((b.texts||[]).join('')) + '</p>';
+              }).join('');
+            }
+          }
+          if (res.scroll05ClosingLine) {
+            var closeH2 = document.querySelector('.close-inner h2');
+            if (closeH2) closeH2.textContent = res.scroll05ClosingLine;
+          }
+          if (res.featuredCaseStudies && res.featuredCaseStudies.length) {
+            var workInner = document.querySelector('.work-inner');
+            if (workInner) {
+              var wHead = workInner.querySelector('.work-head');
+              var headHtml = wHead ? wHead.outerHTML : '';
+              workInner.innerHTML = headHtml + res.featuredCaseStudies.map(function(cs, i) {
+                return '<div class="work-item reveal">' +
+                  '<span class="work-num">' + String(i+1).padStart(2,'0') + '</span>' +
+                  '<div>' +
+                    '<h3>' + esc(cs.title) + '</h3>' +
+                    '<span class="work-client">' + esc(cs.clientName) + '</span>' +
+                    (cs.oneLinerSummary ? '<p>' + esc(cs.oneLinerSummary) + '</p>' : '') +
+                  '</div>' +
+                '</div>';
+              }).join('');
+            }
           }
         })
         .catch(function () {});

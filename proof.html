@@ -937,9 +937,10 @@
       var qPage = encodeURIComponent(
         '*[_type=="proofPage"][0]{' +
           '"heroBgUrl":heroBgImage.asset->url,' +
-          'heroLocations,' +
+          '"heroLocations":*[_type=="homePage"][0].proofGatewayLocations,' +
           'heroYears,' +
           'philosophyText,' +
+          'closingStatement,' +
           '"reelVideos":reelVideos[active!=false]{clientName,title,sourceType,videoUrlOrId},' +
           '"logoWallRow1":logoWallRow1[]{name,style},' +
           '"logoWallRow2":logoWallRow2[]{name,style}' +
@@ -975,7 +976,9 @@
         // ── Hero text ──
         if (page && page.heroLocations) {
           var loc = document.getElementById('hero-locations');
-          if (loc) loc.textContent = page.heroLocations;
+          if (loc) loc.textContent = Array.isArray(page.heroLocations)
+            ? page.heroLocations.join(' · ')
+            : page.heroLocations;
         }
         if (page && page.heroYears) {
           var yr = document.getElementById('hero-years');
@@ -986,6 +989,12 @@
         if (page && page.philosophyText) {
           var phil = document.getElementById('philosophy-text');
           if (phil) phil.innerHTML = esc(page.philosophyText).replace(/what the brief was, what we did, and what changed/g, '<em>what the brief was, what we did, and what changed</em>');
+        }
+
+        // ── Closing statement ──
+        if (page && page.closingStatement) {
+          var closeH2 = document.querySelector('.close-inner h2');
+          if (closeH2) closeH2.textContent = page.closingStatement;
         }
 
         // ── Reel strip ──

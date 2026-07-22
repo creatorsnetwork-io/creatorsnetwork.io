@@ -124,6 +124,13 @@ export default defineType({
       description: 'Which team member page follows — controls the "Next, 0X" link',
       to: [{type: 'teamMember'}],
     }),
+    defineField({
+      name: 'featuredCaseStudies',
+      title: 'Featured case studies — "The work" section',
+      type: 'array',
+      description: 'Select which case studies appear in the work section on this page. Drag to reorder. If left empty, the hardcoded placeholder content shows instead.',
+      of: [{type: 'reference', to: [{type: 'caseStudy'}]}],
+    }),
 
     // Videos (hover-to-play strip shown on this member's page)
     defineField({

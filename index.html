@@ -1030,7 +1030,7 @@
         dimFootlights();
         setTimeout(function() { filmSim.classList.add('on'); }, 200);
         cinEndBtn.classList.add('show');
-        if (vid) { if (!vid.src) { vid.src = 'assets/CN 6 Years_V2.mp4'; } vid.style.opacity = '1'; vid.play().catch(function(){}); }
+        if (vid) { if (!vid.src) { var sid = window.CN_storyVideoId; vid.src = sid ? 'https://videodelivery.net/' + sid + '/downloads/default.mp4' : 'assets/CN 6 Years_V2.mp4'; } vid.style.opacity = '1'; vid.play().catch(function(){}); }
       }
 
       function lightsUp() {
@@ -1154,6 +1154,14 @@
         }, 780);
       }
       coin.addEventListener('click', dispense);
+
+      /* Allow CMS to replace jokes after async fetch */
+      window.CN_updateBits = function(newBits) {
+        if (!newBits || !newBits.length) return;
+        bits = newBits;
+        currentIdx = 0;
+        if (windowText) windowText.textContent = bits[0].preview;
+      };
     })();
   </script>
 
@@ -1165,6 +1173,8 @@
         '*[_type=="homePage"][0]{' +
           '"heroBgUrl":heroBgImage.asset->url,' +
           'openingLine,' +
+          'cnStoryVideoId,' +
+          '"bits":bits[]{preview,slip},' +
           '"proofBgUrl":proofGatewayBgImage.asset->url,' +
           'proofGatewayLocations,' +
           'proofGatewayYear,' +
@@ -1256,7 +1266,15 @@
           }
           if (res.closeCity) {
             var cityEl = document.querySelector('.close-location');
-            if (cityEl) cityEl.textContent = res.closeCity + ' | India';
+            if (cityEl) cityEl.textContent = res.closeCity;
+          }
+
+          /* ── CN Story video ── */
+          if (res.cnStoryVideoId) window.CN_storyVideoId = res.cnStoryVideoId;
+
+          /* ── The Bit — update jokes from CMS ── */
+          if (res.bits && res.bits.length && window.CN_updateBits) {
+            window.CN_updateBits(res.bits);
           }
 
           /* ── Close section background (reuse hero image) ── */

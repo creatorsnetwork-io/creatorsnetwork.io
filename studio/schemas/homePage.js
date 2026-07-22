@@ -25,6 +25,42 @@ export default defineType({
       description: 'One sentence that fades in on arrival. Leave blank for pure atmosphere.',
     }),
     defineField({
+      name: 'cnStoryVideoId',
+      title: 'CN Story — Cloudflare Stream video ID',
+      type: 'string',
+      description: 'The Cloudflare Stream video ID for the CN Story film shown on the homepage. Leave blank to use the local video file.',
+    }),
+    defineField({
+      name: 'bits',
+      title: 'The Bit — joke machine',
+      type: 'array',
+      description: 'Jokes shown in the coin-insert machine. Each entry needs a short preview (the tease shown before dispensing) and a full slip (the punchline printed on the receipt).',
+      of: [
+        {
+          type: 'object',
+          name: 'bit',
+          title: 'Joke',
+          fields: [
+            {
+              name: 'preview',
+              title: 'Preview (short tease shown in the window)',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'slip',
+              title: 'Slip (full punchline on the receipt)',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            },
+          ],
+          preview: {
+            select: {title: 'preview', subtitle: 'slip'},
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'theFiveOrder',
       title: 'The Five — team order',
       type: 'array',
@@ -73,9 +109,10 @@ export default defineType({
     }),
     defineField({
       name: 'closeCity',
-      title: 'Close section city',
+      title: 'Close section location',
       type: 'string',
-      initialValue: 'Dubai',
+      description: 'Text shown below the email in the close section — type exactly what you want displayed, e.g. "Dubai | India" or "Dubai · Mumbai".',
+      initialValue: 'Dubai | India',
     }),
   ],
   preview: {
