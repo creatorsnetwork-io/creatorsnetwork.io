@@ -3,7 +3,6 @@ import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas/index'
 
-// Replace YOUR_PROJECT_ID with the Project ID from sanity.io/manage
 const PROJECT_ID = 'yodi9k1k'
 const DATASET = 'production'
 
@@ -19,50 +18,39 @@ export default defineConfig({
         S.list()
           .title('Content')
           .items([
+            // ── Singletons ──
             S.listItem()
               .title('Site Settings')
               .id('siteSettings')
-              .child(
-                S.document()
-                  .schemaType('siteSettings')
-                  .documentId('siteSettings')
-              ),
+              .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
+            S.divider(),
             S.listItem()
               .title('Home Page')
               .id('homePage')
-              .child(
-                S.document()
-                  .schemaType('homePage')
-                  .documentId('homePage')
-              ),
+              .child(S.document().schemaType('homePage').documentId('homePage')),
             S.listItem()
               .title('Founder Page')
               .id('founderPage')
-              .child(
-                S.document()
-                  .schemaType('founderPage')
-                  .documentId('founderPage')
-              ),
+              .child(S.document().schemaType('founderPage').documentId('founderPage')),
             S.listItem()
               .title('Contact Page')
               .id('contactPage')
-              .child(
-                S.document()
-                  .schemaType('contactPage')
-                  .documentId('contactPage')
-              ),
+              .child(S.document().schemaType('contactPage').documentId('contactPage')),
             S.listItem()
-              .title('Video Strip')
-              .id('videoStrip')
-              .child(
-                S.document()
-                  .schemaType('videoStrip')
-                  .documentId('videoStrip')
-              ),
+              .title('Proof Page')
+              .id('proofPage')
+              .child(S.document().schemaType('proofPage').documentId('proofPage')),
             S.divider(),
-            S.documentTypeListItem('teamMember').title('Team Members'),
-            S.documentTypeListItem('caseStudy').title('Case Studies'),
-            S.documentTypeListItem('article').title('Articles'),
+            // ── Repeating types ──
+            S.listItem()
+              .title('Team Members')
+              .child(S.documentTypeList('teamMember').title('Team Members')),
+            S.listItem()
+              .title('Case Studies')
+              .child(S.documentTypeList('caseStudy').title('Case Studies')),
+            S.listItem()
+              .title('Articles')
+              .child(S.documentTypeList('article').title('Articles')),
           ]),
     }),
     visionTool(),

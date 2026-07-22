@@ -60,20 +60,6 @@ export default defineType({
       of: [{type: 'reference', to: [{type: 'teamMember'}]}],
     }),
     defineField({
-      name: 'proofGatewayBgImage',
-      title: 'Proof Gateway background image',
-      type: 'image',
-      options: {hotspot: true},
-    }),
-    defineField({
-      name: 'proofGatewayLocations',
-      title: 'Proof Gateway location labels',
-      type: 'array',
-      description: 'Cities relevant to his body of work',
-      of: [{type: 'string'}],
-      initialValue: ['Mumbai', 'Dubai', 'Nairobi', 'Frankfurt', 'Delhi'],
-    }),
-    defineField({
       name: 'closingLine',
       title: 'Closing line',
       type: 'string',
