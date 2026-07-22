@@ -763,49 +763,49 @@
     })();
 
     // VIDEO STRIP
-    (function() {
-      var track = document.getElementById('video-track');
+    window.CN_initVideoStrip = function(trackId) {
+      var track = document.getElementById(trackId || 'video-track');
       if (!track) return;
-
-      // Hover to play
-      track.querySelectorAll('.video-slot').forEach(function(slot) {
+      track.querySelectorAll('.video-slot:not(.video-slot--external)').forEach(function(slot) {
         var video = slot.querySelector('video');
         if (!video) return;
-
         slot.addEventListener('mouseenter', function() {
-          if (video.src) {
-            video.play().then(function() {
-              slot.classList.add('playing');
-            }).catch(function(){});
-          }
+          if (video.src) { video.play().then(function() { slot.classList.add('playing'); }).catch(function(){}); }
         });
-        slot.addEventListener('mouseleave', function() {
-          video.pause();
-          slot.classList.remove('playing');
-        });
-
-        // Click to toggle sound
-        slot.addEventListener('click', function() {
-          video.muted = !video.muted;
-        });
+        slot.addEventListener('mouseleave', function() { video.pause(); slot.classList.remove('playing'); });
+        slot.addEventListener('click', function() { video.muted = !video.muted; });
       });
-
-      // Drag to scroll
+      track.querySelectorAll('.video-slot--external[data-href]').forEach(function(slot) {
+        slot.addEventListener('click', function() { window.open(slot.getAttribute('data-href'), '_blank', 'noopener'); });
+      });
       var isDown = false, startX, scrollLeft;
-      track.addEventListener('mousedown', function(e) {
-        isDown = true;
-        startX = e.pageX - track.offsetLeft;
-        scrollLeft = track.scrollLeft;
-      });
+      track.addEventListener('mousedown', function(e) { isDown = true; startX = e.pageX - track.offsetLeft; scrollLeft = track.scrollLeft; });
       track.addEventListener('mouseleave', function() { isDown = false; });
       track.addEventListener('mouseup', function() { isDown = false; });
       track.addEventListener('mousemove', function(e) {
         if (!isDown) return;
         e.preventDefault();
-        var x = e.pageX - track.offsetLeft;
-        track.scrollLeft = scrollLeft - (x - startX) * 1.2;
+        track.scrollLeft = scrollLeft - (e.pageX - track.offsetLeft - startX) * 1.2;
       });
-    })();
+    };
+    window.CN_buildVideoSlot = function(v) {
+      var label = v.caption || '';
+      var icon = '<div class="video-slot-icon"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>';
+      var lbl = '<span class="video-slot-label">' + label + '</span>';
+      if (v.sourceType === 'cloudflare') {
+        return '<div class="video-slot"><video muted playsinline loop preload="none" src="' + (v.videoUrlOrId || '') + '"></video>' + icon + lbl + '</div>';
+      }
+      var href = '';
+      if (v.sourceType === 'youtube') {
+        href = v.videoUrlOrId.indexOf('://') > -1 ? v.videoUrlOrId : 'https://www.youtube.com/watch?v=' + v.videoUrlOrId;
+      } else if (v.sourceType === 'vimeo') {
+        href = v.videoUrlOrId.indexOf('://') > -1 ? v.videoUrlOrId : 'https://vimeo.com/' + v.videoUrlOrId;
+      } else {
+        href = v.videoUrlOrId || '#';
+      }
+      return '<div class="video-slot video-slot--external" data-href="' + href + '">' + icon + lbl + '</div>';
+    };
+    window.CN_initVideoStrip();
   </script>
 
   <script>
@@ -836,16 +836,19 @@
     })();
   </script>
 
-  <!-- ── Sanity CMS: team member images ── -->
+  <!-- ── Sanity CMS: team member (studio) ── -->
   <script>
     (function () {
       var PROJECT = 'yodi9k1k', DATASET = 'production';
-      var q = encodeURIComponent('*[_type=="teamMember"&&slug.current=="studio"][0]{"portraitUrl":portraitFull.asset->url,"proofBgUrl":proofGatewayBgImage.asset->url}');
+      var q = encodeURIComponent(
+        '*[_type=="teamMember"&&slug.current=="studio"][0]{"portraitUrl":portraitFull.asset->url,"proofBgUrl":proofGatewayBgImage.asset->url,"videos":videos[active!=false]{caption,sourceType,videoUrlOrId}}'
+      );
       fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
         .then(function (r) { return r.json(); })
         .then(function (d) {
           var res = d.result;
           if (!res) return;
+          // Portraits & backgrounds
           var styles = [];
           if (res.portraitUrl) {
             var bg = document.querySelector('.portrait-bg');
@@ -860,8 +863,43 @@
             s.textContent = styles.join('');
             document.head.appendChild(s);
           }
+          // Video strip — replace hardcoded slots with CMS-managed ones
+          if (res.videos && res.videos.length) {
+            var track = document.getElementById('video-track');
+            if (track) {
+              track.innerHTML = res.videos.map(window.CN_buildVideoSlot).join('');
+              window.CN_initVideoStrip();
+            }
+          }
         })
         .catch(function () {});
+    })();
+  </script>
+
+  <!-- Sanity: siteSettings — populate social footer URLs -->
+  <script>
+    (function() {
+      var PROJECT = 'yodi9k1k', DATASET = 'production';
+      var q = encodeURIComponent('*[_type=="siteSettings"][0]{instagramUrl,facebookUrl,linkedinUrl,xUrl,youtubeUrl}');
+      fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          var s = d.result;
+          if (!s) return;
+          var map = {
+            'Instagram': s.instagramUrl,
+            'Facebook': s.facebookUrl,
+            'LinkedIn': s.linkedinUrl,
+            'X': s.xUrl,
+            'YouTube': s.youtubeUrl,
+          };
+          document.querySelectorAll('.social-footer a[aria-label]').forEach(function(a) {
+            var label = a.getAttribute('aria-label');
+            var url = map[label];
+            if (url) { a.href = url; }
+          });
+        })
+        .catch(function() {});
     })();
   </script>
 </body>

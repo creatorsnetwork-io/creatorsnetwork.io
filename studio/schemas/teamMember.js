@@ -125,6 +125,69 @@ export default defineType({
       to: [{type: 'teamMember'}],
     }),
 
+    // Videos (hover-to-play strip shown on this member's page)
+    defineField({
+      name: 'videos',
+      title: 'Video strip',
+      type: 'array',
+      description: 'Short-form vertical videos shown in the "Work in motion" strip on this page. Drag to reorder. Switch active off to hide without deleting.',
+      of: [
+        {
+          type: 'object',
+          name: 'videoEntry',
+          title: 'Video',
+          fields: [
+            {
+              name: 'caption',
+              title: 'Caption',
+              type: 'string',
+              description: 'Client name, project name, or short label shown below the video',
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'sourceType',
+              title: 'Source type',
+              type: 'string',
+              options: {
+                list: [
+                  {title: 'Cloudflare Stream (direct MP4 — plays inline)', value: 'cloudflare'},
+                  {title: 'YouTube (opens lightbox on click)', value: 'youtube'},
+                  {title: 'Vimeo (opens lightbox on click)', value: 'vimeo'},
+                  {title: 'Instagram Reel (opens in new tab)', value: 'instagram'},
+                ],
+                layout: 'radio',
+              },
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'videoUrlOrId',
+              title: 'Video URL or ID',
+              type: 'string',
+              description: 'Cloudflare: stream video ID. YouTube: full URL or video ID. Vimeo: full URL or video ID. Instagram: full Reel URL.',
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'thumbnailImage',
+              title: 'Thumbnail (optional)',
+              type: 'image',
+              description: 'Cover image shown before the video plays. If empty, a colour placeholder is used.',
+              options: {hotspot: true},
+            },
+            {
+              name: 'active',
+              title: 'Active',
+              type: 'boolean',
+              description: 'Switch off to hide without deleting',
+              initialValue: true,
+            },
+          ],
+          preview: {
+            select: {title: 'caption', subtitle: 'sourceType'},
+          },
+        },
+      ],
+    }),
+
     // SEO
     defineField({
       name: 'seoTitle',
@@ -149,12 +212,13 @@ export default defineType({
       title: 'name',
       subtitle: 'pageNumber',
       media: 'portraitPanel',
+      mediaFull: 'portraitFull',
     },
-    prepare({title, subtitle, media}) {
+    prepare({title, subtitle, media, mediaFull}) {
       return {
         title,
         subtitle: subtitle ? `0${subtitle} — The Five` : '',
-        media,
+        media: media || mediaFull,
       }
     },
   },

@@ -379,11 +379,11 @@
           <div class="office-info">
             <span class="office-city">UAE</span>
             <h3 class="office-name">Dubai</h3>
-            <div class="office-address">
+            <div class="office-address" id="office-uae-address">
               <strong>HQ</strong>
               Shams Business Center, Sharjah Media City Free Zone, UAE
             </div>
-            <a href="tel:+971553653300" class="office-phone">+971 55 365 3300</a>
+            <a href="tel:+971553653300" class="office-phone" id="office-uae-phone">+971 55 365 3300</a>
           </div>
         </div>
 
@@ -395,13 +395,13 @@
           <div class="office-info">
             <span class="office-city">India</span>
             <h3 class="office-name">Mumbai + Delhi</h3>
-            <div class="office-address">
+            <div class="office-address" id="office-india-address">
               <strong>Mumbai</strong>
               91 Springboard, Kalina, Bandra Kurla Complex
               <strong>Delhi</strong>
               ACY Aggarwal City Square, Rohini
             </div>
-            <a href="tel:+918750828200" class="office-phone">+91 8750 82 82 00</a>
+            <a href="tel:+918750828200" class="office-phone" id="office-india-phone">+91 8750 82 82 00</a>
           </div>
         </div>
 
@@ -411,7 +411,7 @@
     <!-- EMAIL -->
     <div class="email-section reveal">
       <span class="email-label">Write to us directly</span>
-      <a href="mailto:hello@creatorsnetwork.io" class="email-link">hello@creatorsnetwork.io</a>
+      <a href="mailto:hello@creatorsnetwork.io" class="email-link" id="contact-email-link">hello@creatorsnetwork.io</a>
     </div>
 
     <!-- CLOSE -->
@@ -567,7 +567,7 @@
       var interest = document.getElementById('lead-interest').value;
       var message  = document.getElementById('lead-message').value;
       window.location.href =
-        'mailto:hello@creatorsnetwork.io'
+        'mailto:' + (window.CN_contactEmail || 'hello@creatorsnetwork.io')
         + '?subject=' + encodeURIComponent('New enquiry from ' + name)
         + '&body='    + encodeURIComponent(
             'Name: '     + name     + '\n'
@@ -578,20 +578,101 @@
         );
     });
   </script>
-  <!-- ── Sanity CMS: contact page image ── -->
+  <!-- ── Sanity CMS: contact page ── -->
   <script>
     (function () {
       var PROJECT = 'yodi9k1k', DATASET = 'production';
-      var q = encodeURIComponent('*[_type=="contactPage"][0]{"bgUrl":bgImage.asset->url}');
+      var q = encodeURIComponent(
+        '*[_type=="contactPage"][0]{"bgUrl":bgImage.asset->url,contactEmail,indiaPhone,uaePhone,mumbaiAddress,delhiAddress,uaeAddress}'
+      );
       fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
         .then(function (r) { return r.json(); })
         .then(function (d) {
           var res = d.result;
-          if (!res || !res.bgUrl) return;
-          var bg = document.querySelector('.portrait-bg');
-          if (bg) bg.style.backgroundImage = 'url("' + res.bgUrl + '")';
+          if (!res) return;
+
+          // Hero background
+          if (res.bgUrl) {
+            var bg = document.querySelector('.portrait-bg');
+            if (bg) bg.style.backgroundImage = 'url("' + res.bgUrl + '")';
+          }
+
+          // Contact email — also used by form submit handler via window.CN_contactEmail
+          if (res.contactEmail) {
+            window.CN_contactEmail = res.contactEmail;
+            var emailEl = document.getElementById('contact-email-link');
+            if (emailEl) {
+              emailEl.href = 'mailto:' + res.contactEmail;
+              emailEl.textContent = res.contactEmail;
+            }
+          }
+
+          // UAE phone
+          if (res.uaePhone) {
+            var uaePhoneEl = document.getElementById('office-uae-phone');
+            if (uaePhoneEl) {
+              uaePhoneEl.href = 'tel:' + res.uaePhone.replace(/\s/g, '');
+              uaePhoneEl.textContent = res.uaePhone;
+            }
+          }
+
+          // UAE address
+          if (res.uaeAddress) {
+            var uaeAddrEl = document.getElementById('office-uae-address');
+            if (uaeAddrEl) {
+              uaeAddrEl.innerHTML = '<strong>HQ</strong> ' + res.uaeAddress;
+            }
+          }
+
+          // India phone
+          if (res.indiaPhone) {
+            var indiaPhoneEl = document.getElementById('office-india-phone');
+            if (indiaPhoneEl) {
+              indiaPhoneEl.href = 'tel:' + res.indiaPhone.replace(/\s/g, '');
+              indiaPhoneEl.textContent = res.indiaPhone;
+            }
+          }
+
+          // India address (Mumbai + Delhi — separate CMS fields, combined in one div)
+          if (res.mumbaiAddress || res.delhiAddress) {
+            var indiaAddrEl = document.getElementById('office-india-address');
+            if (indiaAddrEl) {
+              var html = '';
+              if (res.mumbaiAddress) html += '<strong>Mumbai</strong> ' + res.mumbaiAddress;
+              if (res.mumbaiAddress && res.delhiAddress) html += ' ';
+              if (res.delhiAddress) html += '<strong>Delhi</strong> ' + res.delhiAddress;
+              indiaAddrEl.innerHTML = html;
+            }
+          }
         })
         .catch(function () {});
+    })();
+  </script>
+
+  <!-- Sanity: siteSettings — populate social footer URLs -->
+  <script>
+    (function() {
+      var PROJECT = 'yodi9k1k', DATASET = 'production';
+      var q = encodeURIComponent('*[_type=="siteSettings"][0]{instagramUrl,facebookUrl,linkedinUrl,xUrl,youtubeUrl}');
+      fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          var s = d.result;
+          if (!s) return;
+          var map = {
+            'Instagram': s.instagramUrl,
+            'Facebook': s.facebookUrl,
+            'LinkedIn': s.linkedinUrl,
+            'X': s.xUrl,
+            'YouTube': s.youtubeUrl,
+          };
+          document.querySelectorAll('.social-footer a[aria-label]').forEach(function(a) {
+            var label = a.getAttribute('aria-label');
+            var url = map[label];
+            if (url) { a.href = url; }
+          });
+        })
+        .catch(function() {});
     })();
   </script>
 </body>

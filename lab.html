@@ -600,6 +600,19 @@
   transform: scale(1.1);
 }
 .social-footer svg { width: 15px; height: 15px; fill: currentColor; }
+
+/* VIDEO STRIP */
+.video-strip { padding: 8vh 0 10vh; overflow: hidden; }
+.video-strip-label { padding: 0 34px; font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 2rem; display: block; }
+.video-strip-track { display: flex; gap: 1.4rem; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 34px 1.2rem; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.1) transparent; cursor: grab; }
+.video-strip-track:active { cursor: grabbing; }
+.video-slot { flex: 0 0 auto; width: 180px; aspect-ratio: 9/16; border-radius: 6px; overflow: hidden; position: relative; scroll-snap-align: start; background: rgba(255,255,255,.04); border: 1px solid var(--line); }
+.video-slot video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.video-slot-label { position: absolute; bottom: 0; left: 0; right: 0; padding: .8rem .7rem; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(244,244,241,.6); background: linear-gradient(to top, rgba(3,4,6,.7) 60%, transparent); pointer-events: none; }
+.video-slot-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 36px; height: 36px; border-radius: 50%; background: rgba(61,216,197,.18); border: 1px solid var(--teal); display: flex; align-items: center; justify-content: center; pointer-events: none; transition: opacity .3s; }
+.video-slot-icon svg { width: 12px; height: 12px; fill: var(--teal); margin-left: 2px; }
+.video-slot.playing .video-slot-icon { opacity: 0; }
+.video-slot--external { cursor: pointer; }
   </style>
 </head>
 
@@ -788,6 +801,15 @@
         <p class="recipe-caption reveal reveal-stagger-2">
           There is no fixed formula. Only a <em>bias toward action</em>, a tolerance for wrong turns, and the patience to let the strange ones breathe.
         </p>
+      </div>
+    </section>
+
+    <!-- ══ WORK IN MOTION ══ -->
+    <section class="video-strip">
+      <span class="video-strip-label">Work in motion</span>
+      <div class="video-strip-track" id="video-track">
+        <!-- CMS-driven — populated by Sanity. Fallback empty state below if no videos configured. -->
+        <div class="video-slot" style="display:none" aria-hidden="true"></div>
       </div>
     </section>
 
@@ -1473,23 +1495,125 @@
     })();
   </script>
 
-  <!-- ── Sanity CMS: team member images ── -->
+  <!-- ── Video strip init ── -->
+  <script>
+    window.CN_initVideoStrip = function(trackId) {
+      var track = document.getElementById(trackId || 'video-track');
+      if (!track) return;
+      // Hover-to-play for inline video slots
+      track.querySelectorAll('.video-slot:not(.video-slot--external)').forEach(function(slot) {
+        var video = slot.querySelector('video');
+        if (!video) return;
+        slot.addEventListener('mouseenter', function() {
+          if (video.src) {
+            video.play().then(function() { slot.classList.add('playing'); }).catch(function(){});
+          }
+        });
+        slot.addEventListener('mouseleave', function() {
+          video.pause();
+          slot.classList.remove('playing');
+        });
+        slot.addEventListener('click', function() { video.muted = !video.muted; });
+      });
+      // Click-to-open for external slots (YouTube, Vimeo, Instagram)
+      track.querySelectorAll('.video-slot--external[data-href]').forEach(function(slot) {
+        slot.addEventListener('click', function() {
+          window.open(slot.getAttribute('data-href'), '_blank', 'noopener');
+        });
+      });
+      // Drag to scroll
+      var isDown = false, startX, scrollLeft;
+      track.addEventListener('mousedown', function(e) { isDown = true; startX = e.pageX - track.offsetLeft; scrollLeft = track.scrollLeft; });
+      track.addEventListener('mouseleave', function() { isDown = false; });
+      track.addEventListener('mouseup', function() { isDown = false; });
+      track.addEventListener('mousemove', function(e) {
+        if (!isDown) return;
+        e.preventDefault();
+        track.scrollLeft = scrollLeft - (e.pageX - track.offsetLeft - startX) * 1.2;
+      });
+    };
+    window.CN_buildVideoSlot = function(v) {
+      var label = v.caption || '';
+      var icon = '<div class="video-slot-icon"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>';
+      var lbl = '<span class="video-slot-label">' + label + '</span>';
+      if (v.sourceType === 'cloudflare') {
+        var src = v.videoUrlOrId || '';
+        return '<div class="video-slot"><video muted playsinline loop preload="none" src="' + src + '"></video>' + icon + lbl + '</div>';
+      }
+      var href = '';
+      if (v.sourceType === 'youtube') {
+        href = v.videoUrlOrId.indexOf('://') > -1 ? v.videoUrlOrId : 'https://www.youtube.com/watch?v=' + v.videoUrlOrId;
+      } else if (v.sourceType === 'vimeo') {
+        href = v.videoUrlOrId.indexOf('://') > -1 ? v.videoUrlOrId : 'https://vimeo.com/' + v.videoUrlOrId;
+      } else {
+        href = v.videoUrlOrId || '#';
+      }
+      return '<div class="video-slot video-slot--external" data-href="' + href + '">' + icon + lbl + '</div>';
+    };
+    window.CN_initVideoStrip();
+  </script>
+
+  <!-- ── Sanity CMS: team member (lab) ── -->
   <script>
     (function () {
       var PROJECT = 'yodi9k1k', DATASET = 'production';
-      var q = encodeURIComponent('*[_type=="teamMember"&&slug.current=="lab"][0]{"portraitUrl":portraitFull.asset->url}');
+      var q = encodeURIComponent(
+        '*[_type=="teamMember"&&slug.current=="lab"][0]{"portraitUrl":portraitFull.asset->url,"videos":videos[active!=false]{caption,sourceType,videoUrlOrId}}'
+      );
       fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
         .then(function (r) { return r.json(); })
         .then(function (d) {
           var res = d.result;
-          if (!res || !res.portraitUrl) return;
-          var bg = document.querySelector('.portrait-bg');
-          if (bg) bg.style.backgroundImage = 'url("' + res.portraitUrl + '")';
-          var s = document.createElement('style');
-          s.textContent = '.close-section::before{background-image:url("' + res.portraitUrl + '")!important;background-size:cover!important;background-position:center!important}';
-          document.head.appendChild(s);
+          if (!res) return;
+          // Portrait
+          if (res.portraitUrl) {
+            var bg = document.querySelector('.portrait-bg');
+            if (bg) bg.style.backgroundImage = 'url("' + res.portraitUrl + '")';
+            var s = document.createElement('style');
+            s.textContent = '.close-section::before{background-image:url("' + res.portraitUrl + '")!important;background-size:cover!important;background-position:center!important}';
+            document.head.appendChild(s);
+          }
+          // Video strip
+          if (res.videos && res.videos.length) {
+            var track = document.getElementById('video-track');
+            if (track) {
+              track.innerHTML = res.videos.map(window.CN_buildVideoSlot).join('');
+              window.CN_initVideoStrip();
+            }
+          } else {
+            // Hide the strip if no videos configured
+            var strip = document.querySelector('.video-strip');
+            if (strip) strip.style.display = 'none';
+          }
         })
         .catch(function () {});
+    })();
+  </script>
+
+  <!-- Sanity: siteSettings — populate social footer URLs -->
+  <script>
+    (function() {
+      var PROJECT = 'yodi9k1k', DATASET = 'production';
+      var q = encodeURIComponent('*[_type=="siteSettings"][0]{instagramUrl,facebookUrl,linkedinUrl,xUrl,youtubeUrl}');
+      fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          var s = d.result;
+          if (!s) return;
+          var map = {
+            'Instagram': s.instagramUrl,
+            'Facebook': s.facebookUrl,
+            'LinkedIn': s.linkedinUrl,
+            'X': s.xUrl,
+            'YouTube': s.youtubeUrl,
+          };
+          document.querySelectorAll('.social-footer a[aria-label]').forEach(function(a) {
+            var label = a.getAttribute('aria-label');
+            var url = map[label];
+            if (url) { a.href = url; }
+          });
+        })
+        .catch(function() {});
     })();
   </script>
 </body>

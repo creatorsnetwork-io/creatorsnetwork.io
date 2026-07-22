@@ -637,14 +637,14 @@
         <div>
           <span class="hero-eyebrow reveal">Selected work, 2020 onwards</span>
           <h1 class="reveal reveal-stagger">Proof</h1>
-          <p class="hero-locations reveal reveal-stagger-2">UAE · India · East Africa · Europe</p>
-          <span class="hero-years reveal reveal-stagger-2">2020—</span>
+          <p class="hero-locations reveal reveal-stagger-2" id="hero-locations">UAE · India · East Africa · Europe</p>
+          <span class="hero-years reveal reveal-stagger-2" id="hero-years">2020—</span>
         </div>
       </div>
 
       <div class="philosophy">
         <div class="philosophy-inner">
-          <p class="reveal">No awards shelf, no vanity metrics. Just the work: <em>what the brief was, what we did, and what changed.</em></p>
+          <p class="reveal" id="philosophy-text">No awards shelf, no vanity metrics. Just the work: <em>what the brief was, what we did, and what changed.</em></p>
         </div>
       </div>
     </section>
@@ -839,13 +839,13 @@
     <section class="logos" aria-label="Brands we have worked with">
       <span class="logos-eyebrow reveal">Brands that trusted the work</span>
       <div class="marquee-row marquee--fwd">
-        <div class="marquee">
+        <div class="marquee" id="logo-track-1">
           <span class="logo-item logo-accent">Netflix</span><span class="logo-item logo-heavy">Audi</span><span class="logo-item">Liberty International</span><span class="logo-item logo-heavy">Hindware</span><span class="logo-item logo-accent">Royal Enfield</span><span class="logo-item">Tata Communications</span><span class="logo-item logo-heavy">JAWA</span><span class="logo-item">SBI</span>
           <span class="logo-item logo-accent">Netflix</span><span class="logo-item logo-heavy">Audi</span><span class="logo-item">Liberty International</span><span class="logo-item logo-heavy">Hindware</span><span class="logo-item logo-accent">Royal Enfield</span><span class="logo-item">Tata Communications</span><span class="logo-item logo-heavy">JAWA</span><span class="logo-item">SBI</span>
         </div>
       </div>
       <div class="marquee-row marquee--rev">
-        <div class="marquee">
+        <div class="marquee" id="logo-track-2">
           <span class="logo-item">Jaipur Watch Company</span><span class="logo-item logo-accent">World of Destinations</span><span class="logo-item logo-heavy">Secluded Africa</span><span class="logo-item">Shobiz / Havas</span><span class="logo-item logo-accent">EO Delhi</span><span class="logo-item logo-heavy">Gravity Concepts</span><span class="logo-item">Tantraa</span>
           <span class="logo-item">Jaipur Watch Company</span><span class="logo-item logo-accent">World of Destinations</span><span class="logo-item logo-heavy">Secluded Africa</span><span class="logo-item">Shobiz / Havas</span><span class="logo-item logo-accent">EO Delhi</span><span class="logo-item logo-heavy">Gravity Concepts</span><span class="logo-item">Tantraa</span>
         </div>
@@ -923,6 +923,158 @@
     </div>
   </div>
 
+  <!-- ── Sanity CMS: proofPage + caseStudy ── -->
+  <script>
+    (function () {
+      var PROJECT = 'yodi9k1k', DATASET = 'production';
+      var BASE = 'https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET;
+
+      function esc(s) {
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+
+      // ── proofPage (hero bg, reel, logo wall) ──
+      var qPage = encodeURIComponent(
+        '*[_type=="proofPage"][0]{' +
+          '"heroBgUrl":heroBgImage.asset->url,' +
+          'heroLocations,' +
+          'heroYears,' +
+          'philosophyText,' +
+          '"reelVideos":reelVideos[active!=false]{clientName,title,sourceType,videoUrlOrId},' +
+          '"logoWallRow1":logoWallRow1[]{name,style},' +
+          '"logoWallRow2":logoWallRow2[]{name,style}' +
+        '}'
+      );
+
+      // ── caseStudy (featured slider + all cases grid) ──
+      var qCases = encodeURIComponent(
+        '*[_type=="caseStudy"] | order(_createdAt asc) {' +
+          '"slug":slug.current,' +
+          'title,' +
+          'clientName,' +
+          'oneLinerSummary,' +
+          '"heroUrl":heroImage.asset->url,' +
+          'featured' +
+        '}'
+      );
+
+      // Fetch both in parallel
+      Promise.all([
+        fetch(BASE + '?query=' + qPage).then(function(r) { return r.json(); }),
+        fetch(BASE + '?query=' + qCases).then(function(r) { return r.json(); }),
+      ]).then(function(results) {
+        var page = results[0].result;
+        var cases = results[1].result || [];
+
+        // ── Hero background ──
+        if (page && page.heroBgUrl) {
+          var bg = document.getElementById('portrait-bg');
+          if (bg) bg.style.backgroundImage = 'url(' + page.heroBgUrl + ')';
+        }
+
+        // ── Hero text ──
+        if (page && page.heroLocations) {
+          var loc = document.getElementById('hero-locations');
+          if (loc) loc.textContent = page.heroLocations;
+        }
+        if (page && page.heroYears) {
+          var yr = document.getElementById('hero-years');
+          if (yr) yr.textContent = page.heroYears;
+        }
+
+        // ── Philosophy ──
+        if (page && page.philosophyText) {
+          var phil = document.getElementById('philosophy-text');
+          if (phil) phil.innerHTML = esc(page.philosophyText).replace(/what the brief was, what we did, and what changed/g, '<em>what the brief was, what we did, and what changed</em>');
+        }
+
+        // ── Reel strip ──
+        if (page && page.reelVideos && page.reelVideos.length) {
+          var reelTrack = document.getElementById('reel-track');
+          if (reelTrack) {
+            reelTrack.innerHTML = page.reelVideos.map(function(v, i) {
+              return '<div class="reel-slot">' +
+                '<canvas class="reel-slot-bg" data-reel-idx="' + i + '"></canvas>' +
+                '<div class="reel-slot-overlay"></div>' +
+                '<div class="reel-slot-play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>' +
+                '<div class="reel-slot-meta">' +
+                  '<span class="reel-slot-client">' + esc(v.clientName) + '</span>' +
+                  '<span class="reel-slot-title">' + esc(v.title) + '</span>' +
+                '</div>' +
+              '</div>';
+            }).join('');
+            // Re-init canvas drawing for the new slots
+            if (window.CN_initReel) window.CN_initReel();
+          }
+        }
+
+        // ── Featured slider ──
+        var featured = cases.filter(function(c) { return c.featured; });
+        if (featured.length) {
+          var sliderTrack = document.getElementById('slider-track');
+          if (sliderTrack) {
+            sliderTrack.innerHTML = featured.map(function(c) {
+              var img = c.heroUrl ? 'url(' + c.heroUrl + ')' : "url('assets/proof-atmosphere.jpg')";
+              return '<a class="slide" href="case-' + esc(c.slug) + '.html" style="background-image:' + img + ';">' +
+                '<div class="slide-content">' +
+                  '<span class="slide-client">' + esc(c.clientName) + '</span>' +
+                  '<h3>' + esc(c.title) + '</h3>' +
+                  (c.oneLinerSummary ? '<p>' + esc(c.oneLinerSummary) + '</p>' : '') +
+                  '<span class="case-card-cta">Read the case</span>' +
+                '</div>' +
+              '</a>';
+            }).join('');
+          }
+        }
+
+        // ── All cases grid ──
+        if (cases.length) {
+          var grid = document.querySelector('.case-grid');
+          if (grid) {
+            grid.innerHTML = cases.map(function(c, i) {
+              var img = c.heroUrl ? 'url(' + c.heroUrl + ')' : "url('assets/proof-atmosphere.jpg')";
+              var delay = i < 6 ? ' reveal-stagger' + (i > 0 ? (i > 1 ? '-' + (i+1) : '') : '') : '';
+              return '<a class="case-card reveal" href="case-' + esc(c.slug) + '.html" style="background-image:' + img + ';">' +
+                '<div class="case-card-content">' +
+                  '<span class="case-card-client">' + esc(c.clientName) + '</span>' +
+                  '<h3>' + esc(c.title) + '</h3>' +
+                  '<span class="case-card-cta">View case</span>' +
+                '</div>' +
+              '</a>';
+            }).join('');
+            // Re-trigger reveal observer for new elements
+            var obs = new IntersectionObserver(function(entries) {
+              entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('is-visible'); });
+            }, {threshold: 0.1, rootMargin: '0px 0px -30px 0px'});
+            document.querySelectorAll('.case-grid .reveal').forEach(function(el) { obs.observe(el); });
+          }
+        }
+
+        // ── Logo wall ──
+        function makeLogoHtml(logos) {
+          if (!logos || !logos.length) return '';
+          var html = logos.map(function(l) {
+            var cls = 'logo-item' + (l.style === 'accent' ? ' logo-accent' : l.style === 'heavy' ? ' logo-heavy' : '');
+            return '<span class="' + cls + '">' + esc(l.name) + '</span>';
+          }).join('');
+          return html + html; // duplicate for seamless loop
+        }
+
+        if (page && page.logoWallRow1 && page.logoWallRow1.length) {
+          var t1 = document.getElementById('logo-track-1');
+          if (t1) t1.innerHTML = makeLogoHtml(page.logoWallRow1);
+        }
+        if (page && page.logoWallRow2 && page.logoWallRow2.length) {
+          var t2 = document.getElementById('logo-track-2');
+          if (t2) t2.innerHTML = makeLogoHtml(page.logoWallRow2);
+        }
+
+      }).catch(function() {
+        // CMS unavailable — hardcoded fallback content remains visible
+      });
+    })();
+  </script>
+
   <script>
     /* Subtle parallax on the atmosphere */
     (function () {
@@ -952,69 +1104,60 @@
 
     /* Reel strip: placeholder canvases + drag scroll */
     (function () {
-      // Cinematic placeholder renders for each reel slot
-      var palettes = {
-        liberty:  { bg: ['#060e18','#0a1520'], accent: 'rgba(61,180,216,.55)',  label: 'DESTINATION' },
-        safari:   { bg: ['#120b04','#1a1206'], accent: 'rgba(180,130,60,.55)',  label: 'SAFARI FILM' },
-        netflix:  { bg: ['#150404','#0a0202'], accent: 'rgba(216,40,40,.55)',   label: 'FAN EVENT'   },
-        audi:     { bg: ['#060606','#0c0c0c'], accent: 'rgba(180,180,180,.5)',  label: 'EXPERIENTIAL'},
-        hindware: { bg: ['#030e10','#060c10'], accent: 'rgba(61,216,197,.5)',   label: 'LAUNCH'      },
-        byc:      { bg: ['#0a0414','#060a18'], accent: 'rgba(140,80,220,.5)',   label: 'CREATOR'     },
-        imex:     { bg: ['#08100a','#040c06'], accent: 'rgba(80,180,100,.5)',   label: 'EVENT'       },
+      // Cinematic placeholder palette — cycled by index for CMS-driven slots
+      var PALETTES = [
+        { bg: ['#060e18','#0a1520'], accent: 'rgba(61,180,216,.55)'  },
+        { bg: ['#120b04','#1a1206'], accent: 'rgba(180,130,60,.55)'  },
+        { bg: ['#150404','#0a0202'], accent: 'rgba(216,40,40,.55)'   },
+        { bg: ['#060606','#0c0c0c'], accent: 'rgba(180,180,180,.5)'  },
+        { bg: ['#030e10','#060c10'], accent: 'rgba(61,216,197,.5)'   },
+        { bg: ['#0a0414','#060a18'], accent: 'rgba(140,80,220,.5)'   },
+        { bg: ['#08100a','#040c06'], accent: 'rgba(80,180,100,.5)'   },
+      ];
+
+      function drawCanvas(canvas) {
+        var idx = parseInt(canvas.dataset.reelIdx) || 0;
+        var pal = PALETTES[idx % PALETTES.length];
+        var slot = canvas.parentElement;
+        var w = canvas.width = slot.offsetWidth;
+        var h = canvas.height = slot.offsetHeight;
+        if (!w || !h) return;
+        var ctx = canvas.getContext('2d');
+        var bg = ctx.createLinearGradient(0, 0, 0, h);
+        bg.addColorStop(0, pal.bg[0]);
+        bg.addColorStop(1, pal.bg[1]);
+        ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
+        for (var i = 0; i < 8; i++) {
+          var bx = (i * 43 + 20) % w, by = (i * 61 + 30) % h;
+          var br = 14 + (i % 3) * 12;
+          var gr = ctx.createRadialGradient(bx, by, 0, bx, by, br);
+          gr.addColorStop(0, pal.accent);
+          gr.addColorStop(1, 'transparent');
+          ctx.fillStyle = gr; ctx.fillRect(0, 0, w, h);
+        }
+        for (var y = 0; y < h; y += 3) {
+          ctx.fillStyle = 'rgba(0,0,0,.12)';
+          ctx.fillRect(0, y, w, 1);
+        }
+        var vig = ctx.createRadialGradient(w*.5, h*.5, h*.1, w*.5, h*.5, h*.8);
+        vig.addColorStop(0, 'transparent');
+        vig.addColorStop(1, 'rgba(0,0,0,.72)');
+        ctx.fillStyle = vig; ctx.fillRect(0, 0, w, h);
+      }
+
+      // Expose so Sanity callback can call it after inserting CMS reel slots
+      window.CN_initReel = function() {
+        document.querySelectorAll('.reel-slot-bg').forEach(function(canvas) {
+          var obs = new IntersectionObserver(function(entries) {
+            if (entries[0].isIntersecting) { drawCanvas(canvas); obs.disconnect(); }
+          }, { threshold: 0.05 });
+          obs.observe(canvas.parentElement);
+          window.addEventListener('resize', function() { drawCanvas(canvas); });
+        });
       };
 
-      document.querySelectorAll('.reel-slot-bg').forEach(function(canvas) {
-        var key = canvas.dataset.reel;
-        var pal = palettes[key] || palettes.liberty;
-        var slot = canvas.parentElement;
-
-        function drawReel() {
-          var w = canvas.width = slot.offsetWidth;
-          var h = canvas.height = slot.offsetHeight;
-          if (!w || !h) return;
-          var ctx = canvas.getContext('2d');
-
-          // Background gradient
-          var bg = ctx.createLinearGradient(0, 0, 0, h);
-          bg.addColorStop(0, pal.bg[0]);
-          bg.addColorStop(1, pal.bg[1]);
-          ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
-
-          // Bokeh circles
-          for (var i = 0; i < 8; i++) {
-            var bx = (i * 43 + 20) % w, by = (i * 61 + 30) % h;
-            var br = 14 + (i % 3) * 12;
-            var gr = ctx.createRadialGradient(bx, by, 0, bx, by, br);
-            gr.addColorStop(0, pal.accent);
-            gr.addColorStop(1, 'transparent');
-            ctx.fillStyle = gr; ctx.fillRect(0, 0, w, h);
-          }
-
-          // Subtle horizontal scan lines
-          for (var y = 0; y < h; y += 3) {
-            ctx.fillStyle = 'rgba(0,0,0,.12)';
-            ctx.fillRect(0, y, w, 1);
-          }
-
-          // Vignette
-          var vig = ctx.createRadialGradient(w*.5, h*.5, h*.1, w*.5, h*.5, h*.8);
-          vig.addColorStop(0, 'transparent');
-          vig.addColorStop(1, 'rgba(0,0,0,.72)');
-          ctx.fillStyle = vig; ctx.fillRect(0, 0, w, h);
-
-          // Small label at top
-          ctx.font = '400 ' + Math.round(h * .038) + 'px Helvetica Neue, sans-serif';
-          ctx.fillStyle = 'rgba(244,244,241,.25)';
-          ctx.letterSpacing = '2px';
-          ctx.fillText(pal.label, w * .08, h * .1);
-        }
-
-        var obs = new IntersectionObserver(function(entries) {
-          if (entries[0].isIntersecting) { drawReel(); obs.disconnect(); }
-        }, { threshold: 0.05 });
-        obs.observe(slot);
-        window.addEventListener('resize', drawReel);
-      });
+      // Init for any hardcoded slots (shows fallback immediately)
+      window.CN_initReel();
 
       // Drag-to-scroll
       var track = document.getElementById('reel-track');
@@ -1176,6 +1319,33 @@
         setPosition(e.touches[0].clientX);
       }, {passive: true});
       document.addEventListener('touchend', function() { dragging = false; });
+    })();
+  </script>
+
+  <!-- Sanity: siteSettings — populate social footer URLs -->
+  <script>
+    (function() {
+      var PROJECT = 'yodi9k1k', DATASET = 'production';
+      var q = encodeURIComponent('*[_type=="siteSettings"][0]{instagramUrl,facebookUrl,linkedinUrl,xUrl,youtubeUrl}');
+      fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          var s = d.result;
+          if (!s) return;
+          var map = {
+            'Instagram': s.instagramUrl,
+            'Facebook': s.facebookUrl,
+            'LinkedIn': s.linkedinUrl,
+            'X': s.xUrl,
+            'YouTube': s.youtubeUrl,
+          };
+          document.querySelectorAll('.social-footer a[aria-label]').forEach(function(a) {
+            var label = a.getAttribute('aria-label');
+            var url = map[label];
+            if (url) { a.href = url; }
+          });
+        })
+        .catch(function() {});
     })();
   </script>
 </body>

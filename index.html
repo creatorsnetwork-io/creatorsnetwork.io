@@ -1172,7 +1172,7 @@
           '"founderPortraitUrl":founderPortrait.asset->url,' +
           'closeEmail,' +
           'closeCity,' +
-          '"panels":theFiveOrder[]->{name,"slug":slug.current,fivePanelHoverQuote,"panelBgUrl":portraitPanel.asset->url}' +
+          '"panels":theFiveOrder[]->{name,"slug":slug.current,fivePanelHoverQuote,"panelBgUrl":coalesce(portraitPanel.asset->url,portraitFull.asset->url)}' +
         '}'
       );
       fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
@@ -1267,6 +1267,33 @@
           }
         })
         .catch(function () { /* silent — falls back to CSS defaults */ });
+    })();
+  </script>
+
+  <!-- Sanity: siteSettings — populate social footer URLs -->
+  <script>
+    (function() {
+      var PROJECT = 'yodi9k1k', DATASET = 'production';
+      var q = encodeURIComponent('*[_type=="siteSettings"][0]{instagramUrl,facebookUrl,linkedinUrl,xUrl,youtubeUrl}');
+      fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          var s = d.result;
+          if (!s) return;
+          var map = {
+            'Instagram': s.instagramUrl,
+            'Facebook': s.facebookUrl,
+            'LinkedIn': s.linkedinUrl,
+            'X': s.xUrl,
+            'YouTube': s.youtubeUrl,
+          };
+          document.querySelectorAll('.social-footer a[aria-label]').forEach(function(a) {
+            var label = a.getAttribute('aria-label');
+            var url = map[label];
+            if (url) { a.href = url; }
+          });
+        })
+        .catch(function() {});
     })();
   </script>
 </body>
