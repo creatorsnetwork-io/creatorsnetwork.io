@@ -476,7 +476,7 @@
         <div>
           <span class="hero-eyebrow reveal">The Founder</span>
           <h1 class="reveal reveal-stagger">Movement, stories, play</h1>
-          <p class="hero-statement reveal reveal-stagger-2">I'm someone who needs movement, stories, and play to stay alive</p>
+          <p class="hero-statement reveal reveal-stagger-2" id="founder-opening-quote">I'm someone who needs movement, stories, and play to stay alive</p>
           <span class="hero-owner reveal reveal-stagger-3">Himanshu Arora — Founder &amp; CEO</span>
         </div>
       </div>
@@ -550,7 +550,7 @@
       <div class="cast-inner">
         <h2 class="cast-head reveal">The cast</h2>
         <p class="cast-sub reveal reveal-stagger">A founder is only the narrator. These are the people who carry the story.</p>
-        <div class="cast-grid">
+        <div class="cast-grid" id="cast-grid">
           <a class="cast-card reveal" href="campaigns.html" style="background-image: url('assets/priyanka-campaigns-hero.jpg');">
             <div class="cast-bio">
               <p class="cast-bio-text">Led every major CN campaign. Built the Liberty account from a Frankfurt pilot into a global mandate. Knows the difference between a strategy that looks good and one that converts.</p>
@@ -652,7 +652,7 @@
     <!-- ══ CLOSE ══ -->
     <section class="close-section" aria-label="Continue">
       <div class="close-inner">
-        <h2 class="reveal">The story is still being written</h2>
+        <h2 class="reveal" id="founder-closing-line">The story is still being written</h2>
         <div class="close-links reveal reveal-stagger">
           <a href="experiences.html" class="quiet-link teal">The events chapter</a>
           <a href="contact.html" class="quiet-link">Start a conversation</a>
@@ -911,29 +911,77 @@
     })();
   </script>
 
-  <!-- ── Sanity CMS: founder page images ── -->
+  <!-- ── Sanity CMS: founder page ── -->
   <script>
     (function () {
       var PROJECT = 'yodi9k1k', DATASET = 'production';
-      var q = encodeURIComponent('*[_type=="founderPage"][0]{"portraitUrl":portrait.asset->url,"scroll02BgUrl":scroll02BgImage.asset->url}');
+      var q = encodeURIComponent(
+        '*[_type=="founderPage"][0]{' +
+          '"portraitUrl":portrait.asset->url,' +
+          '"scroll02BgUrl":scroll02BgImage.asset->url,' +
+          'openingQuote,' +
+          'closingLine,' +
+          '"cast":castTeamOrder[]->{name,"slug":slug.current,pageNumber,fivePanelHoverQuote,"portraitUrl":portraitFull.asset->url}' +
+        '}'
+      );
       fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
         .then(function (r) { return r.json(); })
         .then(function (d) {
           var res = d.result;
           if (!res) return;
           var styles = [];
+
+          // Portrait background
           if (res.portraitUrl) {
             var bg = document.querySelector('.portrait-bg');
             if (bg) bg.style.backgroundImage = 'url("' + res.portraitUrl + '")';
             styles.push('.close-section::before{background-image:url("' + res.portraitUrl + '")!important;background-size:cover!important;background-position:center 12%!important}');
           }
+
+          // Scroll 02 background
           if (res.scroll02BgUrl) {
             styles.push('.credits::before{background-image:url("' + res.scroll02BgUrl + '")!important}');
           }
+
           if (styles.length) {
             var s = document.createElement('style');
             s.textContent = styles.join('');
             document.head.appendChild(s);
+          }
+
+          // Opening quote
+          if (res.openingQuote) {
+            var quoteEl = document.getElementById('founder-opening-quote');
+            if (quoteEl) quoteEl.textContent = res.openingQuote;
+          }
+
+          // Closing line
+          if (res.closingLine) {
+            var closingEl = document.getElementById('founder-closing-line');
+            if (closingEl) closingEl.textContent = res.closingLine;
+          }
+
+          // Cast grid — rebuild from CMS castTeamOrder references
+          if (res.cast && res.cast.length) {
+            var grid = document.getElementById('cast-grid');
+            if (grid) {
+              var staggerClasses = ['reveal', 'reveal reveal-stagger', 'reveal reveal-stagger-2', 'reveal reveal-stagger-3', 'reveal reveal-stagger-4'];
+              grid.innerHTML = res.cast.map(function(m, i) {
+                var slug = m.slug || '';
+                var href = slug ? slug + '.html' : '#';
+                var bgStyle = m.portraitUrl ? ' style="background-image:url(\'' + m.portraitUrl + '\')"' : '';
+                var num = m.pageNumber ? m.pageNumber + ' — ' : (i + 1) + ' — ';
+                var roleName = slug.charAt(0).toUpperCase() + slug.slice(1);
+                var bio = m.fivePanelHoverQuote ? '<p class="cast-bio-text">' + m.fivePanelHoverQuote + '</p>' : '';
+                return '<a class="cast-card ' + (staggerClasses[i] || 'reveal') + '" href="' + href + '"' + bgStyle + '>' +
+                  '<div class="cast-bio">' + bio + '</div>' +
+                  '<div class="cast-card-content">' +
+                    '<h3 class="cast-name">' + (m.name || '') + '</h3>' +
+                    '<span class="cast-role">0' + num + roleName + '</span>' +
+                  '</div>' +
+                '</a>';
+              }).join('');
+            }
           }
         })
         .catch(function () {});
