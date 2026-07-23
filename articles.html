@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title id="meta-title">Lab — Creators Network</title>
+  <meta name="description" id="meta-desc" content="Thinking out loud from the people at Creators Network — on influencer marketing, brand strategy, events, and the creator economy." />
+  <meta property="og:image" id="og-image" content="" />
+  <style>
+    :root {
+      --black:      #030406;
+      --off-black:  #0d0f12;
+      --soft-white: #f4f4f1;
+      --muted:      rgba(244,244,241,.55);
+      --line:       rgba(255,255,255,.09);
+      --teal:       #3dd8c5;
+      --gold:       #c9a96e;
+      --serif:      Georgia, 'Times New Roman', serif;
+      --sans:       'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --max-prose:  680px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--black); scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--soft-white);
+      font-family: var(--sans);
+      overflow-x: hidden;
+      text-rendering: geometricPrecision;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::after {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .07;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+      mix-blend-mode: screen;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Nav ── */
+    .nav {
+      position: fixed; z-index: 100; top: 28px; left: 30px; right: 30px;
+      display: flex; align-items: center; justify-content: space-between;
+      pointer-events: none;
+    }
+    .brand-logo { pointer-events: auto; width: 54px; height: auto; display: block; }
+    .brand-logo svg { fill: var(--soft-white); }
+    .nav-items {
+      pointer-events: auto; display: flex; align-items: center;
+      gap: clamp(16px, 2.2vw, 34px); padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,.075);
+      background: rgba(3,4,6,.20); backdrop-filter: blur(18px);
+    }
+    .nav-items a {
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 400; color: rgba(244,244,241,.80); white-space: nowrap;
+      transition: color .3s;
+    }
+    .nav-items a:hover { color: var(--soft-white); }
+    .nav-items a.is-current { color: var(--teal); }
+
+    /* ── Reveal ── */
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.is-visible { opacity: 1; transform: none; }
+    .delay-1 { transition-delay: .1s; }
+    .delay-2 { transition-delay: .2s; }
+    .delay-3 { transition-delay: .3s; }
+
+    /* ════════════════════════════
+       LISTING VIEW
+    ════════════════════════════ */
+    #view-listing { display: block; }
+    #view-article { display: none; }
+
+    .listing-header {
+      padding: 160px 40px 80px;
+      max-width: 1200px; margin: 0 auto;
+      border-bottom: 1px solid var(--line);
+    }
+    .listing-eyebrow {
+      font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--teal); margin-bottom: 20px; display: block;
+    }
+    .listing-title {
+      font-family: var(--serif); font-size: clamp(36px, 5vw, 68px);
+      font-weight: 400; line-height: 1.1; color: var(--soft-white);
+      max-width: 700px;
+    }
+    .listing-sub {
+      margin-top: 24px; font-size: 16px; color: var(--muted);
+      max-width: 480px; line-height: 1.6;
+    }
+
+    /* Tag filter */
+    .tag-filter {
+      max-width: 1200px; margin: 0 auto;
+      padding: 32px 40px 0;
+      display: flex; flex-wrap: wrap; gap: 10px;
+    }
+    .tag-btn {
+      background: none; border: 1px solid var(--line); color: var(--muted);
+      font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+      padding: 8px 16px; cursor: pointer; font-family: var(--sans);
+      transition: border-color .2s, color .2s; border-radius: 2px;
+    }
+    .tag-btn:hover { border-color: rgba(255,255,255,.25); color: var(--soft-white); }
+    .tag-btn.active { border-color: var(--teal); color: var(--teal); }
+
+    /* Grid */
+    .articles-grid {
+      max-width: 1200px; margin: 48px auto 120px;
+      padding: 0 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 2px;
+    }
+    .article-card {
+      display: block; position: relative; overflow: hidden;
+      background: var(--off-black);
+      cursor: pointer; transition: transform .4s cubic-bezier(.16,1,.3,1);
+    }
+    .article-card:hover { transform: translateY(-4px); }
+    .card-img {
+      width: 100%; aspect-ratio: 16/10; overflow: hidden;
+      background: #111;
+    }
+    .card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .8s cubic-bezier(.16,1,.3,1);
+      display: block;
+    }
+    .article-card:hover .card-img img { transform: scale(1.04); }
+    .card-img-placeholder {
+      width: 100%; height: 100%;
+      background: linear-gradient(135deg, #0d1117 0%, #1a1f2e 50%, #0d1117 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-img-placeholder svg { width: 48px; opacity: .15; }
+    .card-body { padding: 24px 28px 32px; }
+    .card-tag {
+      font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--teal); display: block; margin-bottom: 12px;
+    }
+    .card-title {
+      font-family: var(--serif); font-size: 20px; font-weight: 400;
+      line-height: 1.35; color: var(--soft-white); margin-bottom: 12px;
+    }
+    .card-excerpt {
+      font-size: 13.5px; color: var(--muted); line-height: 1.6;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .card-meta {
+      margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-date { font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+    .card-read {
+      font-size: 10px; letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(244,244,241,.4); display: flex; align-items: center; gap: 6px;
+      transition: color .2s;
+    }
+    .article-card:hover .card-read { color: var(--soft-white); }
+    .card-read svg { transition: transform .3s; }
+    .article-card:hover .card-read svg { transform: translateX(4px); }
+
+    .no-articles {
+      grid-column: 1/-1; text-align: center;
+      padding: 80px 0; color: var(--muted); font-size: 15px;
+    }
+
+    /* Featured (first article) */
+    .article-card.featured {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .article-card.featured .card-img {
+      aspect-ratio: auto; min-height: 360px;
+    }
+    .article-card.featured .card-body {
+      padding: 48px 52px;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .article-card.featured .card-title {
+      font-size: clamp(22px, 2.8vw, 34px);
+      line-height: 1.2;
+    }
+    .article-card.featured .card-excerpt { -webkit-line-clamp: 4; }
+    @media (max-width: 720px) {
+      .article-card.featured { grid-template-columns: 1fr; }
+      .article-card.featured .card-img { min-height: 220px; }
+      .article-card.featured .card-body { padding: 28px; }
+    }
+
+    /* ════════════════════════════
+       ARTICLE DETAIL VIEW
+    ════════════════════════════ */
+    .article-back {
+      position: fixed; top: 28px; left: 30px; z-index: 200;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(244,244,241,.6); cursor: pointer;
+      background: rgba(3,4,6,.4); backdrop-filter: blur(18px);
+      padding: 10px 16px; border: 1px solid var(--line);
+      transition: color .2s;
+    }
+    .article-back:hover { color: var(--soft-white); }
+    .article-back svg { flex-shrink: 0; }
+
+    .article-hero {
+      width: 100%; height: clamp(300px, 55vh, 600px);
+      overflow: hidden; position: relative;
+      background: #0d1117;
+    }
+    .article-hero img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block; opacity: .85;
+    }
+    .article-hero::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(3,4,6,0) 40%, rgba(3,4,6,.85));
+    }
+
+    .article-wrap {
+      max-width: var(--max-prose); margin: 0 auto;
+      padding: 0 28px 120px;
+    }
+    .article-meta {
+      padding: 48px 0 36px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 48px;
+    }
+    .article-tag {
+      font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--teal); display: block; margin-bottom: 20px;
+    }
+    .article-title {
+      font-family: var(--serif);
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 400; line-height: 1.15;
+      color: var(--soft-white);
+      margin-bottom: 24px;
+    }
+    .article-dateline {
+      font-size: 12px; color: var(--muted); letter-spacing: .06em;
+    }
+
+    /* Portable Text body */
+    .article-body { font-family: var(--serif); }
+    .article-body p {
+      font-size: clamp(16px, 1.8vw, 18px);
+      line-height: 1.85; color: rgba(244,244,241,.88);
+      margin-bottom: 28px;
+    }
+    .article-body p:first-child::first-letter {
+      font-size: 3.4em; float: left; line-height: .8;
+      margin: 6px 12px 0 0; color: var(--soft-white);
+    }
+    .article-body p strong { color: var(--soft-white); font-weight: 600; }
+    .article-body p em { font-style: italic; }
+    .article-body a { color: var(--teal); text-decoration: underline; text-underline-offset: 3px; }
+    .article-body .article-img {
+      width: calc(100% + 56px); margin: 40px -28px;
+      aspect-ratio: 16/9; object-fit: cover; display: block;
+    }
+
+    /* Article footer */
+    .article-footer {
+      max-width: var(--max-prose); margin: 0 auto;
+      padding: 48px 28px 80px;
+      border-top: 1px solid var(--line);
+    }
+    .footer-label { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 32px; }
+    .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .related-card {
+      cursor: pointer; padding: 24px;
+      border: 1px solid var(--line);
+      transition: border-color .3s;
+    }
+    .related-card:hover { border-color: rgba(255,255,255,.25); }
+    .related-tag { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--teal); margin-bottom: 10px; display: block; }
+    .related-title { font-family: var(--serif); font-size: 16px; line-height: 1.4; color: var(--soft-white); }
+    @media (max-width: 600px) { .related-grid { grid-template-columns: 1fr; } }
+
+    /* ── Social footer ── */
+    .social-footer {
+      border-top: 1px solid var(--line); padding: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .social-footer-copy { font-size: 12px; color: var(--muted); }
+    .social-footer-links { display: flex; gap: 20px; }
+    .social-footer-links a { font-size: 12px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; transition: color .2s; }
+    .social-footer-links a:hover { color: var(--soft-white); }
+
+    /* Mobile nav */
+    @media (max-width: 640px) {
+      .nav-items { gap: 14px; padding: 12px 14px; }
+      .listing-header { padding: 120px 24px 60px; }
+      .articles-grid { padding: 0 24px; }
+      .tag-filter { padding: 24px 24px 0; }
+    }
+
+    /* Loading state */
+    .spinner {
+      display: flex; align-items: center; justify-content: center;
+      padding: 120px; grid-column: 1/-1;
+    }
+    .spinner::after {
+      content: ''; width: 32px; height: 32px;
+      border: 1px solid var(--line); border-top-color: var(--teal);
+      border-radius: 50%; animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav class="nav">
+  <a href="index.html" class="brand-logo" aria-label="Creators Network">
+    <svg viewBox="0 0 54 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <text x="0" y="16" font-size="15" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-weight="700" letter-spacing="1" fill="currentColor">CN</text>
+    </svg>
+  </a>
+  <div class="nav-items">
+    <a href="index.html">Home</a>
+    <a href="studio.html">Studio</a>
+    <a href="proof.html">Proof</a>
+    <a href="lab.html">Lab</a>
+    <a href="articles.html" class="is-current">Articles</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<!-- ════════════════════════════
+     LISTING VIEW
+════════════════════════════ -->
+<div id="view-listing">
+  <header class="listing-header">
+    <span class="listing-eyebrow reveal">Perspectives</span>
+    <h1 class="listing-title reveal delay-1">Things worth reading<br>from the people at CN.</h1>
+    <p class="listing-sub reveal delay-2">On influencer marketing, brand strategy, events, the creator economy — and what it actually looks like to build a boutique agency across two markets.</p>
+  </header>
+
+  <div class="tag-filter" id="tag-filter"></div>
+  <div class="articles-grid" id="articles-grid">
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════
+     ARTICLE DETAIL VIEW
+════════════════════════════ -->
+<div id="view-article" style="padding-top:0">
+  <button class="article-back" id="btn-back" onclick="showListing()">
+    <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M5 1L1 5M1 5L5 9M1 5H13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+    All articles
+  </button>
+
+  <div class="article-hero" id="article-hero">
+    <img id="article-hero-img" src="" alt="" loading="eager" />
+  </div>
+
+  <div class="article-wrap">
+    <div class="article-meta reveal">
+      <span class="article-tag" id="article-tag"></span>
+      <h1 class="article-title" id="article-title"></h1>
+      <span class="article-dateline" id="article-dateline"></span>
+    </div>
+    <div class="article-body reveal delay-1" id="article-body"></div>
+  </div>
+
+  <footer class="article-footer" id="article-footer" style="display:none">
+    <div class="footer-label">More from CN</div>
+    <div class="related-grid" id="related-grid"></div>
+  </footer>
+</div>
+
+<!-- Social footer (listing only) -->
+<footer class="social-footer" id="site-footer">
+  <span class="social-footer-copy">© 2026 Creators Network</span>
+  <div class="social-footer-links">
+    <a href="https://instagram.com/creatorsnetwork" aria-label="Instagram">Instagram</a>
+    <a href="https://linkedin.com/company/creatorsnetwork" aria-label="LinkedIn">LinkedIn</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var PROJECT = 'yodi9k1k', DATASET = 'production';
+  var SANITY_CDN = 'https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET;
+  var IMG_BASE  = 'https://cdn.sanity.io/images/' + PROJECT + '/' + DATASET + '/';
+
+  var allArticles = [];
+  var activeTag = null;
+
+  // ── Routing ─────────────────────────────────────────────────────────────────
+  function getSlugFromPath() {
+    var path = window.location.pathname;
+    // /articles/some-slug or /articles/some-slug/
+    var m = path.match(/\/articles\/([^/]+)\/?$/);
+    return m ? m[1] : null;
+  }
+
+  function showListing() {
+    document.getElementById('view-listing').style.display = 'block';
+    document.getElementById('view-article').style.display = 'none';
+    document.getElementById('site-footer').style.display = 'flex';
+    document.getElementById('btn-back').style.display = 'none';
+    window.scrollTo(0, 0);
+    history.pushState({}, '', '/articles');
+    document.getElementById('meta-title').textContent = 'Articles — Creators Network';
+  }
+
+  function showArticleView() {
+    document.getElementById('view-listing').style.display = 'none';
+    document.getElementById('view-article').style.display = 'block';
+    document.getElementById('site-footer').style.display = 'none';
+    document.getElementById('btn-back').style.display = 'flex';
+    window.scrollTo(0, 0);
+  }
+
+  // ── Image URL helper ─────────────────────────────────────────────────────────
+  function sanityImgUrl(ref, w, h) {
+    if (!ref) return '';
+    // ref: "image-abc123-1920x1080-jpg"
+    var r = ref.replace('image-', '').replace(/-(\w+)$/, '.$1');
+    return IMG_BASE + r + '?w=' + (w||800) + (h ? '&h='+h : '') + '&fit=crop&auto=format';
+  }
+
+  // ── Portable Text renderer ──────────────────────────────────────────────────
+  function renderBlocks(blocks) {
+    if (!blocks || !blocks.length) return '';
+    return blocks.map(function (block) {
+      if (block._type === 'image' && block.asset) {
+        var url = sanityImgUrl(block.asset._ref, 1360, 765);
+        return '<img class="article-img" src="' + url + '" alt="" loading="lazy" />';
+      }
+      if (block._type !== 'block') return '';
+      var html = (block.children || []).map(function (span) {
+        var t = span.text
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        var marks = span.marks || [];
+        if (marks.indexOf('strong') > -1) t = '<strong>' + t + '</strong>';
+        if (marks.indexOf('em') > -1)     t = '<em>' + t + '</em>';
+        var linkMark = marks.find(function(m){ return typeof m === 'string' && m.length > 4; });
+        if (linkMark && block.markDefs) {
+          var def = (block.markDefs || []).find(function(d){ return d._key === linkMark; });
+          if (def && def.href) t = '<a href="' + def.href + '" target="_blank" rel="noopener">' + t + '</a>';
+        }
+        return t;
+      }).join('');
+      return '<p>' + html + '</p>';
+    }).join('');
+  }
+
+  // ── Escape ────────────────────────────────────────────────────────────────────
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Date format ──────────────────────────────────────────────────────────────
+  function fmtDate(d) {
+    if (!d) return '';
+    var dt = new Date(d + 'T12:00:00Z');
+    return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  // ── Tag label ────────────────────────────────────────────────────────────────
+  function tagLabel(t) {
+    var map = {
+      'creator-economy':'Creator Economy','brand-strategy':'Brand Strategy',
+      'events':'Events','ai':'AI','dubai':'Dubai','india':'India',
+      'influencer-marketing':'Influencer Marketing','social-media':'Social Media','founder':'Founder'
+    };
+    return map[t] || t;
+  }
+
+  // ── Render card ─────────────────────────────────────────────────────────────
+  var PLACEHOLDER_SVG = '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" fill="none"/><path d="M4 4h16v16H4z" stroke="white" stroke-width=".5" fill="none"/><path d="M8 8l8 8M16 8l-8 8" stroke="white" stroke-width=".5"/></svg>';
+
+  function buildCard(article, featured) {
+    var imgHtml = article.heroImageUrl
+      ? '<img src="' + article.heroImageUrl + '" alt="" loading="lazy" />'
+      : '<div class="card-img-placeholder">' + PLACEHOLDER_SVG + '</div>';
+    var firstTag = (article.tags && article.tags[0]) ? tagLabel(article.tags[0]) : 'Article';
+    var excerpt = article.excerpt || '';
+    return (
+      '<div class="article-card' + (featured ? ' featured' : '') + ' reveal" data-slug="' + esc(article.slug) + '">' +
+        '<div class="card-img">' + imgHtml + '</div>' +
+        '<div class="card-body">' +
+          '<span class="card-tag">' + esc(firstTag) + '</span>' +
+          '<h2 class="card-title">' + esc(article.title) + '</h2>' +
+          '<p class="card-excerpt">' + esc(excerpt) + '</p>' +
+          '<div class="card-meta">' +
+            '<span class="card-date">' + esc(fmtDate(article.publishDate)) + '</span>' +
+            '<span class="card-read">Read <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M9 1l4 4m0 0l-4 4m4-4H1" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  // ── Render grid ──────────────────────────────────────────────────────────────
+  function renderGrid(articles) {
+    var grid = document.getElementById('articles-grid');
+    if (!articles.length) {
+      grid.innerHTML = '<div class="no-articles">No articles yet in this category.</div>';
+      return;
+    }
+    grid.innerHTML = articles.map(function (a, i) { return buildCard(a, i === 0); }).join('');
+    // Bind click
+    grid.querySelectorAll('.article-card[data-slug]').forEach(function (el) {
+      el.addEventListener('click', function () { loadArticle(el.dataset.slug); });
+    });
+    // Trigger reveals
+    setTimeout(function () {
+      grid.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('is-visible'); });
+    }, 60);
+  }
+
+  // ── Tag filter ───────────────────────────────────────────────────────────────
+  function renderTagFilter(articles) {
+    var tagSet = {};
+    articles.forEach(function (a) {
+      (a.tags || []).forEach(function (t) { tagSet[t] = (tagSet[t] || 0) + 1; });
+    });
+    var tags = Object.keys(tagSet).sort();
+    var container = document.getElementById('tag-filter');
+    var html = '<button class="tag-btn active" data-tag="">All (' + articles.length + ')</button>';
+    tags.forEach(function (t) {
+      html += '<button class="tag-btn" data-tag="' + esc(t) + '">' + esc(tagLabel(t)) + ' (' + tagSet[t] + ')</button>';
+    });
+    container.innerHTML = html;
+    container.querySelectorAll('.tag-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        activeTag = btn.dataset.tag || null;
+        container.querySelectorAll('.tag-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var filtered = activeTag
+          ? allArticles.filter(function (a) { return (a.tags || []).indexOf(activeTag) > -1; })
+          : allArticles;
+        renderGrid(filtered);
+      });
+    });
+  }
+
+  // ── Fetch listing ────────────────────────────────────────────────────────────
+  function fetchListing() {
+    var q = encodeURIComponent(
+      '*[_type=="article"] | order(publishDate desc) [0...50] {' +
+        'title, "slug": slug.current, publishDate, tags,' +
+        '"heroImageUrl": heroImage.asset->url,' +
+        '"excerpt": bodyContent[0].children[0].text' +
+      '}'
+    );
+    fetch(SANITY_CDN + '?query=' + q)
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        allArticles = (d.result || []);
+        if (!allArticles.length) {
+          document.getElementById('articles-grid').innerHTML =
+            '<div class="no-articles">Articles coming soon.</div>';
+          return;
+        }
+        renderTagFilter(allArticles);
+        renderGrid(allArticles);
+        initReveal();
+      })
+      .catch(function () {
+        document.getElementById('articles-grid').innerHTML =
+          '<div class="no-articles">Could not load articles. Please try again shortly.</div>';
+      });
+  }
+
+  // ── Fetch + render article detail ────────────────────────────────────────────
+  function loadArticle(slug) {
+    showArticleView();
+    // Set loading state
+    document.getElementById('article-title').textContent = '';
+    document.getElementById('article-body').innerHTML = '<div class="spinner" style="padding:80px 0"></div>';
+
+    var q = encodeURIComponent(
+      '*[_type=="article" && slug.current=="' + slug + '"][0]{' +
+        'title, "slug": slug.current, publishDate, tags, bodyContent,' +
+        '"heroImageUrl": heroImage.asset->url,' +
+        'seoTitle, seoDescription' +
+      '}'
+    );
+    history.pushState({ slug: slug }, '', '/articles/' + slug);
+
+    fetch(SANITY_CDN + '?query=' + q)
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var a = d.result;
+        if (!a) { showListing(); return; }
+
+        // Update meta
+        var titleEl = document.getElementById('meta-title');
+        titleEl.textContent = (a.seoTitle || a.title) + ' — Creators Network';
+        var descEl = document.getElementById('meta-desc');
+        if (descEl && a.seoDescription) descEl.content = a.seoDescription;
+
+        // Hero
+        var heroImg = document.getElementById('article-hero-img');
+        var heroSection = document.getElementById('article-hero');
+        if (a.heroImageUrl) {
+          heroImg.src = a.heroImageUrl + '?w=1600&auto=format';
+          heroImg.style.display = 'block';
+        } else {
+          heroSection.style.background = '#0d1117';
+          heroImg.style.display = 'none';
+        }
+
+        // Meta
+        var firstTag = (a.tags && a.tags[0]) ? tagLabel(a.tags[0]) : 'Article';
+        document.getElementById('article-tag').textContent = firstTag;
+        document.getElementById('article-title').textContent = a.title;
+        document.getElementById('article-dateline').textContent = fmtDate(a.publishDate) + ' · Creators Network';
+
+        // Body
+        document.getElementById('article-body').innerHTML = renderBlocks(a.bodyContent || []);
+
+        // Related
+        var related = allArticles.filter(function (r) { return r.slug !== slug; }).slice(0, 2);
+        if (related.length) {
+          var footer = document.getElementById('article-footer');
+          footer.style.display = 'block';
+          document.getElementById('related-grid').innerHTML = related.map(function (r) {
+            return '<div class="related-card" data-slug="' + esc(r.slug) + '">' +
+              '<span class="related-tag">' + esc((r.tags && r.tags[0]) ? tagLabel(r.tags[0]) : 'Article') + '</span>' +
+              '<div class="related-title">' + esc(r.title) + '</div>' +
+            '</div>';
+          }).join('');
+          document.getElementById('related-grid').querySelectorAll('.related-card').forEach(function (el) {
+            el.addEventListener('click', function () { loadArticle(el.dataset.slug); });
+          });
+        }
+
+        // Reveal
+        setTimeout(function () {
+          document.querySelectorAll('#view-article .reveal').forEach(function (el) { el.classList.add('is-visible'); });
+        }, 60);
+      })
+      .catch(function () { showListing(); });
+  }
+
+  // ── Intersection reveal ──────────────────────────────────────────────────────
+  function initReveal() {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('#view-listing .reveal').forEach(function (el) { io.observe(el); });
+  }
+
+  // ── Browser back/forward ─────────────────────────────────────────────────────
+  window.addEventListener('popstate', function (e) {
+    if (e.state && e.state.slug) {
+      loadArticle(e.state.slug);
+    } else {
+      showListing();
+    }
+  });
+
+  // ── Init ──────────────────────────────────────────────────────────────────────
+  var slug = getSlugFromPath();
+  fetchListing(); // always preload all articles for related + filtering
+  if (slug) {
+    loadArticle(slug);
+  } else {
+    // trigger listing reveals on DOMContentLoaded
+    initReveal();
+  }
+})();
+</script>
+</body>
+</html>
