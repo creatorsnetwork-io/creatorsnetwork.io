@@ -329,38 +329,56 @@
         </div>
 
         <!-- Right: form panel floating over hero -->
-        <div class="hero-form-panel reveal reveal-stagger-2">
-          <h2 class="form-head">Start a conversation</h2>
-          <p class="form-sub">Tell us just enough. We reply within a day.</p>
-          <form id="lead-form">
-            <div class="lead-field">
-              <label for="lead-name">Name</label>
-              <input type="text" id="lead-name" name="name" required />
-            </div>
-            <div class="lead-field">
-              <label for="lead-email">Work email</label>
-              <input type="email" id="lead-email" name="email" required />
-            </div>
-            <div class="lead-field">
-              <label for="lead-company">Company</label>
-              <input type="text" id="lead-company" name="company" />
-            </div>
-            <div class="lead-field">
-              <label for="lead-interest">What brings you here</label>
-              <select id="lead-interest" name="interest">
-                <option>Campaigns</option>
-                <option>Studio</option>
-                <option>Experiences / Events</option>
-                <option>Engine / Digital builds</option>
-                <option>Not sure yet</option>
-              </select>
-            </div>
-            <div class="lead-field">
-              <label for="lead-message">A line or two</label>
-              <textarea id="lead-message" name="message"></textarea>
-            </div>
-            <button type="submit" class="lead-submit">Send it</button>
-          </form>
+        <div class="hero-form-panel reveal reveal-stagger-2" id="contact-panel">
+
+          <!-- Form state -->
+          <div id="contact-form-wrap">
+            <h2 class="form-head">Start a conversation</h2>
+            <p class="form-sub">Tell us just enough. We reply within a day.</p>
+            <form id="lead-form" name="contact-cn" data-netlify="true" netlify-honeypot="bot-field">
+              <input type="hidden" name="form-name" value="contact-cn" />
+              <!-- Honeypot — bots fill this, humans don't -->
+              <div style="display:none"><label>Skip this: <input name="bot-field" /></label></div>
+              <div class="lead-field">
+                <label for="lead-name">Name</label>
+                <input type="text" id="lead-name" name="name" required autocomplete="name" />
+              </div>
+              <div class="lead-field">
+                <label for="lead-email">Work email</label>
+                <input type="email" id="lead-email" name="email" required autocomplete="email" />
+              </div>
+              <div class="lead-field">
+                <label for="lead-company">Company</label>
+                <input type="text" id="lead-company" name="company" autocomplete="organization" />
+              </div>
+              <div class="lead-field">
+                <label for="lead-interest">What brings you here</label>
+                <select id="lead-interest" name="interest">
+                  <option>Campaigns</option>
+                  <option>Studio</option>
+                  <option>Experiences / Events</option>
+                  <option>Engine / Digital builds</option>
+                  <option>Not sure yet</option>
+                </select>
+              </div>
+              <div class="lead-field">
+                <label for="lead-message">A line or two</label>
+                <textarea id="lead-message" name="message"></textarea>
+              </div>
+              <p id="form-error" style="display:none;color:#e05c5c;font-size:13px;margin:0 0 12px;">Something went wrong. Try again or email us directly.</p>
+              <button type="submit" class="lead-submit" id="lead-submit-btn">Send it</button>
+            </form>
+          </div>
+
+          <!-- Thank-you state (hidden until submission) -->
+          <div id="contact-thankyou" style="display:none; text-align:center; padding: 24px 0;">
+            <svg style="width:48px;height:48px;fill:none;stroke:var(--teal);stroke-width:2;margin-bottom:20px;" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/><polyline points="7 12 10.5 15.5 17 9"/>
+            </svg>
+            <h2 class="form-head" style="font-size:clamp(20px,2.2vw,28px)">We got it.</h2>
+            <p class="form-sub" style="margin:12px 0 0;">Someone from the team will be in touch within a day. No auto-replies, no CRM sequences — a person.</p>
+          </div>
+
         </div>
 
       </div>
@@ -558,24 +576,41 @@
       setInterval(tick, 1000);
     })();
 
-    // Form submit: compose mailto
+    // Form submit — Netlify Forms via AJAX
     document.getElementById('lead-form').addEventListener('submit', function(e) {
       e.preventDefault();
-      var name     = document.getElementById('lead-name').value;
-      var email    = document.getElementById('lead-email').value;
-      var company  = document.getElementById('lead-company').value;
-      var interest = document.getElementById('lead-interest').value;
-      var message  = document.getElementById('lead-message').value;
-      window.location.href =
-        'mailto:' + (window.CN_contactEmail || 'hello@creatorsnetwork.io')
-        + '?subject=' + encodeURIComponent('New enquiry from ' + name)
-        + '&body='    + encodeURIComponent(
-            'Name: '     + name     + '\n'
-          + 'Email: '    + email    + '\n'
-          + 'Company: '  + company  + '\n'
-          + 'Interest: ' + interest + '\n\n'
-          + 'Message:\n' + message
-        );
+      var form   = e.target;
+      var btn    = document.getElementById('lead-submit-btn');
+      var errEl  = document.getElementById('form-error');
+
+      // Disable button while submitting
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      if (errEl) errEl.style.display = 'none';
+
+      // Encode form data for Netlify Forms
+      var data = new URLSearchParams(new FormData(form)).toString();
+
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: data
+      })
+      .then(function(r) {
+        if (r.ok) {
+          // Show thank-you, hide form
+          document.getElementById('contact-form-wrap').style.display = 'none';
+          document.getElementById('contact-thankyou').style.display = 'block';
+        } else {
+          throw new Error('Submission failed: ' + r.status);
+        }
+      })
+      .catch(function(err) {
+        console.error('Form error:', err);
+        btn.disabled = false;
+        btn.textContent = 'Send it';
+        if (errEl) errEl.style.display = 'block';
+      });
     });
   </script>
   <!-- ── Sanity CMS: contact page ── -->

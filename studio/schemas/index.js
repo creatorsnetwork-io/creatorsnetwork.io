@@ -6,6 +6,7 @@ import article from './article'
 import founderPage from './founderPage'
 import contactPage from './contactPage'
 import proofPage from './proofPage'
+import contactSubmission from './contactSubmission'
 
 export const schemaTypes = [
   // Singletons
@@ -18,4 +19,5 @@ export const schemaTypes = [
   teamMember,
   caseStudy,
   article,
+  contactSubmission,
 ]
