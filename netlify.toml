@@ -35,6 +35,16 @@
   to = "/articles.html"
   status = 200
 
+[[redirects]]
+  from = "/case"
+  to = "/case.html"
+  status = 200
+
+[[redirects]]
+  from = "/case/*"
+  to = "/case.html"
+  status = 200
+
 [[headers]]
   for = "/*"
   [headers.values]

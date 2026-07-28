@@ -922,6 +922,7 @@
           '"scroll02BgUrl":scroll02BgImage.asset->url,' +
           'openingQuote,' +
           'closingLine,' +
+          '"timeline":timeline[]{year,event},' +
           '"cast":castTeamOrder[]->{name,"slug":slug.current,pageNumber,fivePanelHoverQuote,"portraitUrl":portraitFull.asset->url}' +
         '}'
       );
@@ -960,6 +961,21 @@
           if (res.closingLine) {
             var closingEl = document.getElementById('founder-closing-line');
             if (closingEl) closingEl.textContent = res.closingLine;
+          }
+
+          // Timeline — update year + copy from CMS, title stays as designed
+          if (res.timeline && res.timeline.length) {
+            res.timeline.forEach(function (m) {
+              if (!m.year) return;
+              var el = document.querySelector('.milestone.ms-' + m.year);
+              if (!el) return;
+              var yearEls = el.querySelectorAll('.milestone-year, .milestone-year-bg');
+              yearEls.forEach(function (y) { y.textContent = m.year; });
+              if (m.event) {
+                var copyEl = el.querySelector('.milestone-copy');
+                if (copyEl) copyEl.textContent = m.event;
+              }
+            });
           }
 
           // Cast grid — rebuild from CMS castTeamOrder references

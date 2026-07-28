@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title id="meta-title">Case study — Creators Network</title>
+  <meta name="description" id="meta-desc" content="Selected work by Creators Network." />
+  <style>
+    :root {
+      --black:      #030406;
+      --off-black:  #0d0f12;
+      --soft-white: #f4f4f1;
+      --muted:      rgba(244,244,241,.55);
+      --line:       rgba(255,255,255,.09);
+      --teal:       #3dd8c5;
+      --serif:      Georgia, 'Times New Roman', serif;
+      --sans:       'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --max-prose:  680px;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--black); }
+    body {
+      margin: 0; background: var(--black); color: var(--soft-white);
+      font-family: var(--sans);
+      overflow-x: hidden; text-rendering: geometricPrecision;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Nav ── */
+    .nav {
+      position: fixed; z-index: 100; top: 28px; left: 30px; right: 30px;
+      display: flex; align-items: center; justify-content: space-between;
+      pointer-events: none;
+    }
+    .brand-logo { pointer-events: auto; width: 54px; height: auto; display: block; }
+    .nav-items {
+      pointer-events: auto; display: flex; align-items: center;
+      gap: clamp(16px, 2.2vw, 34px); padding: 14px 18px;
+      border: 1px solid rgba(255,255,255,.075);
+      background: rgba(3,4,6,.20); backdrop-filter: blur(18px);
+    }
+    .nav-items a {
+      font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+      font-weight: 400; color: rgba(244,244,241,.80);
+      white-space: nowrap; transition: color .3s ease;
+    }
+    .nav-items a.is-current { color: var(--teal); }
+    .nav-items a:hover { color: rgba(244,244,241,1); }
+
+    /* ── Reveal ── */
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.is-visible { opacity: 1; transform: none; }
+    .delay-1 { transition-delay: .1s; }
+    .delay-2 { transition-delay: .2s; }
+
+    /* Back button */
+    .case-back {
+      position: fixed; top: 28px; left: 30px; z-index: 200;
+      display: none; align-items: center; gap: 8px;
+      font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+      color: rgba(244,244,241,.6); cursor: pointer;
+      background: rgba(3,4,6,.4); backdrop-filter: blur(18px);
+      padding: 10px 16px; border: 1px solid var(--line);
+      transition: color .2s;
+    }
+    .case-back:hover { color: var(--soft-white); }
+
+    /* Hero */
+    .case-hero {
+      width: 100%; height: clamp(320px, 60vh, 640px);
+      overflow: hidden; position: relative;
+      background: linear-gradient(160deg, #0d1117, #1a1f2e 60%, #0d1117);
+    }
+    .case-hero img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block; opacity: .85;
+    }
+    .case-hero::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(180deg, rgba(3,4,6,0) 35%, rgba(3,4,6,.9));
+    }
+
+    .case-wrap {
+      max-width: var(--max-prose); margin: 0 auto;
+      padding: 0 28px 100px;
+    }
+    .case-meta {
+      padding: 48px 0 36px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 44px;
+    }
+    .case-client {
+      font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--teal); display: block; margin-bottom: 20px;
+    }
+    .case-title {
+      font-family: var(--serif);
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 400; line-height: 1.15;
+      color: var(--soft-white);
+      margin-bottom: 20px;
+    }
+    .case-dateline {
+      font-size: 12px; color: var(--muted); letter-spacing: .05em;
+    }
+    .case-summary {
+      font-family: var(--serif); font-style: italic;
+      font-size: clamp(17px, 2vw, 20px); line-height: 1.6;
+      color: rgba(244,244,241,.82); margin: 0 0 8px;
+    }
+
+    .case-body { font-family: var(--serif); }
+    .case-body p {
+      font-size: clamp(16px, 1.8vw, 18px);
+      line-height: 1.85; color: rgba(244,244,241,.88);
+      margin-bottom: 28px;
+    }
+    .case-body p strong { color: var(--soft-white); font-weight: 600; }
+    .case-body p em { font-style: italic; }
+    .case-body a { color: var(--teal); text-decoration: underline; text-underline-offset: 3px; }
+    .case-body .case-img {
+      width: calc(100% + 56px); margin: 40px -28px;
+      aspect-ratio: 16/9; object-fit: cover; display: block;
+    }
+    .case-pending {
+      font-size: 14px; color: var(--muted); font-style: italic;
+      padding: 18px 0 0;
+    }
+
+    .case-video {
+      position: relative; width: 100%; aspect-ratio: 16/9;
+      margin: 8px 0 40px; background: #0d1117;
+    }
+    .case-video iframe {
+      position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+    }
+
+    .case-footer {
+      max-width: var(--max-prose); margin: 0 auto;
+      padding: 40px 28px 80px;
+      border-top: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .case-footer .quiet-link {
+      display: inline-flex; align-items: center; gap: 16px;
+      color: rgba(244,244,241,.7); font-size: 12px; letter-spacing: .12em;
+      text-transform: uppercase; transition: color .3s ease;
+    }
+    .case-footer .quiet-link:hover { color: var(--soft-white); }
+    .case-footer .quiet-link.teal { color: var(--teal); }
+
+    .case-notfound {
+      min-height: 60vh; display: grid; place-items: center; text-align: center;
+      padding: 120px 28px;
+    }
+    .case-notfound h1 { font-family: var(--serif); font-weight: 400; font-size: 28px; margin-bottom: 16px; }
+    .case-notfound p { color: var(--muted); font-size: 14px; }
+
+    /* ── Social footer ── */
+    .social-footer {
+      border-top: 1px solid var(--line); padding: 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .social-footer-copy { font-size: 12px; color: var(--muted); }
+    .social-footer-links { display: flex; gap: 20px; }
+    .social-footer-links a { font-size: 12px; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; transition: color .2s; }
+    .social-footer-links a:hover { color: var(--soft-white); }
+
+    @media (max-width: 640px) {
+      .nav-items { gap: 14px; padding: 12px 14px; }
+    }
+
+    .spinner {
+      display: flex; align-items: center; justify-content: center;
+      padding: 120px; min-height: 40vh;
+    }
+    .spinner::after {
+      content: ''; width: 32px; height: 32px;
+      border: 1px solid var(--line); border-top-color: var(--teal);
+      border-radius: 50%; animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav class="nav" aria-label="Primary navigation">
+  <a href="index.html" aria-label="Creators Network home">
+    <img class="brand-logo" src="assets/cn-logo-color.png" alt="Creators Network" />
+  </a>
+  <div class="nav-items">
+    <a href="founder.html">The Founder</a>
+    <a href="campaigns.html">Campaigns</a>
+    <a href="studio.html">Studio</a>
+    <a href="experiences.html">Experiences</a>
+    <a href="engine.html">Engine</a>
+    <a href="lab.html">Lab</a>
+    <a href="proof.html" class="is-current">Proof</a>
+    <a href="articles.html">Articles</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<a class="case-back" id="case-back" href="proof.html">
+  <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M5 1L1 5M1 5L5 9M1 5H13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+  All work
+</a>
+
+<div id="case-loading" class="spinner"></div>
+
+<div id="case-content" style="display:none">
+  <div class="case-hero" id="case-hero">
+    <img id="case-hero-img" src="" alt="" loading="eager" style="display:none" />
+  </div>
+
+  <div class="case-wrap">
+    <div class="case-meta reveal">
+      <span class="case-client" id="case-client"></span>
+      <h1 class="case-title" id="case-title"></h1>
+      <span class="case-dateline" id="case-dateline"></span>
+    </div>
+    <p class="case-summary" id="case-summary" style="display:none"></p>
+    <div class="case-video" id="case-video" style="display:none"></div>
+    <div class="case-body reveal delay-1" id="case-body"></div>
+  </div>
+
+  <footer class="case-footer">
+    <a href="proof.html" class="quiet-link teal">All work</a>
+    <a href="contact.html" class="quiet-link">Start a conversation</a>
+  </footer>
+</div>
+
+<div id="case-notfound" class="case-notfound" style="display:none">
+  <div>
+    <h1>We couldn't find that case study.</h1>
+    <p>It may have moved. <a href="proof.html" style="color:var(--teal);text-decoration:underline;">Back to Proof</a></p>
+  </div>
+</div>
+
+<!-- Social footer -->
+<footer class="social-footer" id="site-footer" style="display:none">
+  <span class="social-footer-copy">© 2026 Creators Network</span>
+  <div class="social-footer-links">
+    <a href="https://instagram.com/creatorsnetwork" aria-label="Instagram">Instagram</a>
+    <a href="https://linkedin.com/company/creatorsnetwork" aria-label="LinkedIn">LinkedIn</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var PROJECT = 'yodi9k1k', DATASET = 'production';
+  var SANITY_CDN = 'https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET;
+  var IMG_BASE  = 'https://cdn.sanity.io/images/' + PROJECT + '/' + DATASET + '/';
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function sanityImgUrl(ref, w, h) {
+    if (!ref) return '';
+    var r = ref.replace('image-', '').replace(/-(\w+)$/, '.$1');
+    return IMG_BASE + r + '?w=' + (w||1600) + (h ? '&h='+h : '') + '&fit=crop&auto=format';
+  }
+
+  function renderBlocks(blocks) {
+    if (!blocks || !blocks.length) return '';
+    return blocks.map(function (block) {
+      if (block._type === 'image' && block.asset) {
+        var url = sanityImgUrl(block.asset._ref, 1360, 765);
+        return '<img class="case-img" src="' + url + '" alt="" loading="lazy" />';
+      }
+      if (block._type !== 'block') return '';
+      var html = (block.children || []).map(function (span) {
+        var t = span.text
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        var marks = span.marks || [];
+        if (marks.indexOf('strong') > -1) t = '<strong>' + t + '</strong>';
+        if (marks.indexOf('em') > -1)     t = '<em>' + t + '</em>';
+        return t;
+      }).join('');
+      return '<p>' + html + '</p>';
+    }).join('');
+  }
+
+  function videoEmbedHtml(type, idOrUrl) {
+    if (!type || type === 'none' || !idOrUrl) return '';
+    if (type === 'youtube') {
+      var ytId = idOrUrl;
+      var m = idOrUrl.match(/(?:v=|youtu\.be\/|embed\/)([a-zA-Z0-9_-]{6,})/);
+      if (m) ytId = m[1];
+      return '<iframe src="https://www.youtube.com/embed/' + esc(ytId) + '" allowfullscreen loading="lazy"></iframe>';
+    }
+    if (type === 'vimeo') {
+      var vId = idOrUrl;
+      var mv = idOrUrl.match(/vimeo\.com\/(\d+)/);
+      if (mv) vId = mv[1];
+      return '<iframe src="https://player.vimeo.com/video/' + esc(vId) + '" allowfullscreen loading="lazy"></iframe>';
+    }
+    if (type === 'cloudflare') {
+      return '<iframe src="https://iframe.videodelivery.net/' + esc(idOrUrl) + '" allowfullscreen loading="lazy"></iframe>';
+    }
+    return '';
+  }
+
+  function getSlugFromPath() {
+    var path = window.location.pathname;
+    var m = path.match(/\/case\/([^/]+)\/?$/);
+    if (m) return decodeURIComponent(m[1]);
+    var params = new URLSearchParams(window.location.search);
+    return params.get('slug');
+  }
+
+  function fmtRange(yearTimeframe, geography) {
+    var parts = [];
+    if (geography && geography.length) parts.push(geography.join(' · '));
+    if (yearTimeframe) parts.push(yearTimeframe);
+    return parts.join(' — ');
+  }
+
+  function showNotFound() {
+    document.getElementById('case-loading').style.display = 'none';
+    document.getElementById('case-notfound').style.display = 'block';
+  }
+
+  var slug = getSlugFromPath();
+  if (!slug) { showNotFound(); return; }
+
+  var q = encodeURIComponent(
+    '*[_type=="caseStudy" && slug.current=="' + slug + '"][0]{' +
+      'title, clientName, "slug": slug.current, geography, yearTimeframe, bodyContent,' +
+      '"heroImageUrl": heroImage.asset->url,' +
+      'oneLinerSummary, videoSourceType, videoUrlOrId,' +
+      'seoTitle, seoDescription' +
+    '}'
+  );
+
+  fetch(SANITY_CDN + '?query=' + q)
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      var c = d.result;
+      if (!c) { showNotFound(); return; }
+
+      document.getElementById('meta-title').textContent = (c.seoTitle || c.title || 'Case study') + ' — Creators Network';
+      var descEl = document.getElementById('meta-desc');
+      if (descEl) descEl.content = c.seoDescription || c.oneLinerSummary || '';
+
+      var heroImg = document.getElementById('case-hero-img');
+      if (c.heroImageUrl) {
+        heroImg.src = c.heroImageUrl + '?w=1800&auto=format';
+        heroImg.style.display = 'block';
+      }
+
+      document.getElementById('case-client').textContent = c.clientName || '';
+      document.getElementById('case-title').textContent = c.title || '';
+      document.getElementById('case-dateline').textContent = fmtRange(c.yearTimeframe, c.geography);
+
+      var bodyHtml = renderBlocks(c.bodyContent || []);
+      if (!bodyHtml) {
+        if (c.oneLinerSummary) {
+          var sEl = document.getElementById('case-summary');
+          sEl.textContent = c.oneLinerSummary;
+          sEl.style.display = 'block';
+        }
+        bodyHtml = '<p class="case-pending">The full write-up for this case study is coming soon.</p>';
+      }
+      document.getElementById('case-body').innerHTML = bodyHtml;
+
+      var videoHtml = videoEmbedHtml(c.videoSourceType, c.videoUrlOrId);
+      if (videoHtml) {
+        var vEl = document.getElementById('case-video');
+        vEl.innerHTML = videoHtml;
+        vEl.style.display = 'block';
+      }
+
+      document.getElementById('case-loading').style.display = 'none';
+      document.getElementById('case-content').style.display = 'block';
+      document.getElementById('case-back').style.display = 'flex';
+      document.getElementById('site-footer').style.display = 'flex';
+
+      setTimeout(function () {
+        document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('is-visible'); });
+      }, 60);
+    })
+    .catch(function () { showNotFound(); });
+})();
+</script>
+
+<!-- Sanity: siteSettings — populate social footer URLs -->
+<script>
+(function() {
+  var PROJECT = 'yodi9k1k', DATASET = 'production';
+  var q = encodeURIComponent('*[_type=="siteSettings"][0]{instagramUrl,facebookUrl,linkedinUrl,xUrl,youtubeUrl}');
+  fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var s = d.result;
+      if (!s) return;
+      var map = {
+        'Instagram': s.instagramUrl,
+        'LinkedIn': s.linkedinUrl,
+      };
+      document.querySelectorAll('.social-footer-links a[aria-label]').forEach(function(a) {
+        var label = a.getAttribute('aria-label');
+        var url = map[label];
+        if (url) { a.href = url; }
+      });
+    })
+    .catch(function() {});
+})();
+</script>
+</body>
+</html>
