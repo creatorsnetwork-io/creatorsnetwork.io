@@ -581,10 +581,10 @@
           </a>
           <a class="cast-card reveal reveal-stagger-3" href="engine.html" style="background-image: url('assets/asif-engine-hero.jpg');">
             <div class="cast-bio">
-              <p class="cast-bio-text">The architecture underneath everything CN builds digitally. Websites, platforms, CRM systems, booking engines. If the frontend looks clean, Asif made sure the backend earns it.</p>
+              <p class="cast-bio-text">The architecture underneath everything CN builds digitally. Websites, platforms, CRM systems, booking engines. If the frontend looks clean, Aashif made sure the backend earns it.</p>
             </div>
             <div class="cast-card-content">
-              <h3 class="cast-name">Asif</h3>
+              <h3 class="cast-name">Aashif</h3>
               <span class="cast-role">04 — Engine</span>
             </div>
           </a>
@@ -741,11 +741,17 @@
     })();
 
     (function () {
-      var reveals = document.querySelectorAll(".reveal");
       var obs = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add("is-visible"); });
       }, { threshold: 0.1, rootMargin: "0px 0px -30px 0px" });
-      reveals.forEach(function (el) { obs.observe(el); });
+      // Exposed so the CMS-driven cast grid rebuild below still gets the
+      // scroll fade-in instead of sitting at opacity:0 forever.
+      window.CN_observeReveal = function (root) {
+        if (!root) return;
+        if (root.classList && root.classList.contains("reveal")) obs.observe(root);
+        if (root.querySelectorAll) root.querySelectorAll(".reveal").forEach(function (el) { obs.observe(el); });
+      };
+      document.querySelectorAll(".reveal").forEach(function (el) { obs.observe(el); });
     })();
 
     /* Portrait 3D parallax */
@@ -998,6 +1004,7 @@
                   '</div>' +
                 '</a>';
               }).join('');
+              window.CN_observeReveal(grid);
             }
           }
         })

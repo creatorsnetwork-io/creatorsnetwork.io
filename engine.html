@@ -125,7 +125,7 @@
       padding: 54px 0; border-top: 1px solid var(--line);
       position: relative; z-index: 1;
       transition: padding-left .5s cubic-bezier(.19,1,.22,1), border-top-color .4s ease;
-      cursor: default;
+      cursor: pointer; text-decoration: none; color: inherit; display: grid;
     }
     .work-item:last-child { border-bottom: 1px solid var(--line); }
     .work-item:hover {
@@ -445,7 +445,7 @@
           <span class="hero-eyebrow reveal">04 — Engine</span>
           <h1 class="reveal reveal-stagger">The architecture beneath</h1>
           <p class="hero-statement reveal reveal-stagger-2">Nobody notices the build when it works. That's the point</p>
-          <span class="hero-owner reveal reveal-stagger-3">Asif — Websites, SEO &amp; Digital Builds</span>
+          <span class="hero-owner reveal reveal-stagger-3">Aashif — Websites, SEO &amp; Digital Builds</span>
         </div>
       </div>
 
@@ -704,11 +704,18 @@
 
     /* Reveal on scroll */
     (function () {
-      var reveals = document.querySelectorAll(".reveal");
       var obs = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add("is-visible"); });
       }, { threshold: 0.1, rootMargin: "0px 0px -30px 0px" });
-      reveals.forEach(function (el) { obs.observe(el); });
+      // Exposed so CMS-driven content injected after this runs (case studies,
+      // philosophy quotes, cast grid, etc.) still gets the scroll fade-in
+      // instead of sitting at opacity:0 forever.
+      window.CN_observeReveal = function (root) {
+        if (!root) return;
+        if (root.classList && root.classList.contains("reveal")) obs.observe(root);
+        if (root.querySelectorAll) root.querySelectorAll(".reveal").forEach(function (el) { obs.observe(el); });
+      };
+      document.querySelectorAll(".reveal").forEach(function (el) { obs.observe(el); });
     })();
   </script>
 
@@ -1260,6 +1267,7 @@
               inner.innerHTML = res.scroll02Pov.map(function(b) {
                 return '<p class="reveal">' + esc((b.texts||[]).join('')) + '</p>';
               }).join('');
+              window.CN_observeReveal(inner);
             }
           }
           if (res.scroll05ClosingLine) {
@@ -1272,15 +1280,16 @@
               var wHead = workInner.querySelector('.work-head');
               var headHtml = wHead ? wHead.outerHTML : '';
               workInner.innerHTML = headHtml + res.featuredCaseStudies.map(function(cs, i) {
-                return '<div class="work-item reveal">' +
+                return '<a class="work-item reveal" href="case/' + esc(cs.slug) + '">' +
                   '<span class="work-num">' + String(i+1).padStart(2,'0') + '</span>' +
                   '<div>' +
                     '<h3>' + esc(cs.title) + '</h3>' +
                     '<span class="work-client">' + esc(cs.clientName) + '</span>' +
                     (cs.oneLinerSummary ? '<p>' + esc(cs.oneLinerSummary) + '</p>' : '') +
                   '</div>' +
-                '</div>';
+                '</a>';
               }).join('');
+              window.CN_observeReveal(workInner);
             }
           }
         })

@@ -15,7 +15,8 @@
       --line:       rgba(255,255,255,.09);
       --teal:       #3dd8c5;
       --gold:       #c9a96e;
-      --serif:      Georgia, 'Times New Roman', serif;
+      /* Matches the sans-serif used site-wide (was Georgia serif, inconsistent with every other page) */
+      --serif:      'Helvetica Neue', Helvetica, Arial, sans-serif;
       --sans:       'Helvetica Neue', Helvetica, Arial, sans-serif;
       --max-prose:  680px;
     }
@@ -321,21 +322,21 @@
 
 <!-- ── Nav ── -->
 <nav class="nav">
-  <a href="index.html" class="brand-logo" aria-label="Creators Network">
+  <a href="/index.html" class="brand-logo" aria-label="Creators Network">
     <svg viewBox="0 0 54 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <text x="0" y="16" font-size="15" font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-weight="700" letter-spacing="1" fill="currentColor">CN</text>
     </svg>
   </a>
   <div class="nav-items">
-    <a href="founder.html">The Founder</a>
-    <a href="campaigns.html">Campaigns</a>
-    <a href="studio.html">Studio</a>
-    <a href="experiences.html">Experiences</a>
-    <a href="engine.html">Engine</a>
-    <a href="lab.html">Lab</a>
-    <a href="proof.html">Proof</a>
-    <a href="articles.html" class="is-current">Articles</a>
-    <a href="contact.html">Contact</a>
+    <a href="/founder.html">The Founder</a>
+    <a href="/campaigns.html">Campaigns</a>
+    <a href="/studio.html">Studio</a>
+    <a href="/experiences.html">Experiences</a>
+    <a href="/engine.html">Engine</a>
+    <a href="/lab.html">Lab</a>
+    <a href="/proof.html">Proof</a>
+    <a href="/articles.html" class="is-current">Articles</a>
+    <a href="/contact.html">Contact</a>
   </div>
 </nav>
 
@@ -389,7 +390,7 @@
   <div class="social-footer-links">
     <a href="https://instagram.com/creatorsnetwork" aria-label="Instagram">Instagram</a>
     <a href="https://linkedin.com/company/creatorsnetwork" aria-label="LinkedIn">LinkedIn</a>
-    <a href="contact.html">Contact</a>
+    <a href="/contact.html">Contact</a>
   </div>
 </footer>
 
@@ -521,10 +522,9 @@
     grid.querySelectorAll('.article-card[data-slug]').forEach(function (el) {
       el.addEventListener('click', function () { loadArticle(el.dataset.slug); });
     });
-    // Trigger reveals
-    setTimeout(function () {
-      grid.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('is-visible'); });
-    }, 60);
+    // Observe the freshly-created cards so they fade in on scroll, same as
+    // everything else (covers first load AND tag-filter re-renders).
+    initReveal();
   }
 
   // ── Tag filter ───────────────────────────────────────────────────────────────
@@ -573,7 +573,6 @@
         }
         renderTagFilter(allArticles);
         renderGrid(allArticles);
-        initReveal();
       })
       .catch(function () {
         document.getElementById('articles-grid').innerHTML =
@@ -645,22 +644,21 @@
           });
         }
 
-        // Reveal
-        setTimeout(function () {
-          document.querySelectorAll('#view-article .reveal').forEach(function (el) { el.classList.add('is-visible'); });
-        }, 60);
+        // Observe the freshly-populated detail elements so they fade in on
+        // scroll instead of being forced visible immediately.
+        initReveal('#view-article .reveal');
       })
       .catch(function () { showListing(); });
   }
 
   // ── Intersection reveal ──────────────────────────────────────────────────────
-  function initReveal() {
+  function initReveal(scopeSelector) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); }
       });
     }, { threshold: 0.08 });
-    document.querySelectorAll('#view-listing .reveal').forEach(function (el) { io.observe(el); });
+    document.querySelectorAll(scopeSelector || '#view-listing .reveal').forEach(function (el) { io.observe(el); });
   }
 
   // ── Browser back/forward ─────────────────────────────────────────────────────
