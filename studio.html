@@ -1076,18 +1076,32 @@
           return 'https://iframe.cloudflarestream.com/' + id + '?autoplay=true&muted=' + (m ? 'true' : 'false') + '&loop=true&controls=false';
         }
         if (type === 'youtube') {
-          var mm = String(id).match(/(?:v=|\/shorts\/|youtu\.be\/|\/embed\/)([a-zA-Z0-9_-]{11})/);
+          var mm = String(id).match(/(?:v=|/shorts/|youtu.be/|/embed/)([a-zA-Z0-9_-]{11})/);
           var vid = mm ? mm[1] : id;
           return 'https://www.youtube.com/embed/' + vid + '?autoplay=1&mute=' + m + '&loop=1&playlist=' + vid + '&controls=0&modestbranding=1&rel=0&playsinline=1';
         }
         if (type === 'vimeo') {
-          var vid2 = String(id).replace(/.*\//, '');
+          var vid2 = String(id).replace(/.*//, '');
           return 'https://player.vimeo.com/video/' + vid2 + '?autoplay=1&muted=' + m + '&loop=1&background=0&controls=0';
         }
         return '';
       }
 
       var overlay, track, counterEl, muted = true;
+
+      function ensureStreamSDK(cb) {
+        if (window.Stream) { cb(); return; }
+        if (window.__cnStreamSDKLoading) { (window.__cnStreamSDKQueue = window.__cnStreamSDKQueue || []).push(cb); return; }
+        window.__cnStreamSDKLoading = true;
+        window.__cnStreamSDKQueue = [cb];
+        var s = document.createElement('script');
+        s.src = 'https://embed.cloudflarestream.com/embed/sdk.latest.js';
+        s.onload = function () {
+          (window.__cnStreamSDKQueue || []).forEach(function (fn) { fn(); });
+          window.__cnStreamSDKQueue = [];
+        };
+        document.head.appendChild(s);
+      }
 
       function ensureOverlay() {
         if (overlay) return;
@@ -1155,11 +1169,21 @@
         iframe.allow = 'autoplay; encrypted-media; fullscreen';
         iframe.setAttribute('allowfullscreen', '');
         mediaEl.appendChild(iframe);
+        if (type === 'cloudflare') {
+          ensureStreamSDK(function () {
+            try {
+              var player = window.Stream(iframe);
+              mediaEl.__cnPlayer = player;
+              player.muted = muted;
+            } catch (e) {}
+          });
+        }
       }
       function deactivate(slide) {
         var mediaEl = slide.querySelector('.cn-feed-media');
         var iframe = mediaEl && mediaEl.querySelector('iframe');
         if (iframe) iframe.remove();
+        if (mediaEl) mediaEl.__cnPlayer = null;
       }
 
       function updateCounter() {
@@ -1194,7 +1218,12 @@
             track.querySelectorAll('.cn-feed-slide').forEach(function (s) {
               var mediaEl = s.querySelector('.cn-feed-media');
               var ifr = mediaEl && mediaEl.querySelector('iframe');
-              if (ifr) { deactivate(s); activate(s); }
+              if (!ifr) return;
+              if (mediaEl.__cnPlayer) {
+                try { mediaEl.__cnPlayer.muted = muted; } catch (e) { deactivate(s); activate(s); }
+              } else {
+                deactivate(s); activate(s);
+              }
             });
           });
         });
