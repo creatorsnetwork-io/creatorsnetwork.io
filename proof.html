@@ -397,6 +397,16 @@
     .reel-slot-bg {
       position: absolute; inset: 0; z-index: 0;
     }
+    .reel-slot .cn-poster {
+      position: absolute; inset: 0; z-index: 0;
+      background-size: cover; background-position: center;
+    }
+    .reel-slot .cn-hover-frame {
+      position: absolute; inset: 0; z-index: 0; border: 0;
+      opacity: 0; transition: opacity .25s ease; pointer-events: none;
+    }
+    .reel-slot.playing .cn-hover-frame { opacity: 1; }
+    .reel-slot.playing .reel-slot-play { opacity: 0; }
     .reel-slot-overlay {
       position: absolute; inset: 0; z-index: 1;
       background: linear-gradient(180deg, rgba(3,4,6,.2) 0%, rgba(3,4,6,.1) 40%, rgba(3,4,6,.75) 100%);
@@ -1094,8 +1104,11 @@
           if (reelTrack) {
             reelTrack.__cnVideos = page.reelVideos;
             reelTrack.innerHTML = page.reelVideos.map(function(v, i) {
+              var bg = (v.sourceType === 'cloudflare' && v.videoUrlOrId)
+                ? '<div class="cn-poster" style="background-image:url(https://videodelivery.net/' + esc(v.videoUrlOrId) + '/thumbnails/thumbnail.jpg)"></div>'
+                : '<canvas class="reel-slot-bg" data-reel-idx="' + i + '"></canvas>';
               return '<div class="reel-slot" data-idx="' + i + '">' +
-                '<canvas class="reel-slot-bg" data-reel-idx="' + i + '"></canvas>' +
+                bg +
                 '<div class="reel-slot-overlay"></div>' +
                 '<div class="reel-slot-play"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>' +
                 '<div class="reel-slot-meta">' +
@@ -1104,9 +1117,10 @@
                 '</div>' +
               '</div>';
             }).join('');
-            // Re-init canvas drawing for the new slots
+            // Re-init canvas drawing + hover wiring for the new slots
             if (window.CN_initReel) window.CN_initReel();
             if (window.CN_initReelClicks) window.CN_initReelClicks();
+            if (window.CN_initReelHover) window.CN_initReelHover();
           }
         }
 
@@ -1273,9 +1287,38 @@
         });
       };
 
+      // Hover a reel slot to autoplay its cloudflare video, muted, in the grid
+      window.CN_initReelHover = function() {
+        var reelTrack = document.getElementById('reel-track');
+        if (!reelTrack) return;
+        reelTrack.querySelectorAll('.reel-slot[data-idx]').forEach(function(slot) {
+          if (slot.__cnHoverWired) return;
+          slot.__cnHoverWired = true;
+          var idx = Number(slot.getAttribute('data-idx'));
+          var video = reelTrack.__cnVideos && reelTrack.__cnVideos[idx];
+          if (video && video.sourceType === 'cloudflare' && video.videoUrlOrId) {
+            slot.addEventListener('mouseenter', function() {
+              if (slot.querySelector('.cn-hover-frame')) return;
+              var f = document.createElement('iframe');
+              f.className = 'cn-hover-frame';
+              f.src = 'https://iframe.cloudflarestream.com/' + video.videoUrlOrId + '?autoplay=true&muted=true&loop=true&controls=false';
+              f.allow = 'autoplay';
+              slot.appendChild(f);
+              slot.classList.add('playing');
+            });
+            slot.addEventListener('mouseleave', function() {
+              var f = slot.querySelector('.cn-hover-frame');
+              if (f) f.remove();
+              slot.classList.remove('playing');
+            });
+          }
+        });
+      };
+
       // Init for any hardcoded slots (shows fallback immediately)
       window.CN_initReel();
       window.CN_initReelClicks();
+      window.CN_initReelHover();
 
       // Drag-to-scroll
       var track = document.getElementById('reel-track');
@@ -1497,6 +1540,20 @@
 
       var overlay, track, counterEl, muted = true;
 
+      function ensureStreamSDK(cb) {
+        if (window.Stream) { cb(); return; }
+        if (window.__cnStreamSDKLoading) { (window.__cnStreamSDKQueue = window.__cnStreamSDKQueue || []).push(cb); return; }
+        window.__cnStreamSDKLoading = true;
+        window.__cnStreamSDKQueue = [cb];
+        var s = document.createElement('script');
+        s.src = 'https://embed.cloudflarestream.com/embed/sdk.latest.js';
+        s.onload = function () {
+          (window.__cnStreamSDKQueue || []).forEach(function (fn) { fn(); });
+          window.__cnStreamSDKQueue = [];
+        };
+        document.head.appendChild(s);
+      }
+
       function ensureOverlay() {
         if (overlay) return;
         overlay = document.createElement('div');
@@ -1563,11 +1620,21 @@
         iframe.allow = 'autoplay; encrypted-media; fullscreen';
         iframe.setAttribute('allowfullscreen', '');
         mediaEl.appendChild(iframe);
+        if (type === 'cloudflare') {
+          ensureStreamSDK(function () {
+            try {
+              var player = window.Stream(iframe);
+              mediaEl.__cnPlayer = player;
+              player.muted = muted;
+            } catch (e) {}
+          });
+        }
       }
       function deactivate(slide) {
         var mediaEl = slide.querySelector('.cn-feed-media');
         var iframe = mediaEl && mediaEl.querySelector('iframe');
         if (iframe) iframe.remove();
+        if (mediaEl) mediaEl.__cnPlayer = null;
       }
 
       function updateCounter() {
@@ -1602,7 +1669,12 @@
             track.querySelectorAll('.cn-feed-slide').forEach(function (s) {
               var mediaEl = s.querySelector('.cn-feed-media');
               var ifr = mediaEl && mediaEl.querySelector('iframe');
-              if (ifr) { deactivate(s); activate(s); }
+              if (!ifr) return;
+              if (mediaEl.__cnPlayer) {
+                try { mediaEl.__cnPlayer.muted = muted; } catch (e) { deactivate(s); activate(s); }
+              } else {
+                deactivate(s); activate(s);
+              }
             });
           });
         });
