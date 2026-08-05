@@ -1617,7 +1617,12 @@
         var id = mediaEl.getAttribute('data-video-id');
         if (!id || (type !== 'cloudflare' && type !== 'youtube' && type !== 'vimeo')) return;
         var iframe = document.createElement('iframe');
-        iframe.src = embedUrl(type, id, muted);
+        // Cloudflare: always create the iframe muted (guaranteed-safe autoplay), then
+        // unmute the already-created player via the SDK below. A brand-new cross-origin
+        // iframe asked to start WITH sound gets silently swallowed by the browser even
+        // though our player object still reports muted:false — unmuting media that's
+        // already playing is the path that's actually reliable.
+        iframe.src = embedUrl(type, id, type === 'cloudflare' ? true : muted);
         iframe.allow = 'autoplay; encrypted-media; fullscreen';
         iframe.setAttribute('allowfullscreen', '');
         mediaEl.appendChild(iframe);

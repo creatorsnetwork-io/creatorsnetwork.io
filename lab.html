@@ -1853,7 +1853,7 @@
         var id = mediaEl.getAttribute('data-video-id');
         if (!id || (type !== 'cloudflare' && type !== 'youtube' && type !== 'vimeo')) return;
         var iframe = document.createElement('iframe');
-        iframe.src = embedUrl(type, id, muted);
+        iframe.src = embedUrl(type, id, type === 'cloudflare' ? true : muted);
         iframe.allow = 'autoplay; encrypted-media; fullscreen';
         iframe.setAttribute('allowfullscreen', '');
         mediaEl.appendChild(iframe);
