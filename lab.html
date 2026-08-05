@@ -1056,7 +1056,7 @@
         // 01 Gandhi — monochrome portrait pixel art style
         { id: 'exp-canvas-1', draw: function(ctx, w, h) {
           // Sepia-toned layered rectangles suggesting a portrait
-          var bg = ctx.createLinearGradient(0, 0, 0, h);
+          var bg = ctx.createLinearGradient(0, 0, w, h);
           bg.addColorStop(0, '#1a130a'); bg.addColorStop(1, '#0d0a06');
           ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
           // Noise-like squares suggesting a generated face
@@ -1777,6 +1777,20 @@
 
       var overlay, track, counterEl, muted = true;
 
+      function ensureStreamSDK(cb) {
+        if (window.Stream) { cb(); return; }
+        if (window.__cnStreamSDKLoading) { (window.__cnStreamSDKQueue = window.__cnStreamSDKQueue || []).push(cb); return; }
+        window.__cnStreamSDKLoading = true;
+        window.__cnStreamSDKQueue = [cb];
+        var s = document.createElement('script');
+        s.src = 'https://embed.cloudflarestream.com/embed/sdk.latest.js';
+        s.onload = function () {
+          (window.__cnStreamSDKQueue || []).forEach(function (fn) { fn(); });
+          window.__cnStreamSDKQueue = [];
+        };
+        document.head.appendChild(s);
+      }
+
       function ensureOverlay() {
         if (overlay) return;
         overlay = document.createElement('div');
@@ -1843,11 +1857,21 @@
         iframe.allow = 'autoplay; encrypted-media; fullscreen';
         iframe.setAttribute('allowfullscreen', '');
         mediaEl.appendChild(iframe);
+        if (type === 'cloudflare') {
+          ensureStreamSDK(function () {
+            try {
+              var player = window.Stream(iframe);
+              mediaEl.__cnPlayer = player;
+              player.muted = muted;
+            } catch (e) {}
+          });
+        }
       }
       function deactivate(slide) {
         var mediaEl = slide.querySelector('.cn-feed-media');
         var iframe = mediaEl && mediaEl.querySelector('iframe');
         if (iframe) iframe.remove();
+        if (mediaEl) mediaEl.__cnPlayer = null;
       }
 
       function updateCounter() {
@@ -1882,7 +1906,12 @@
             track.querySelectorAll('.cn-feed-slide').forEach(function (s) {
               var mediaEl = s.querySelector('.cn-feed-media');
               var ifr = mediaEl && mediaEl.querySelector('iframe');
-              if (ifr) { deactivate(s); activate(s); }
+              if (!ifr) return;
+              if (mediaEl.__cnPlayer) {
+                try { mediaEl.__cnPlayer.muted = muted; } catch (e) { deactivate(s); activate(s); }
+              } else {
+                deactivate(s); activate(s);
+              }
             });
           });
         });
