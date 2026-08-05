@@ -5,7 +5,9 @@
  * sibling fields the parent object defines — caption, clientName, title,
  * active, etc.) with a drag/drop + click-to-upload zone on top. Selecting
  * a file:
- *   1. Asks our Netlify function for a one-time Cloudflare Stream upload URL
+ *   1. Asks our Netlify function to provision a one-time Cloudflare Stream
+ *      tus upload URL (passing the file's size, which Cloudflare's tus
+ *      creation endpoint requires up front)
  *   2. Uploads the file directly to Cloudflare (resumable, via tus)
  *   3. Sets sourceType = "cloudflare" and videoUrlOrId = <the new video UID>
  *
@@ -58,7 +60,11 @@ export function CloudflareVideoUpload(props) {
             'Content-Type': 'application/json',
             'X-Studio-Secret': STUDIO_UPLOAD_SECRET,
           },
-          body: JSON.stringify({fileName: file.name, maxDurationSeconds: 300}),
+          body: JSON.stringify({
+            fileName: file.name,
+            fileSize: file.size,
+            maxDurationSeconds: 300,
+          }),
         })
 
         if (!res.ok) {
