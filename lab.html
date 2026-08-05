@@ -1895,6 +1895,7 @@
 
       window.CN_openFeed = function (videos, startIndex) {
         if (!videos || !videos.length) return;
+        muted = false;
         ensureOverlay();
         track.innerHTML = videos.map(buildSlide).join('');
         var slides = track.querySelectorAll('.cn-feed-slide');
