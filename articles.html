@@ -384,15 +384,45 @@
   </footer>
 </div>
 
-<!-- Social footer (listing only) -->
+<!-- Social footer -->
 <footer class="social-footer" id="site-footer">
   <span class="social-footer-copy">© 2026 Creators Network</span>
   <div class="social-footer-links">
-    <a href="https://instagram.com/creatorsnetwork" aria-label="Instagram">Instagram</a>
-    <a href="https://linkedin.com/company/creatorsnetwork" aria-label="LinkedIn">LinkedIn</a>
+    <a href="https://www.instagram.com/creatorsnetwork.io/" target="_blank" rel="noopener" aria-label="Instagram">Instagram</a>
+    <a href="https://www.facebook.com/creatorsnetwork.io" target="_blank" rel="noopener" aria-label="Facebook">Facebook</a>
+    <a href="https://www.linkedin.com/company/creatorsnetwork-io" target="_blank" rel="noopener" aria-label="LinkedIn">LinkedIn</a>
+    <a href="https://x.com/creatorsnet_io" target="_blank" rel="noopener" aria-label="X">X</a>
+    <a href="https://www.youtube.com/@CreatorsNetworkIndia" target="_blank" rel="noopener" aria-label="YouTube">YouTube</a>
     <a href="/contact.html">Contact</a>
   </div>
 </footer>
+
+<!-- Sanity: siteSettings — populate social footer URLs -->
+<script>
+(function() {
+  var PROJECT = 'yodi9k1k', DATASET = 'production';
+  var q = encodeURIComponent('*[_type=="siteSettings"][0]{instagramUrl,facebookUrl,linkedinUrl,xUrl,youtubeUrl}');
+  fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var s = d.result;
+      if (!s) return;
+      var map = {
+        'Instagram': s.instagramUrl,
+        'Facebook': s.facebookUrl,
+        'LinkedIn': s.linkedinUrl,
+        'X': s.xUrl,
+        'YouTube': s.youtubeUrl,
+      };
+      document.querySelectorAll('.social-footer-links a[aria-label]').forEach(function(a) {
+        var label = a.getAttribute('aria-label');
+        var url = map[label];
+        if (url) { a.href = url; }
+      });
+    })
+    .catch(function() {});
+})();
+</script>
 
 <script>
 (function () {
@@ -424,7 +454,7 @@
   function showArticleView() {
     document.getElementById('view-listing').style.display = 'none';
     document.getElementById('view-article').style.display = 'block';
-    document.getElementById('site-footer').style.display = 'none';
+    document.getElementById('site-footer').style.display = 'flex';
     document.getElementById('btn-back').style.display = 'flex';
     window.scrollTo(0, 0);
   }

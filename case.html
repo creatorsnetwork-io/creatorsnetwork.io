@@ -248,8 +248,11 @@
 <footer class="social-footer" id="site-footer" style="display:none">
   <span class="social-footer-copy">© 2026 Creators Network</span>
   <div class="social-footer-links">
-    <a href="https://instagram.com/creatorsnetwork" aria-label="Instagram">Instagram</a>
-    <a href="https://linkedin.com/company/creatorsnetwork" aria-label="LinkedIn">LinkedIn</a>
+    <a href="https://www.instagram.com/creatorsnetwork.io/" target="_blank" rel="noopener" aria-label="Instagram">Instagram</a>
+    <a href="https://www.facebook.com/creatorsnetwork.io" target="_blank" rel="noopener" aria-label="Facebook">Facebook</a>
+    <a href="https://www.linkedin.com/company/creatorsnetwork-io" target="_blank" rel="noopener" aria-label="LinkedIn">LinkedIn</a>
+    <a href="https://x.com/creatorsnet_io" target="_blank" rel="noopener" aria-label="X">X</a>
+    <a href="https://www.youtube.com/@CreatorsNetworkIndia" target="_blank" rel="noopener" aria-label="YouTube">YouTube</a>
     <a href="/contact.html">Contact</a>
   </div>
 </footer>
@@ -328,6 +331,7 @@
   function showNotFound() {
     document.getElementById('case-loading').style.display = 'none';
     document.getElementById('case-notfound').style.display = 'block';
+    document.getElementById('site-footer').style.display = 'flex';
   }
 
   var slug = getSlugFromPath();
@@ -405,7 +409,10 @@
       if (!s) return;
       var map = {
         'Instagram': s.instagramUrl,
+        'Facebook': s.facebookUrl,
         'LinkedIn': s.linkedinUrl,
+        'X': s.xUrl,
+        'YouTube': s.youtubeUrl,
       };
       document.querySelectorAll('.social-footer-links a[aria-label]').forEach(function(a) {
         var label = a.getAttribute('aria-label');
