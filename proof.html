@@ -403,6 +403,7 @@
     }
     .reel-slot .cn-hover-frame {
       position: absolute; inset: 0; z-index: 0; border: 0;
+      width: 100%; height: 100%;
       opacity: 0; transition: opacity .25s ease; pointer-events: none;
     }
     .reel-slot.playing .cn-hover-frame { opacity: 1; }
@@ -841,7 +842,7 @@
         </div>
       </div>
       <div class="slider-track" id="slider-track">
-        <a class="slide" href="case-liberty-global.html" style="background-image: url('assets/open-city.jpg');">
+        <a class="slide" href="case/liberty-global" style="background-image: url('assets/open-city.jpg');">
           <div class="reveal-slider">
             <div class="reveal-before">
               <div class="slide-bg" style="background-image: url('assets/open-city.jpg');"></div>
@@ -865,7 +866,7 @@
             <span class="case-card-cta">Read the case</span>
           </div>
         </a>
-        <a class="slide" href="case-wod.html" style="background-image: url('assets/proof-atmosphere.jpg');">
+        <a class="slide" href="case/wod" style="background-image: url('assets/proof-atmosphere.jpg');">
           <div class="slide-content">
             <span class="slide-client">World of Destinations</span>
             <h3>Site inspections, without the flights</h3>
@@ -873,7 +874,7 @@
             <span class="case-card-cta">Read the case</span>
           </div>
         </a>
-        <a class="slide" href="case-royal-enfield.html" style="background-image: url('assets/lab-abstract.jpg');">
+        <a class="slide" href="case/royal-enfield" style="background-image: url('assets/lab-abstract.jpg');">
           <div class="slide-content">
             <span class="slide-client">Royal Enfield</span>
             <h3>The pitch that won the room</h3>
@@ -890,42 +891,42 @@
         <h2 class="listing-head reveal">All cases</h2>
         <p class="listing-sub reveal reveal-stagger">Every engagement, told the same way: brief, work, change. More being written.</p>
         <div class="case-grid">
-          <a class="case-card reveal" href="case-liberty-global.html" style="background-image: url('assets/open-city.jpg');">
+          <a class="case-card reveal" href="case/liberty-global" style="background-image: url('assets/open-city.jpg');">
             <div class="case-card-content">
               <span class="case-card-client">Liberty International</span>
               <h3>Global marketing across timezones</h3>
               <span class="case-card-cta">View case</span>
             </div>
           </a>
-          <a class="case-card reveal" href="case-liberty-imex.html" style="background-image: url('assets/experiences.jpg');">
+          <a class="case-card reveal" href="case/liberty-imex" style="background-image: url('assets/experiences.jpg');">
             <div class="case-card-content">
               <span class="case-card-client">Liberty International</span>
               <h3>Owning IMEX, the industry's biggest stage</h3>
               <span class="case-card-cta">View case</span>
             </div>
           </a>
-          <a class="case-card reveal" href="case-litg-digital.html" style="background-image: url('assets/proof-atmosphere.jpg');">
+          <a class="case-card reveal" href="case/litg-digital" style="background-image: url('assets/proof-atmosphere.jpg');">
             <div class="case-card-content">
               <span class="case-card-client">Liberty International</span>
               <h3>A digital presence, transformed</h3>
               <span class="case-card-cta">View case</span>
             </div>
           </a>
-          <a class="case-card reveal" href="case-wod.html" style="background-image: url('assets/proof-atmosphere.jpg');">
+          <a class="case-card reveal" href="case/wod" style="background-image: url('assets/proof-atmosphere.jpg');">
             <div class="case-card-content">
               <span class="case-card-client">World of Destinations</span>
               <h3>Reinventing site inspections</h3>
               <span class="case-card-cta">View case</span>
             </div>
           </a>
-          <a class="case-card reveal" href="case-secluded-africa.html" style="background-image: url('assets/experiences.jpg');">
+          <a class="case-card reveal" href="case/secluded-africa" style="background-image: url('assets/experiences.jpg');">
             <div class="case-card-content">
               <span class="case-card-client">Secluded Africa</span>
               <h3>Brand films from the wild</h3>
               <span class="case-card-cta">View case</span>
             </div>
           </a>
-          <a class="case-card reveal" href="case-royal-enfield.html" style="background-image: url('assets/lab-abstract.jpg');">
+          <a class="case-card reveal" href="case/royal-enfield" style="background-image: url('assets/lab-abstract.jpg');">
             <div class="case-card-content">
               <span class="case-card-client">Royal Enfield</span>
               <h3>The Classic 350 launch pitch</h3>
@@ -1131,7 +1132,7 @@
           if (sliderTrack) {
             sliderTrack.innerHTML = featured.map(function(c) {
               var img = c.heroUrl ? 'url(' + c.heroUrl + ')' : "url('assets/proof-atmosphere.jpg')";
-              return '<a class="slide" href="case-' + esc(c.slug) + '.html" style="background-image:' + img + ';">' +
+              return '<a class="slide" href="case/' + esc(c.slug) + '" style="background-image:' + img + ';">' +
                 '<div class="slide-content">' +
                   '<span class="slide-client">' + esc(c.clientName) + '</span>' +
                   '<h3>' + esc(c.title) + '</h3>' +
@@ -1150,7 +1151,7 @@
             grid.innerHTML = cases.map(function(c, i) {
               var img = c.heroUrl ? 'url(' + c.heroUrl + ')' : "url('assets/proof-atmosphere.jpg')";
               var delay = i < 6 ? ' reveal-stagger' + (i > 0 ? (i > 1 ? '-' + (i+1) : '') : '') : '';
-              return '<a class="case-card reveal" href="case-' + esc(c.slug) + '.html" style="background-image:' + img + ';">' +
+              return '<a class="case-card reveal" href="case/' + esc(c.slug) + '" style="background-image:' + img + ';">' +
                 '<div class="case-card-content">' +
                   '<span class="case-card-client">' + esc(c.clientName) + '</span>' +
                   '<h3>' + esc(c.title) + '</h3>' +
