@@ -1,15 +1,26 @@
 /**
  * Netlify function called from Sanity Studio's custom video-upload field.
  *
- * Mints a one-time direct-upload URL from Cloudflare Stream. The browser
+ * Provisions a one-time tus upload URL from Cloudflare Stream. The browser
  * (Studio) then uploads the actual video bytes straight to Cloudflare using
- * that URL — the file never passes through this function or our servers.
+ * that URL via the tus protocol (resumable) — the file never passes through
+ * this function or our servers.
+ *
+ * IMPORTANT: this uses Cloudflare's tus-creation endpoint
+ * (POST /accounts/{id}/stream?direct_user=true with Tus-Resumable /
+ * Upload-Length / Upload-Metadata headers), NOT the simpler
+ * /stream/direct_upload endpoint. The latter only supports a single
+ * multipart POST under 200MB and is NOT a real tus resource — pointing
+ * tus-js-client's `uploadUrl` at it fails with a 400 on the client's
+ * resume-check HEAD request. The tus-creation endpoint below returns an
+ * already-created tus resource in the `Location` header, which is exactly
+ * what tus-js-client's `uploadUrl` option expects.
  *
  * Required Netlify env vars (Site Settings → Environment Variables):
  *   CLOUDFLARE_ACCOUNT_ID   — Cloudflare account ID
  *   CLOUDFLARE_API_TOKEN    — API token scoped to "Cloudflare Stream" (read/write)
  *   STUDIO_UPLOAD_SECRET    — arbitrary shared secret, must match the value
- *                             baked into studio/schemas/videoAsset.js
+ *                             baked into studio/components/CloudflareVideoUpload.jsx
  *
  * Note: Studio runs on a different origin (creatorsnetwork-cms.netlify.app)
  * than this function (creatorsnetwork.io), so CORS headers are required or
@@ -21,6 +32,10 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, x-studio-secret',
 };
+
+function b64(str) {
+  return Buffer.from(String(str), 'utf-8').toString('base64');
+}
 
 exports.handler = async function (event) {
   if (event.httpMethod === 'OPTIONS') {
@@ -57,45 +72,61 @@ exports.handler = async function (event) {
 
   const maxDurationSeconds = Number(body.maxDurationSeconds) || 180; // 3 min ceiling for reels
   const fileName = body.fileName || 'untitled';
+  const fileSize = Number(body.fileSize);
+
+  if (!fileSize || fileSize <= 0) {
+    return {
+      statusCode: 400,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: 'fileSize (bytes) is required to provision a tus upload' }),
+    };
+  }
+
+  const metadataParts = [`name ${b64(fileName)}`, `maxDurationSeconds ${b64(maxDurationSeconds)}`];
 
   try {
     const cfRes = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream/direct_upload`,
+      `https://api.cloudflare.com/client/v4/accounts/${accountId}/stream?direct_user=true`,
       {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiToken}`,
-          'Content-Type': 'application/json',
+          'Tus-Resumable': '1.0.0',
+          'Upload-Length': String(fileSize),
+          'Upload-Metadata': metadataParts.join(','),
         },
-        body: JSON.stringify({
-          maxDurationSeconds,
-          expiry: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 min to start upload
-          meta: { name: fileName },
-        }),
       }
     );
 
-    const cfData = await cfRes.json();
-
-    if (!cfRes.ok || !cfData.success) {
-      console.error('Cloudflare direct_upload failed:', JSON.stringify(cfData));
+    if (!cfRes.ok) {
+      const errText = await cfRes.text().catch(() => '');
+      console.error('Cloudflare tus creation failed:', cfRes.status, errText);
       return {
         statusCode: 502,
         headers: CORS_HEADERS,
-        body: JSON.stringify({ error: 'Cloudflare request failed', details: cfData.errors || cfData }),
+        body: JSON.stringify({ error: 'Cloudflare request failed', details: errText }),
+      };
+    }
+
+    const uploadURL = cfRes.headers.get('location');
+    const uid = cfRes.headers.get('stream-media-id');
+
+    if (!uploadURL || !uid) {
+      console.error('Cloudflare response missing Location or stream-media-id header');
+      return {
+        statusCode: 502,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: 'Cloudflare response missing required headers' }),
       };
     }
 
     return {
       statusCode: 200,
       headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        uploadURL: cfData.result.uploadURL,
-        uid: cfData.result.uid,
-      }),
+      body: JSON.stringify({ uploadURL, uid }),
     };
   } catch (err) {
-    console.error('Error minting Cloudflare upload URL:', err);
+    console.error('Error provisioning Cloudflare tus upload:', err);
     return { statusCode: 500, headers: CORS_HEADERS, body: JSON.stringify({ error: 'Internal error' }) };
   }
 };
