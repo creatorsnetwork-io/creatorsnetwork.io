@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {CloudflareVideoUpload} from '../components/CloudflareVideoUpload'
 
 export default defineType({
   name: 'teamMember',
@@ -143,6 +144,7 @@ export default defineType({
           type: 'object',
           name: 'videoEntry',
           title: 'Video',
+          components: {input: CloudflareVideoUpload},
           fields: [
             {
               name: 'caption',

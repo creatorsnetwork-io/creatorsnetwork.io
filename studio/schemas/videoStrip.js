@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {CloudflareVideoUpload} from '../components/CloudflareVideoUpload'
 
 const VIDEO_SOURCE_OPTIONS = [
   {title: 'Cloudflare Stream', value: 'cloudflare'},
@@ -22,6 +23,7 @@ export default defineType({
           type: 'object',
           name: 'videoEntry',
           title: 'Video',
+          components: {input: CloudflareVideoUpload},
           fields: [
             {
               name: 'sourceType',
