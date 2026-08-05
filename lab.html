@@ -122,9 +122,7 @@
     .work-item {
       display: grid; grid-template-columns: 110px 1fr; gap: 30px;
       padding: 54px 0; border-top: 1px solid var(--line);
-      text-decoration: none; color: inherit; cursor: pointer;
     }
-    .work-item:hover h3 { color: var(--teal); }
     .work-item:last-child { border-bottom: 1px solid var(--line); }
     .work-num {
       font-size: clamp(28px, 3vw, 44px); line-height: 1;
@@ -608,13 +606,104 @@
 .video-strip-label { padding: 0 34px; font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 2rem; display: block; }
 .video-strip-track { display: flex; gap: 1.4rem; overflow-x: auto; scroll-snap-type: x mandatory; padding: 0 34px 1.2rem; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.1) transparent; cursor: grab; }
 .video-strip-track:active { cursor: grabbing; }
-.video-slot { flex: 0 0 auto; width: 180px; aspect-ratio: 9/16; border-radius: 6px; overflow: hidden; position: relative; scroll-snap-align: start; background: rgba(255,255,255,.04); border: 1px solid var(--line); }
+.video-slot { flex: 0 0 auto; width: 180px; aspect-ratio: 9/16; border-radius: 6px; overflow: hidden; position: relative; scroll-snap-align: start; background: rgba(255,255,255,.04); border: 1px solid var(--line); cursor: pointer; }
 .video-slot video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .video-slot-label { position: absolute; bottom: 0; left: 0; right: 0; padding: .8rem .7rem; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(244,244,241,.6); background: linear-gradient(to top, rgba(3,4,6,.7) 60%, transparent); pointer-events: none; }
 .video-slot-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 36px; height: 36px; border-radius: 50%; background: rgba(61,216,197,.18); border: 1px solid var(--teal); display: flex; align-items: center; justify-content: center; pointer-events: none; transition: opacity .3s; }
 .video-slot-icon svg { width: 12px; height: 12px; fill: var(--teal); margin-left: 2px; }
 .video-slot.playing .video-slot-icon { opacity: 0; }
-.video-slot--external { cursor: pointer; }
+.video-slot .cn-poster { position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 0; }
+.video-slot .cn-hover-frame { position: absolute; inset: 0; z-index: 1; border: 0; opacity: 0; transition: opacity .25s ease; pointer-events: none; }
+.video-slot.playing .cn-hover-frame { opacity: 1; }
+
+/* ══ CN FULLSCREEN VIDEO FEED (shared) ══ */
+.cn-feed-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(3,4,6,.97); backdrop-filter: blur(20px);
+  opacity: 0; visibility: hidden;
+  transition: opacity .35s ease, visibility .35s ease;
+}
+.cn-feed-overlay.is-open { opacity: 1; visibility: visible; }
+.cn-feed-track {
+  height: 100%; overflow-y: auto; scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+}
+.cn-feed-track::-webkit-scrollbar { display: none; }
+.cn-feed-slide {
+  height: 100%; scroll-snap-align: start; scroll-snap-stop: always;
+  display: flex; align-items: center; justify-content: center;
+  gap: 44px; padding: 90px 34px 60px; box-sizing: border-box;
+}
+.cn-feed-media {
+  position: relative; flex: 0 0 auto;
+  height: min(80vh, 800px); width: calc(min(80vh, 800px) * 9 / 16);
+  max-width: 92vw; background: #07090d; border-radius: 8px;
+  overflow: hidden; border: 1px solid rgba(255,255,255,.09);
+}
+.cn-feed-media video, .cn-feed-media iframe {
+  position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+}
+.cn-feed-poster {
+  position: absolute; inset: 0; background-size: cover; background-position: center;
+  filter: brightness(.55);
+}
+.cn-feed-external {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px; text-align: center;
+  padding: 30px; color: rgba(244,244,241,.8);
+}
+.cn-feed-external a {
+  border: 1px solid var(--teal); color: var(--teal);
+  padding: 10px 22px; font-size: 11px; letter-spacing: .13em; text-transform: uppercase;
+}
+.cn-feed-panel { width: min(340px, 30vw); color: var(--soft-white); }
+.cn-feed-panel .cn-feed-client {
+  display: block; font-size: .7rem; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--teal); margin-bottom: 14px; font-weight: 400;
+}
+.cn-feed-panel h3 {
+  margin: 0 0 16px; font-size: clamp(20px, 2.4vw, 30px); font-weight: 300;
+  line-height: 1.2; text-transform: uppercase; letter-spacing: -.01em;
+}
+.cn-feed-panel p { margin: 0; font-size: 14px; line-height: 1.65; color: rgba(244,244,241,.62); font-weight: 300; }
+.cn-feed-mute {
+  margin-top: 28px; background: none; border: 1px solid rgba(255,255,255,.25);
+  color: rgba(244,244,241,.75); padding: 9px 20px; font-family: inherit;
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+.cn-feed-mute:hover { border-color: var(--teal); color: var(--teal); }
+.cn-feed-close {
+  position: fixed; top: 28px; right: 30px; z-index: 2001;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(3,4,6,.4); border: 1px solid rgba(255,255,255,.2);
+  color: var(--soft-white); font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .2s, color .2s;
+}
+.cn-feed-close:hover { border-color: var(--teal); color: var(--teal); }
+.cn-feed-nav {
+  position: fixed; right: 30px; top: 50%; transform: translateY(-50%); z-index: 2001;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.cn-feed-nav button {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(3,4,6,.4); border: 1px solid rgba(255,255,255,.2);
+  color: var(--soft-white); font-size: 15px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .2s, color .2s;
+}
+.cn-feed-nav button:hover { border-color: var(--teal); color: var(--teal); }
+.cn-feed-counter {
+  position: fixed; left: 30px; bottom: 28px; z-index: 2001;
+  font-size: 11px; letter-spacing: .14em; color: rgba(244,244,241,.5);
+}
+@media (max-width: 860px) {
+  .cn-feed-slide { flex-direction: column; gap: 18px; padding: 100px 20px 30px; }
+  .cn-feed-media { height: 54vh; width: calc(54vh * 9 / 16); max-width: 92vw; }
+  .cn-feed-panel { width: 100%; text-align: center; }
+  .cn-feed-nav { display: none; }
+}
   </style>
 </head>
 
@@ -663,83 +752,57 @@
       <div class="work-inner">
         <h2 class="work-head reveal">Experiments</h2>
 
-        <a class="work-item reveal" href="https://www.instagram.com/reel/DAm0WN-oWgp/" target="_blank" rel="noopener">
+        <div class="work-item reveal">
           <span class="work-num">01</span>
           <div>
             <h3>Gandhi in 2024</h3>
-            <span class="work-client">AI &times; History</span>
+            <span class="work-client">AI × History</span>
             <p>What would the most photographed man of his era look like in ours? A creative experiment placing Gandhi in the present day, built with generative imagery and a careful respect for the subject. Equal parts technology demo and question about how we remember.</p>
             <div class="work-output">
               <canvas id="exp-canvas-1"></canvas>
-              <span class="work-output-label">View on Instagram &#8599;</span>
+              <span class="work-output-label">Generative output</span>
             </div>
           </div>
-        </a>
+        </div>
 
-        <a class="work-item reveal" href="https://www.instagram.com/reel/DBv4tuWvfpq/" target="_blank" rel="noopener">
+        <div class="work-item reveal">
           <span class="work-num">02</span>
           <div>
             <h3>India Got Lit</h3>
-            <span class="work-client">AI &times; Diwali</span>
+            <span class="work-client">AI × Diwali</span>
             <p>A creative Diwali journey rendered with AI: familiar festival warmth through an unfamiliar lens. An experiment in whether generated imagery can carry genuine cultural emotion, not just aesthetic novelty.</p>
             <div class="work-output">
               <canvas id="exp-canvas-2"></canvas>
-              <span class="work-output-label">View on Instagram &#8599;</span>
+              <span class="work-output-label">Generative output</span>
             </div>
           </div>
-        </a>
+        </div>
 
-        <a class="work-item reveal" href="https://www.instagram.com/reel/DSrO1ijEfhQ/" target="_blank" rel="noopener">
+        <div class="work-item reveal">
           <span class="work-num">03</span>
           <div>
             <h3>Tech meets tradition</h3>
-            <span class="work-client">AI &times; Branding</span>
+            <span class="work-client">AI × Branding</span>
             <p>AI-powered Christmas trees that turned a seasonal brand moment into a design experiment. Proof that holiday content doesn't have to look like holiday content.</p>
             <div class="work-output">
               <canvas id="exp-canvas-3"></canvas>
-              <span class="work-output-label">View on Instagram &#8599;</span>
+              <span class="work-output-label">Generative output</span>
             </div>
           </div>
-        </a>
+        </div>
 
-        <a class="work-item reveal" href="https://www.instagram.com/p/DMprScIRReW/" target="_blank" rel="noopener">
+        <div class="work-item reveal">
           <span class="work-num">04</span>
           <div>
             <h3>A cozy AI experiment</h3>
-            <span class="work-client">AI &times; Atmosphere</span>
+            <span class="work-client">AI × Atmosphere</span>
             <p>A small study in whether machine-made imagery can feel warm. Spoiler: it can, if a human with taste is steering.</p>
             <div class="work-output">
               <canvas id="exp-canvas-4"></canvas>
-              <span class="work-output-label">View on Instagram &#8599;</span>
+              <span class="work-output-label">Generative output</span>
             </div>
           </div>
-        </a>
-
-        <a class="work-item reveal" href="https://www.instagram.com/reel/DO-vRUZkV3T/" target="_blank" rel="noopener">
-          <span class="work-num">05</span>
-          <div>
-            <h3>Joker Visits Bollywood</h3>
-            <span class="work-client">AI &times; Bollywood</span>
-            <p>Joaquin Phoenix's Joker, dropped into a Bollywood party. He left with paint on his face, a blurry selfie with a few legends, and no idea where his shoes went. Built for World Bollywood Day, not a client brief.</p>
-            <div class="work-output">
-              <canvas id="exp-canvas-5"></canvas>
-              <span class="work-output-label">View on Instagram &#8599;</span>
-            </div>
-          </div>
-        </a>
-
-        <a class="work-item reveal" href="https://www.instagram.com/reel/C47A6EQr5AC/" target="_blank" rel="noopener">
-          <span class="work-num">06</span>
-          <div>
-            <h3>Deadpool in India</h3>
-            <span class="work-client">AI &times; Holi</span>
-            <p>Deadpool trades bullets for gulal and swords for a pichkari. A Holi crossover nobody asked for and everybody screenshot.</p>
-            <div class="work-output">
-              <canvas id="exp-canvas-6"></canvas>
-              <span class="work-output-label">View on Instagram &#8599;</span>
-            </div>
-          </div>
-        </a>
+        </div>
       </div>
     </section>
 
@@ -848,9 +911,30 @@
         <h2 class="journal-head reveal">The journal</h2>
         <p class="journal-sub reveal reveal-stagger">Thinking in public. Selected pieces from the team; the archive is migrating over.</p>
 
-        <div class="journal-list" id="journal-list">
-          <!-- CMS-driven — populated from real published articles below. -->
-        </div>
+        <a class="journal-item reveal" href="#">
+          <h3>The Creator Economy: Where's the Money in 2025?</h3>
+          <span class="journal-meta">Creator economy</span>
+        </a>
+        <a class="journal-item reveal" href="#">
+          <h3>The Power of Micro-Influencers: Why Small Creators Are Winning</h3>
+          <span class="journal-meta">Influencer marketing</span>
+        </a>
+        <a class="journal-item reveal" href="#">
+          <h3>Inside the Mind of a Social Media Manager</h3>
+          <span class="journal-meta">Agency life</span>
+        </a>
+        <a class="journal-item reveal" href="#">
+          <h3>The Psychology Behind Why Some Posts Go Viral</h3>
+          <span class="journal-meta">Strategy</span>
+        </a>
+        <a class="journal-item reveal" href="#">
+          <h3>Is AI Replacing Human Creativity? The Truth Behind Humans vs. Machines</h3>
+          <span class="journal-meta">AI × Creativity</span>
+        </a>
+        <a class="journal-item reveal" href="#">
+          <h3>The First-Ever Brand Collab Happened in 1765</h3>
+          <span class="journal-meta">History of influence</span>
+        </a>
       </div>
     </section>
 
@@ -915,7 +999,7 @@
     <a href="https://www.linkedin.com/company/creatorsnetwork" target="_blank" rel="noopener" aria-label="LinkedIn">
       <svg viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
     </a>
-    <a href="https://x.com/creatorsnet_io" target="_blank" rel="noopener" aria-label="X">
+    <a href="https://x.com/creatorsnetwork" target="_blank" rel="noopener" aria-label="X">
       <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
     </a>
     <a href="https://www.youtube.com/@creatorsnetwork" target="_blank" rel="noopener" aria-label="YouTube">
@@ -972,7 +1056,7 @@
         // 01 Gandhi — monochrome portrait pixel art style
         { id: 'exp-canvas-1', draw: function(ctx, w, h) {
           // Sepia-toned layered rectangles suggesting a portrait
-          var bg = ctx.createLinearGradient(0, 0, w, h);
+          var bg = ctx.createLinearGradient(0, 0, 0, h);
           bg.addColorStop(0, '#1a130a'); bg.addColorStop(1, '#0d0a06');
           ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
           // Noise-like squares suggesting a generated face
@@ -1089,55 +1173,6 @@
           ctx.fillStyle = 'rgba(200,150,90,.5)';
           ctx.fillText('AI × ATMOSPHERE', w*.04, h*.92);
         }},
-        // 05 Joker Visits Bollywood — moody purple/green duotone
-        { id: 'exp-canvas-5', draw: function(ctx, w, h) {
-          var bg = ctx.createLinearGradient(0, 0, w, h);
-          bg.addColorStop(0, '#0c0714'); bg.addColorStop(1, '#050308');
-          ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
-          // Purple/green spotlight duotone
-          var g1 = ctx.createRadialGradient(w*.35, h*.4, 0, w*.35, h*.4, w*.35);
-          g1.addColorStop(0, 'rgba(140,60,200,.28)'); g1.addColorStop(1, 'transparent');
-          ctx.fillStyle = g1; ctx.fillRect(0,0,w,h);
-          var g2 = ctx.createRadialGradient(w*.7, h*.65, 0, w*.7, h*.65, w*.3);
-          g2.addColorStop(0, 'rgba(80,200,90,.16)'); g2.addColorStop(1, 'transparent');
-          ctx.fillStyle = g2; ctx.fillRect(0,0,w,h);
-          // Confetti flecks (party moment)
-          for (var i = 0; i < 40; i++) {
-            var px = (i * 53.1) % w, py = (i * 37.9 + 10) % h;
-            ctx.fillStyle = i % 2 === 0 ? 'rgba(200,120,255,.5)' : 'rgba(120,230,140,.4)';
-            ctx.fillRect(px, py, 2, 2);
-          }
-          ctx.font = '500 ' + Math.round(h*.07) + 'px Helvetica Neue, sans-serif';
-          ctx.fillStyle = 'rgba(180,120,220,.55)';
-          ctx.fillText('AI × BOLLYWOOD', w*.04, h*.92);
-        }},
-        // 06 Deadpool in India — Holi colour burst
-        { id: 'exp-canvas-6', draw: function(ctx, w, h) {
-          var bg = ctx.createLinearGradient(0, h, w, 0);
-          bg.addColorStop(0, '#0a0608'); bg.addColorStop(1, '#12060a');
-          ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h);
-          // Holi powder bursts
-          var bursts = [
-            [.15,.6,w*.22,'rgba(230,50,60,.4)'],[.4,.3,w*.2,'rgba(255,200,40,.38)'],
-            [.65,.55,w*.24,'rgba(60,140,230,.35)'],[.85,.3,w*.18,'rgba(230,80,180,.35)'],
-            [.5,.75,w*.2,'rgba(90,200,110,.3)'],[.25,.15,w*.14,'rgba(255,140,40,.3)'],
-          ];
-          bursts.forEach(function(b) {
-            var g = ctx.createRadialGradient(b[0]*w, b[1]*h, 0, b[0]*w, b[1]*h, b[2]);
-            g.addColorStop(0, b[3]); g.addColorStop(1, 'transparent');
-            ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
-          });
-          // Powder specks
-          for (var i = 0; i < 70; i++) {
-            var px = (i * 41.3) % w, py = (i * 29.1 + 15) % h;
-            var cols = ['rgba(255,90,90,.5)','rgba(255,210,60,.5)','rgba(90,170,255,.5)','rgba(240,120,200,.5)'];
-            ctx.beginPath(); ctx.arc(px, py, 1.4, 0, Math.PI*2);
-            ctx.fillStyle = cols[i % cols.length]; ctx.fill();
-          }
-          ctx.font = '500 ' + Math.round(h*.07) + 'px Helvetica Neue, sans-serif';
-          ctx.fillStyle = 'rgba(230,120,90,.55)';
-          ctx.fillText('AI × HOLI', w*.04, h*.92);
-        }},
       ];
 
       configs.forEach(function(cfg) {
@@ -1180,18 +1215,11 @@
 
     /* Reveal on scroll */
     (function () {
+      var reveals = document.querySelectorAll(".reveal");
       var obs = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add("is-visible"); });
       }, { threshold: 0.1, rootMargin: "0px 0px -30px 0px" });
-      // Exposed so CMS-driven content injected after this runs (case studies,
-      // philosophy quotes, cast grid, etc.) still gets the scroll fade-in
-      // instead of sitting at opacity:0 forever.
-      window.CN_observeReveal = function (root) {
-        if (!root) return;
-        if (root.classList && root.classList.contains("reveal")) obs.observe(root);
-        if (root.querySelectorAll) root.querySelectorAll(".reveal").forEach(function (el) { obs.observe(el); });
-      };
-      document.querySelectorAll(".reveal").forEach(function (el) { obs.observe(el); });
+      reveals.forEach(function (el) { obs.observe(el); });
     })();
 
     // FLASK HOVER BUBBLES
@@ -1564,25 +1592,29 @@
     window.CN_initVideoStrip = function(trackId) {
       var track = document.getElementById(trackId || 'video-track');
       if (!track) return;
-      // Hover-to-play for inline video slots
-      track.querySelectorAll('.video-slot:not(.video-slot--external)').forEach(function(slot) {
-        var video = slot.querySelector('video');
-        if (!video) return;
-        slot.addEventListener('mouseenter', function() {
-          if (video.src) {
-            video.play().then(function() { slot.classList.add('playing'); }).catch(function(){});
-          }
-        });
-        slot.addEventListener('mouseleave', function() {
-          video.pause();
-          slot.classList.remove('playing');
-        });
-        slot.addEventListener('click', function() { video.muted = !video.muted; });
-      });
-      // Click-to-open for external slots (YouTube, Vimeo, Instagram)
-      track.querySelectorAll('.video-slot--external[data-href]').forEach(function(slot) {
+      track.querySelectorAll('.video-slot[data-idx]').forEach(function(slot) {
+        var idx = Number(slot.getAttribute('data-idx'));
+        var video = track.__cnVideos && track.__cnVideos[idx];
+        if (video && video.sourceType === 'cloudflare' && video.videoUrlOrId) {
+          slot.addEventListener('mouseenter', function() {
+            if (slot.querySelector('.cn-hover-frame')) return;
+            var f = document.createElement('iframe');
+            f.className = 'cn-hover-frame';
+            f.src = 'https://iframe.cloudflarestream.com/' + video.videoUrlOrId + '?autoplay=true&muted=true&loop=true&controls=false';
+            f.allow = 'autoplay';
+            slot.appendChild(f);
+            slot.classList.add('playing');
+          });
+          slot.addEventListener('mouseleave', function() {
+            var f = slot.querySelector('.cn-hover-frame');
+            if (f) f.remove();
+            slot.classList.remove('playing');
+          });
+        }
         slot.addEventListener('click', function() {
-          window.open(slot.getAttribute('data-href'), '_blank', 'noopener');
+          if (track.__cnVideos && track.__cnVideos.length && window.CN_openFeed) {
+            window.CN_openFeed(track.__cnVideos, idx);
+          }
         });
       });
       // Drag to scroll
@@ -1596,23 +1628,15 @@
         track.scrollLeft = scrollLeft - (e.pageX - track.offsetLeft - startX) * 1.2;
       });
     };
-    window.CN_buildVideoSlot = function(v) {
+    window.CN_buildVideoSlot = function(v, i) {
       var label = v.caption || '';
       var icon = '<div class="video-slot-icon"><svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg></div>';
       var lbl = '<span class="video-slot-label">' + label + '</span>';
-      if (v.sourceType === 'cloudflare') {
-        var src = v.videoUrlOrId || '';
-        return '<div class="video-slot"><video muted playsinline loop preload="none" src="' + src + '"></video>' + icon + lbl + '</div>';
+      if (v.sourceType === 'cloudflare' && v.videoUrlOrId) {
+        var poster = '<div class="cn-poster" style="background-image:url(https://videodelivery.net/' + v.videoUrlOrId + '/thumbnails/thumbnail.jpg)"></div>';
+        return '<div class="video-slot" data-idx="' + i + '">' + poster + icon + lbl + '</div>';
       }
-      var href = '';
-      if (v.sourceType === 'youtube') {
-        href = v.videoUrlOrId.indexOf('://') > -1 ? v.videoUrlOrId : 'https://www.youtube.com/watch?v=' + v.videoUrlOrId;
-      } else if (v.sourceType === 'vimeo') {
-        href = v.videoUrlOrId.indexOf('://') > -1 ? v.videoUrlOrId : 'https://vimeo.com/' + v.videoUrlOrId;
-      } else {
-        href = v.videoUrlOrId || '#';
-      }
-      return '<div class="video-slot video-slot--external" data-href="' + href + '">' + icon + lbl + '</div>';
+      return '<div class="video-slot" data-idx="' + i + '">' + icon + lbl + '</div>';
     };
     window.CN_initVideoStrip();
   </script>
@@ -1649,6 +1673,7 @@
           if (res.videos && res.videos.length) {
             var track = document.getElementById('video-track');
             if (track) {
+              track.__cnVideos = res.videos;
               track.innerHTML = res.videos.map(window.CN_buildVideoSlot).join('');
               window.CN_initVideoStrip();
             }
@@ -1667,7 +1692,6 @@
               inner.innerHTML = res.scroll02Pov.map(function(b) {
                 return '<p class="reveal">' + esc((b.texts||[]).join('')) + '</p>';
               }).join('');
-              window.CN_observeReveal(inner);
             }
           }
           if (res.scroll05ClosingLine) {
@@ -1689,49 +1713,8 @@
                   '</div>' +
                 '</div>';
               }).join('');
-              window.CN_observeReveal(workInner);
             }
           }
-        })
-        .catch(function () {});
-    })();
-  </script>
-
-  <!-- Sanity: articles — populate the Journal with real published pieces -->
-  <script>
-    (function() {
-      var PROJECT = 'yodi9k1k', DATASET = 'production';
-      var list = document.getElementById('journal-list');
-      if (!list) return;
-
-      function esc(s) {
-        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-        });
-      }
-      var tagLabels = {
-        'creator-economy': 'Creator Economy', 'brand-strategy': 'Brand Strategy',
-        'events': 'Events', 'ai': 'AI', 'dubai': 'Dubai', 'india': 'India',
-        'influencer-marketing': 'Influencer Marketing', 'social-media': 'Social Media', 'founder': 'Founder'
-      };
-      function tagLabel(t) { return tagLabels[t] || t; }
-
-      var q = encodeURIComponent(
-        '*[_type=="article"] | order(publishDate desc) [0...6]{title, "slug": slug.current, tags}'
-      );
-      fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          var articles = d.result || [];
-          if (!articles.length) return; // leave the section empty rather than show fake placeholders
-          list.innerHTML = articles.map(function (a) {
-            var tag = (a.tags && a.tags[0]) ? tagLabel(a.tags[0]) : 'Journal';
-            return '<a class="journal-item reveal" href="articles/' + esc(a.slug) + '">' +
-              '<h3>' + esc(a.title) + '</h3>' +
-              '<span class="journal-meta">' + esc(tag) + '</span>' +
-            '</a>';
-          }).join('');
-          window.CN_observeReveal(list);
         })
         .catch(function () {});
     })();
@@ -1761,6 +1744,158 @@
           });
         })
         .catch(function() {});
+    })();
+  </script>
+
+  <!-- ── CN Fullscreen Video Feed (shared) ── -->
+  <script>
+    (function () {
+      function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+      function externalHref(v) {
+        var id = v.videoUrlOrId || '';
+        if (v.sourceType === 'youtube') return id.indexOf('://') > -1 ? id : 'https://www.youtube.com/watch?v=' + id;
+        if (v.sourceType === 'vimeo') return id.indexOf('://') > -1 ? id : 'https://vimeo.com/' + id;
+        return id || '#';
+      }
+      function embedUrl(type, id, muted) {
+        var m = muted ? 1 : 0;
+        if (type === 'cloudflare') {
+          return 'https://iframe.cloudflarestream.com/' + id + '?autoplay=true&muted=' + (m ? 'true' : 'false') + '&loop=true&controls=false';
+        }
+        if (type === 'youtube') {
+          var mm = String(id).match(/(?:v=|\/shorts\/|youtu\.be\/|\/embed\/)([a-zA-Z0-9_-]{11})/);
+          var vid = mm ? mm[1] : id;
+          return 'https://www.youtube.com/embed/' + vid + '?autoplay=1&mute=' + m + '&loop=1&playlist=' + vid + '&controls=0&modestbranding=1&rel=0&playsinline=1';
+        }
+        if (type === 'vimeo') {
+          var vid2 = String(id).replace(/.*\//, '');
+          return 'https://player.vimeo.com/video/' + vid2 + '?autoplay=1&muted=' + m + '&loop=1&background=0&controls=0';
+        }
+        return '';
+      }
+
+      var overlay, track, counterEl, muted = true;
+
+      function ensureOverlay() {
+        if (overlay) return;
+        overlay = document.createElement('div');
+        overlay.className = 'cn-feed-overlay';
+        overlay.innerHTML =
+          '<button class="cn-feed-close" aria-label="Close">&#x2715;</button>' +
+          '<div class="cn-feed-nav"><button class="cn-feed-up" aria-label="Previous">&#x2191;</button><button class="cn-feed-down" aria-label="Next">&#x2193;</button></div>' +
+          '<div class="cn-feed-counter"></div>' +
+          '<div class="cn-feed-track"></div>';
+        document.body.appendChild(overlay);
+        track = overlay.querySelector('.cn-feed-track');
+        counterEl = overlay.querySelector('.cn-feed-counter');
+        overlay.querySelector('.cn-feed-close').addEventListener('click', closeFeed);
+        overlay.addEventListener('click', function (e) { if (e.target === overlay) closeFeed(); });
+        overlay.querySelector('.cn-feed-up').addEventListener('click', function () { step(-1); });
+        overlay.querySelector('.cn-feed-down').addEventListener('click', function () { step(1); });
+        document.addEventListener('keydown', function (e) {
+          if (!overlay.classList.contains('is-open')) return;
+          if (e.key === 'Escape') closeFeed();
+          if (e.key === 'ArrowDown') step(1);
+          if (e.key === 'ArrowUp') step(-1);
+        });
+        var obs = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.6) {
+              activate(entry.target);
+            } else {
+              deactivate(entry.target);
+            }
+          });
+        }, { root: track, threshold: [0.6] });
+        overlay.__observer = obs;
+      }
+
+      function buildSlide(v, i) {
+        var caption = v.caption || v.title || '';
+        var client = v.clientName || '';
+        var media;
+        if (v.sourceType === 'cloudflare' && v.videoUrlOrId) {
+          media = '<div class="cn-feed-poster" style="background-image:url(https://videodelivery.net/' + esc(v.videoUrlOrId) + '/thumbnails/thumbnail.jpg)"></div>';
+        } else if ((v.sourceType === 'youtube' || v.sourceType === 'vimeo') && v.videoUrlOrId) {
+          media = '';
+        } else {
+          media = '<div class="cn-feed-external"><p>This one lives outside our player.</p><a href="' + esc(externalHref(v)) + '" target="_blank" rel="noopener">Watch it there</a></div>';
+        }
+        return '<div class="cn-feed-slide" data-index="' + i + '">' +
+            '<div class="cn-feed-media" data-source-type="' + esc(v.sourceType || '') + '" data-video-id="' + esc(v.videoUrlOrId || '') + '">' + media + '</div>' +
+            '<div class="cn-feed-panel">' +
+              (client ? '<span class="cn-feed-client">' + esc(client) + '</span>' : '') +
+              (caption ? '<h3>' + esc(caption) + '</h3>' : '') +
+              ((v.sourceType === 'cloudflare' || v.sourceType === 'youtube' || v.sourceType === 'vimeo') && v.videoUrlOrId ? '<button class="cn-feed-mute">' + (muted ? 'Unmute' : 'Mute') + '</button>' : '') +
+            '</div>' +
+          '</div>';
+      }
+
+      function activate(slide) {
+        var mediaEl = slide.querySelector('.cn-feed-media');
+        if (!mediaEl || mediaEl.querySelector('iframe')) return;
+        var type = mediaEl.getAttribute('data-source-type');
+        var id = mediaEl.getAttribute('data-video-id');
+        if (!id || (type !== 'cloudflare' && type !== 'youtube' && type !== 'vimeo')) return;
+        var iframe = document.createElement('iframe');
+        iframe.src = embedUrl(type, id, muted);
+        iframe.allow = 'autoplay; encrypted-media; fullscreen';
+        iframe.setAttribute('allowfullscreen', '');
+        mediaEl.appendChild(iframe);
+      }
+      function deactivate(slide) {
+        var mediaEl = slide.querySelector('.cn-feed-media');
+        var iframe = mediaEl && mediaEl.querySelector('iframe');
+        if (iframe) iframe.remove();
+      }
+
+      function updateCounter() {
+        var slides = track.querySelectorAll('.cn-feed-slide');
+        var mid = Math.round(track.scrollTop / track.clientHeight) + 1;
+        counterEl.textContent = Math.min(mid, slides.length) + ' / ' + slides.length;
+      }
+
+      function step(dir) {
+        var slides = Array.prototype.slice.call(track.querySelectorAll('.cn-feed-slide'));
+        var current = Math.round(track.scrollTop / track.clientHeight);
+        var next = Math.max(0, Math.min(slides.length - 1, current + dir));
+        slides[next].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      function closeFeed() {
+        overlay.classList.remove('is-open');
+        document.body.style.overflow = '';
+        track.querySelectorAll('.cn-feed-slide').forEach(deactivate);
+      }
+
+      window.CN_openFeed = function (videos, startIndex) {
+        if (!videos || !videos.length) return;
+        ensureOverlay();
+        track.innerHTML = videos.map(buildSlide).join('');
+        var slides = track.querySelectorAll('.cn-feed-slide');
+        slides.forEach(function (s) { overlay.__observer.observe(s); });
+        track.querySelectorAll('.cn-feed-mute').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            muted = !muted;
+            track.querySelectorAll('.cn-feed-mute').forEach(function (b) { b.textContent = muted ? 'Unmute' : 'Mute'; });
+            track.querySelectorAll('.cn-feed-slide').forEach(function (s) {
+              var mediaEl = s.querySelector('.cn-feed-media');
+              var ifr = mediaEl && mediaEl.querySelector('iframe');
+              if (ifr) { deactivate(s); activate(s); }
+            });
+          });
+        });
+        document.body.style.overflow = 'hidden';
+        overlay.classList.add('is-open');
+        var target = slides[startIndex || 0];
+        if (target) target.scrollIntoView({ block: 'start' });
+        setTimeout(function () { if (target) activate(target); updateCounter(); }, 80);
+        track.onscroll = function () {
+          clearTimeout(track.__scrollT);
+          track.__scrollT = setTimeout(updateCounter, 80);
+        };
+      };
     })();
   </script>
 </body>
