@@ -613,7 +613,7 @@
 .video-slot-icon svg { width: 12px; height: 12px; fill: var(--teal); margin-left: 2px; }
 .video-slot.playing .video-slot-icon { opacity: 0; }
 .video-slot .cn-poster { position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 0; }
-.video-slot .cn-hover-frame { position: absolute; inset: 0; z-index: 1; border: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .25s ease; pointer-events: none; }
+.video-slot .cn-hover-frame { position: absolute; inset: 0; z-index: 1; border: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .25s ease; pointer-events: none; }
 .video-slot.playing .cn-hover-frame { opacity: 1; }
 
 /* ══ CN FULLSCREEN VIDEO FEED (shared) ══ */
@@ -643,6 +643,7 @@
 .cn-feed-media video, .cn-feed-media iframe {
   position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
 }
+.cn-feed-media video { object-fit: cover; background: #000; }
 .cn-feed-poster {
   position: absolute; inset: 0; background-size: cover; background-position: center;
   filter: brightness(.55);
@@ -708,6 +709,43 @@
 </head>
 
 <body>
+  <!-- Cloudflare videos now play through a native <video> tag instead of Cloudflare's iframe
+       player. Loading hls.js here, at the very top of body, means it's ready before the user
+       can click anything -- so the very first click can turn on sound in the same instant,
+       instead of waiting on a script to load first (which is what broke sound before). -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
+  <script>
+    window.CN_streamUrl = function (id) {
+      return 'https://videodelivery.net/' + id + '/manifest/video.m3u8';
+    };
+    // Attaches a Cloudflare Stream video to a plain <video> element. Safari understands this
+    // stream format natively (no library needed); everywhere else uses hls.js, which we just
+    // preloaded above. Calls play() right away so it runs inside whatever user click triggered it.
+    window.CN_attachHls = function (videoEl, id) {
+      var src = window.CN_streamUrl(id);
+      // Check hls.js support FIRST, not canPlayType first. Chrome answers "maybe" to the
+      // native-HLS canPlayType question even though it can't actually play it without help,
+      // so checking that first would wrongly skip hls.js on Chrome. hls.js's own support
+      // check is the reliable one; native src is only for Safari, which genuinely doesn't
+      // need (and can't use) hls.js.
+      if (window.Hls && window.Hls.isSupported()) {
+        var hls = new window.Hls();
+        hls.loadSource(src);
+        hls.attachMedia(videoEl);
+        videoEl.__cnHls = hls;
+        videoEl.play().catch(function () {});
+        return;
+      }
+      if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+        videoEl.src = src;
+        videoEl.play().catch(function () {});
+        return;
+      }
+      // Very old browser with neither native HLS nor hls.js support: try a direct src anyway.
+      videoEl.src = src;
+      videoEl.play().catch(function () {});
+    };
+  </script>
   <nav class="nav" aria-label="Primary navigation">
     <a href="index.html" aria-label="Creators Network home">
       <img class="brand-logo" src="assets/cn-logo-color.png" alt="Creators Network" />
@@ -1598,16 +1636,27 @@
         if (video && video.sourceType === 'cloudflare' && video.videoUrlOrId) {
           slot.addEventListener('mouseenter', function() {
             if (slot.querySelector('.cn-hover-frame')) return;
-            var f = document.createElement('iframe');
-            f.className = 'cn-hover-frame';
-            f.src = 'https://iframe.cloudflarestream.com/' + video.videoUrlOrId + '?autoplay=true&muted=true&loop=true&controls=false';
-            f.allow = 'autoplay';
-            slot.appendChild(f);
+            // Native <video> instead of Cloudflare's iframe -- always muted here, so there's
+            // no browser permission to fight; this part never had a sound problem.
+            var v = document.createElement('video');
+            v.className = 'cn-hover-frame';
+            v.muted = true;
+            v.loop = true;
+            v.playsInline = true;
+            v.setAttribute('webkit-playsinline', '');
+            v.setAttribute('disablepictureinpicture', '');
+            v.preload = 'auto';
+            slot.appendChild(v);
+            window.CN_attachHls(v, video.videoUrlOrId);
             slot.classList.add('playing');
           });
           slot.addEventListener('mouseleave', function() {
-            var f = slot.querySelector('.cn-hover-frame');
-            if (f) f.remove();
+            var v = slot.querySelector('.cn-hover-frame');
+            if (v) {
+              if (v.__cnHls) v.__cnHls.destroy();
+              v.pause();
+              v.remove();
+            }
             slot.classList.remove('playing');
           });
         }
@@ -1777,20 +1826,6 @@
 
       var overlay, track, counterEl, muted = true;
 
-      function ensureStreamSDK(cb) {
-        if (window.Stream) { cb(); return; }
-        if (window.__cnStreamSDKLoading) { (window.__cnStreamSDKQueue = window.__cnStreamSDKQueue || []).push(cb); return; }
-        window.__cnStreamSDKLoading = true;
-        window.__cnStreamSDKQueue = [cb];
-        var s = document.createElement('script');
-        s.src = 'https://embed.cloudflarestream.com/embed/sdk.latest.js';
-        s.onload = function () {
-          (window.__cnStreamSDKQueue || []).forEach(function (fn) { fn(); });
-          window.__cnStreamSDKQueue = [];
-        };
-        document.head.appendChild(s);
-      }
-
       function ensureOverlay() {
         if (overlay) return;
         overlay = document.createElement('div');
@@ -1848,28 +1883,44 @@
 
       function activate(slide) {
         var mediaEl = slide.querySelector('.cn-feed-media');
-        if (!mediaEl || mediaEl.querySelector('iframe')) return;
+        if (!mediaEl || mediaEl.querySelector('iframe') || mediaEl.querySelector('video')) return;
         var type = mediaEl.getAttribute('data-source-type');
         var id = mediaEl.getAttribute('data-video-id');
         if (!id || (type !== 'cloudflare' && type !== 'youtube' && type !== 'vimeo')) return;
+
+        if (type === 'cloudflare') {
+          // Native <video> instead of Cloudflare's iframe. This is the actual fix: a video
+          // element that lives in our own page can be muted/unmuted the instant the user
+          // clicks, reliably, every time -- an iframe from another site can't, because the
+          // browser won't let a click on OUR page hand out sound permission to THEIR frame
+          // once any time has passed (even a script loading takes too long).
+          var v = document.createElement('video');
+          v.loop = true;
+          v.playsInline = true;
+          v.setAttribute('webkit-playsinline', '');
+          v.setAttribute('disablepictureinpicture', '');
+          v.muted = muted;
+          mediaEl.appendChild(v);
+          mediaEl.__cnPlayer = v;
+          window.CN_attachHls(v, id);
+          return;
+        }
+
         var iframe = document.createElement('iframe');
-        iframe.src = embedUrl(type, id, type === 'cloudflare' ? true : muted);
+        iframe.src = embedUrl(type, id, muted);
         iframe.allow = 'autoplay; encrypted-media; fullscreen';
         iframe.setAttribute('allowfullscreen', '');
         mediaEl.appendChild(iframe);
-        if (type === 'cloudflare') {
-          ensureStreamSDK(function () {
-            try {
-              var player = window.Stream(iframe);
-              mediaEl.__cnPlayer = player;
-              player.muted = muted;
-            } catch (e) {}
-          });
-        }
       }
       function deactivate(slide) {
         var mediaEl = slide.querySelector('.cn-feed-media');
+        var video = mediaEl && mediaEl.querySelector('video');
         var iframe = mediaEl && mediaEl.querySelector('iframe');
+        if (video) {
+          if (video.__cnHls) video.__cnHls.destroy();
+          video.pause();
+          video.remove();
+        }
         if (iframe) iframe.remove();
         if (mediaEl) mediaEl.__cnPlayer = null;
       }
@@ -1906,7 +1957,13 @@
             track.querySelectorAll('.cn-feed-mute').forEach(function (b) { b.textContent = muted ? 'Unmute' : 'Mute'; });
             track.querySelectorAll('.cn-feed-slide').forEach(function (s) {
               var mediaEl = s.querySelector('.cn-feed-media');
-              var ifr = mediaEl && mediaEl.querySelector('iframe');
+              if (!mediaEl) return;
+              var video = mediaEl.querySelector('video');
+              var ifr = mediaEl.querySelector('iframe');
+              if (video) {
+                video.muted = muted;
+                return;
+              }
               if (!ifr) return;
               if (mediaEl.__cnPlayer) {
                 try { mediaEl.__cnPlayer.muted = muted; } catch (e) { deactivate(s); activate(s); }
@@ -1920,7 +1977,13 @@
         overlay.classList.add('is-open');
         var target = slides[startIndex || 0];
         if (target) target.scrollIntoView({ block: 'start' });
-        setTimeout(function () { if (target) activate(target); updateCounter(); }, 80);
+        // Activating the first slide happens right here, in the same click that opened the
+        // feed -- not inside a setTimeout. Browsers strip "the user just clicked" permission
+        // the moment you defer through setTimeout, even by a few milliseconds, which is why
+        // sound never played reliably before. Only the counter (which just reads scroll
+        // position) needs to wait for layout to settle.
+        if (target) activate(target);
+        setTimeout(updateCounter, 80);
         track.onscroll = function () {
           clearTimeout(track.__scrollT);
           track.__scrollT = setTimeout(updateCounter, 80);
