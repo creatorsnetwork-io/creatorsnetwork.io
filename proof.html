@@ -403,7 +403,7 @@
     }
     .reel-slot .cn-hover-frame {
       position: absolute; inset: 0; z-index: 0; border: 0;
-      width: 100%; height: 100%;
+      width: 100%; height: 100%; object-fit: cover;
       opacity: 0; transition: opacity .25s ease; pointer-events: none;
     }
     .reel-slot.playing .cn-hover-frame { opacity: 1; }
@@ -648,6 +648,7 @@
     .cn-feed-media video, .cn-feed-media iframe {
       position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
     }
+    .cn-feed-media video { object-fit: cover; background: #000; }
     .cn-feed-poster {
       position: absolute; inset: 0; background-size: cover; background-position: center;
       filter: brightness(.55);
@@ -671,13 +672,21 @@
       line-height: 1.2; text-transform: uppercase; letter-spacing: -.01em;
     }
     .cn-feed-panel p { margin: 0; font-size: 14px; line-height: 1.65; color: rgba(244,244,241,.62); font-weight: 300; }
-    .cn-feed-mute {
-      margin-top: 28px; background: none; border: 1px solid rgba(255,255,255,.25);
-      color: rgba(244,244,241,.75); padding: 9px 20px; font-family: inherit;
-      font-size: 11px; letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
+    .cn-feed-actions { display: flex; align-items: center; gap: 12px; margin-top: 28px; }
+    .cn-feed-icon-btn {
+      width: 40px; height: 40px; border-radius: 50%; flex: 0 0 auto;
+      background: none; border: 1px solid rgba(255,255,255,.25);
+      color: rgba(244,244,241,.75); cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; justify-content: center;
       transition: border-color .2s, color .2s;
     }
-    .cn-feed-mute:hover { border-color: var(--teal); color: var(--teal); }
+    .cn-feed-icon-btn:hover, .cn-feed-icon-btn.is-copied { border-color: var(--teal); color: var(--teal); }
+    .cn-feed-icon-btn svg { width: 16px; height: 16px; }
+    .cn-feed-share-label {
+      font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--teal);
+      opacity: 0; transition: opacity .2s;
+    }
+    .cn-feed-share-label.is-visible { opacity: 1; }
     .cn-feed-close {
       position: fixed; top: 28px; right: 30px; z-index: 2001;
       width: 40px; height: 40px; border-radius: 50%;
@@ -707,12 +716,50 @@
       .cn-feed-slide { flex-direction: column; gap: 18px; padding: 100px 20px 30px; }
       .cn-feed-media { height: 54vh; width: calc(54vh * 9 / 16); max-width: 92vw; }
       .cn-feed-panel { width: 100%; text-align: center; }
+      .cn-feed-actions { justify-content: center; }
       .cn-feed-nav { display: none; }
     }
   </style>
 </head>
 
 <body>
+  <!-- Cloudflare videos now play through a native <video> tag instead of Cloudflare's iframe
+       player. Loading hls.js here, at the very top of body, means it's ready before the user
+       can click anything -- so the very first click can turn on sound in the same instant,
+       instead of waiting on a script to load first (which is what broke sound before). -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
+  <script>
+    window.CN_streamUrl = function (id) {
+      return 'https://videodelivery.net/' + id + '/manifest/video.m3u8';
+    };
+    // Attaches a Cloudflare Stream video to a plain <video> element. Safari understands this
+    // stream format natively (no library needed); everywhere else uses hls.js, which we just
+    // preloaded above. Calls play() right away so it runs inside whatever user click triggered it.
+    window.CN_attachHls = function (videoEl, id) {
+      var src = window.CN_streamUrl(id);
+      // Check hls.js support FIRST, not canPlayType first. Chrome answers "maybe" to the
+      // native-HLS canPlayType question even though it can't actually play it without help,
+      // so checking that first would wrongly skip hls.js on Chrome. hls.js's own support
+      // check is the reliable one; native src is only for Safari, which genuinely doesn't
+      // need (and can't use) hls.js.
+      if (window.Hls && window.Hls.isSupported()) {
+        var hls = new window.Hls();
+        hls.loadSource(src);
+        hls.attachMedia(videoEl);
+        videoEl.__cnHls = hls;
+        videoEl.play().catch(function () {});
+        return;
+      }
+      if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+        videoEl.src = src;
+        videoEl.play().catch(function () {});
+        return;
+      }
+      // Very old browser with neither native HLS nor hls.js support: try a direct src anyway.
+      videoEl.src = src;
+      videoEl.play().catch(function () {});
+    };
+  </script>
   <nav class="nav" aria-label="Primary navigation">
     <a href="index.html" aria-label="Creators Network home">
       <img class="brand-logo" src="assets/cn-logo-color.png" alt="Creators Network" />
@@ -1125,6 +1172,14 @@
           }
         }
 
+        // Deep link: ?v=<cloudflare-id> opens straight into that video from the reel --
+        // this is what the share button on each video points to.
+        var wantedVideoId = new URLSearchParams(location.search).get('v');
+        if (wantedVideoId && reelTrack && reelTrack.__cnVideos) {
+          var deepIdx = reelTrack.__cnVideos.findIndex(function (v) { return v.videoUrlOrId === wantedVideoId; });
+          if (deepIdx > -1 && window.CN_openFeed) window.CN_openFeed(reelTrack.__cnVideos, deepIdx);
+        }
+
         // ── Featured slider ──
         var featured = cases.filter(function(c) { return c.featured; });
         if (featured.length) {
@@ -1300,16 +1355,27 @@
           if (video && video.sourceType === 'cloudflare' && video.videoUrlOrId) {
             slot.addEventListener('mouseenter', function() {
               if (slot.querySelector('.cn-hover-frame')) return;
-              var f = document.createElement('iframe');
-              f.className = 'cn-hover-frame';
-              f.src = 'https://iframe.cloudflarestream.com/' + video.videoUrlOrId + '?autoplay=true&muted=true&loop=true&controls=false';
-              f.allow = 'autoplay';
-              slot.appendChild(f);
+              // Native <video> instead of Cloudflare's iframe -- always muted here, so there's
+              // no browser permission to fight; this part never had a sound problem.
+              var v = document.createElement('video');
+              v.className = 'cn-hover-frame';
+              v.muted = true;
+              v.loop = true;
+              v.playsInline = true;
+              v.setAttribute('webkit-playsinline', '');
+              v.setAttribute('disablepictureinpicture', '');
+              v.preload = 'auto';
+              slot.appendChild(v);
+              window.CN_attachHls(v, video.videoUrlOrId);
               slot.classList.add('playing');
             });
             slot.addEventListener('mouseleave', function() {
-              var f = slot.querySelector('.cn-hover-frame');
-              if (f) f.remove();
+              var v = slot.querySelector('.cn-hover-frame');
+              if (v) {
+                if (v.__cnHls) v.__cnHls.destroy();
+                v.pause();
+                v.remove();
+              }
               slot.classList.remove('playing');
             });
           }
@@ -1541,18 +1607,19 @@
 
       var overlay, track, counterEl, muted = true;
 
-      function ensureStreamSDK(cb) {
-        if (window.Stream) { cb(); return; }
-        if (window.__cnStreamSDKLoading) { (window.__cnStreamSDKQueue = window.__cnStreamSDKQueue || []).push(cb); return; }
-        window.__cnStreamSDKLoading = true;
-        window.__cnStreamSDKQueue = [cb];
-        var s = document.createElement('script');
-        s.src = 'https://embed.cloudflarestream.com/embed/sdk.latest.js';
-        s.onload = function () {
-          (window.__cnStreamSDKQueue || []).forEach(function (fn) { fn(); });
-          window.__cnStreamSDKQueue = [];
-        };
-        document.head.appendChild(s);
+      // Minimal monoline icons -- matches the thin-stroke, no-fill style used elsewhere
+      // on this page (the reel play triangle, the close X) rather than reaching for emoji
+      // or a UI-kit icon font.
+      function iconSpeaker(isMuted) {
+        return isMuted
+          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M16.5 9.5l4 4M20.5 9.5l-4 4"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 5V4L8 9H4z"/><path d="M15.8 8.2a5 5 0 010 7.6"/><path d="M18.4 5.5a8.5 8.5 0 010 13"/></svg>';
+      }
+      function iconShare() {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.3"/><circle cx="18" cy="6" r="2.3"/><circle cx="18" cy="18" r="2.3"/><path d="M8.1 10.8l7.7-4.3M8.1 13.2l7.7 4.3"/></svg>';
+      }
+      function shareUrl(v) {
+        return location.origin + location.pathname + '?v=' + encodeURIComponent(v.videoUrlOrId || '');
       }
 
       function ensureOverlay() {
@@ -1600,45 +1667,61 @@
         } else {
           media = '<div class="cn-feed-external"><p>This one lives outside our player.</p><a href="' + esc(externalHref(v)) + '" target="_blank" rel="noopener">Watch it there</a></div>';
         }
+        var hasPlayer = (v.sourceType === 'cloudflare' || v.sourceType === 'youtube' || v.sourceType === 'vimeo') && v.videoUrlOrId;
         return '<div class="cn-feed-slide" data-index="' + i + '">' +
             '<div class="cn-feed-media" data-source-type="' + esc(v.sourceType || '') + '" data-video-id="' + esc(v.videoUrlOrId || '') + '">' + media + '</div>' +
             '<div class="cn-feed-panel">' +
               (client ? '<span class="cn-feed-client">' + esc(client) + '</span>' : '') +
               (caption ? '<h3>' + esc(caption) + '</h3>' : '') +
-              ((v.sourceType === 'cloudflare' || v.sourceType === 'youtube' || v.sourceType === 'vimeo') && v.videoUrlOrId ? '<button class="cn-feed-mute">' + (muted ? 'Unmute' : 'Mute') + '</button>' : '') +
+              (hasPlayer ? '<div class="cn-feed-actions">' +
+                '<button class="cn-feed-icon-btn cn-feed-mute" aria-label="' + (muted ? 'Unmute' : 'Mute') + '">' + iconSpeaker(muted) + '</button>' +
+                '<button class="cn-feed-icon-btn cn-feed-share" aria-label="Copy share link" data-share-url="' + esc(shareUrl(v)) + '">' + iconShare() + '</button>' +
+                '<span class="cn-feed-share-label">Link copied</span>' +
+              '</div>' : '') +
             '</div>' +
           '</div>';
       }
 
       function activate(slide) {
         var mediaEl = slide.querySelector('.cn-feed-media');
-        if (!mediaEl || mediaEl.querySelector('iframe')) return;
+        if (!mediaEl || mediaEl.querySelector('iframe') || mediaEl.querySelector('video')) return;
         var type = mediaEl.getAttribute('data-source-type');
         var id = mediaEl.getAttribute('data-video-id');
         if (!id || (type !== 'cloudflare' && type !== 'youtube' && type !== 'vimeo')) return;
+
+        if (type === 'cloudflare') {
+          // Native <video> instead of Cloudflare's iframe. This is the actual fix: a video
+          // element that lives in our own page can be muted/unmuted the instant the user
+          // clicks, reliably, every time -- an iframe from another site can't, because the
+          // browser won't let a click on OUR page hand out sound permission to THEIR frame
+          // once any time has passed (even a script loading takes too long).
+          var v = document.createElement('video');
+          v.loop = true;
+          v.playsInline = true;
+          v.setAttribute('webkit-playsinline', '');
+          v.setAttribute('disablepictureinpicture', '');
+          v.muted = muted;
+          mediaEl.appendChild(v);
+          mediaEl.__cnPlayer = v;
+          window.CN_attachHls(v, id);
+          return;
+        }
+
         var iframe = document.createElement('iframe');
-        // Cloudflare: always create the iframe muted (guaranteed-safe autoplay), then
-        // unmute the already-created player via the SDK below. A brand-new cross-origin
-        // iframe asked to start WITH sound gets silently swallowed by the browser even
-        // though our player object still reports muted:false — unmuting media that's
-        // already playing is the path that's actually reliable.
-        iframe.src = embedUrl(type, id, type === 'cloudflare' ? true : muted);
+        iframe.src = embedUrl(type, id, muted);
         iframe.allow = 'autoplay; encrypted-media; fullscreen';
         iframe.setAttribute('allowfullscreen', '');
         mediaEl.appendChild(iframe);
-        if (type === 'cloudflare') {
-          ensureStreamSDK(function () {
-            try {
-              var player = window.Stream(iframe);
-              mediaEl.__cnPlayer = player;
-              player.muted = muted;
-            } catch (e) {}
-          });
-        }
       }
       function deactivate(slide) {
         var mediaEl = slide.querySelector('.cn-feed-media');
+        var video = mediaEl && mediaEl.querySelector('video');
         var iframe = mediaEl && mediaEl.querySelector('iframe');
+        if (video) {
+          if (video.__cnHls) video.__cnHls.destroy();
+          video.pause();
+          video.remove();
+        }
         if (iframe) iframe.remove();
         if (mediaEl) mediaEl.__cnPlayer = null;
       }
@@ -1672,10 +1755,21 @@
         track.querySelectorAll('.cn-feed-mute').forEach(function (btn) {
           btn.addEventListener('click', function () {
             muted = !muted;
-            track.querySelectorAll('.cn-feed-mute').forEach(function (b) { b.textContent = muted ? 'Unmute' : 'Mute'; });
+            track.querySelectorAll('.cn-feed-mute').forEach(function (b) {
+              b.innerHTML = iconSpeaker(muted);
+              b.setAttribute('aria-label', muted ? 'Unmute' : 'Mute');
+            });
             track.querySelectorAll('.cn-feed-slide').forEach(function (s) {
               var mediaEl = s.querySelector('.cn-feed-media');
-              var ifr = mediaEl && mediaEl.querySelector('iframe');
+              if (!mediaEl) return;
+              var video = mediaEl.querySelector('video');
+              var ifr = mediaEl.querySelector('iframe');
+              if (video) {
+                // Same-document element, so this is a direct, synchronous, always-reliable
+                // mute/unmute -- this is the button that already worked before; it still does.
+                video.muted = muted;
+                return;
+              }
               if (!ifr) return;
               if (mediaEl.__cnPlayer) {
                 try { mediaEl.__cnPlayer.muted = muted; } catch (e) { deactivate(s); activate(s); }
@@ -1685,11 +1779,36 @@
             });
           });
         });
+        track.querySelectorAll('.cn-feed-share').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var url = btn.getAttribute('data-share-url');
+            var label = btn.parentElement.querySelector('.cn-feed-share-label');
+            function flashCopied() {
+              btn.classList.add('is-copied');
+              if (label) label.classList.add('is-visible');
+              setTimeout(function () {
+                btn.classList.remove('is-copied');
+                if (label) label.classList.remove('is-visible');
+              }, 1600);
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(url).then(flashCopied).catch(function () { window.prompt('Copy this link:', url); });
+            } else {
+              window.prompt('Copy this link:', url);
+            }
+          });
+        });
         document.body.style.overflow = 'hidden';
         overlay.classList.add('is-open');
         var target = slides[startIndex || 0];
         if (target) target.scrollIntoView({ block: 'start' });
-        setTimeout(function () { if (target) activate(target); updateCounter(); }, 80);
+        // Activating the first slide happens right here, in the same click that opened the
+        // feed -- not inside a setTimeout. Browsers strip "the user just clicked" permission
+        // the moment you defer through setTimeout, even by a few milliseconds, which is why
+        // sound never played reliably before. Only the counter (which just reads scroll
+        // position) needs to wait for layout to settle.
+        if (target) activate(target);
+        setTimeout(updateCounter, 80);
         track.onscroll = function () {
           clearTimeout(track.__scrollT);
           track.__scrollT = setTimeout(updateCounter, 80);
