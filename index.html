@@ -3,8 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Creators Network — Cinematic Homepage</title>
-  <meta name="description" content="Creators Network — cinematic boutique agency homepage concept." />
+  <title>Creators Network — Strategy Before Spectacle</title>
+  <meta name="description" content="A boutique agency building stories that move culture, not just noise. Campaigns, design, events, and digital work, made by a small team that cares for your brand." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://creatorsnetwork.io/" />
+  <meta property="og:title" content="Creators Network — Strategy Before Spectacle" />
+  <meta property="og:description" content="A boutique agency building stories that move culture, not just noise. Campaigns, design, events, and digital work, made by a small team that cares for your brand." />
+  <meta name="twitter:card" content="summary_large_image" />
   <style>
     :root {
       --black: #030406;
@@ -32,7 +37,7 @@
     .preloader {
       position: fixed; inset: 0; z-index: 999;
       display: grid; place-items: center; background: #030406;
-      transition: opacity .75s ease, visibility .75s ease;
+      transition: opacity .4s ease, visibility .4s ease;
     }
     .preloader.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
     .preloader img { width: min(46vw, 540px); height: auto; animation: logoIntro 1.4s ease both; }
@@ -69,6 +74,37 @@
     }
     .nav-items a:hover { color: var(--teal); }
     .nav-items a:hover::after { transform: scaleX(1); }
+
+    /* ── Mobile nav toggle + drawer ── */
+    .nav-toggle {
+      display: none; pointer-events: auto;
+      width: 42px; height: 42px; flex-direction: column;
+      align-items: center; justify-content: center; gap: 5px;
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(3,4,6,.35); backdrop-filter: blur(18px);
+      cursor: pointer;
+    }
+    .nav-toggle span {
+      display: block; width: 18px; height: 1px; background: var(--soft-white);
+      transition: transform .3s ease, opacity .3s ease;
+    }
+    .nav-toggle.is-open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .nav-toggle.is-open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.is-open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+    .nav-drawer {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 150;
+      background: rgba(3,4,6,.97); border-bottom: 1px solid rgba(255,255,255,.11);
+      padding: 96px 26px 26px; display: flex; flex-direction: column; gap: 4px;
+      transform: translateY(-100%); opacity: 0; pointer-events: none;
+      transition: transform .35s ease, opacity .35s ease;
+    }
+    .nav-drawer.is-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .nav-drawer a {
+      font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+      color: rgba(244,244,241,.85); padding: 14px 2px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .nav-drawer a:hover { color: var(--teal); }
 
     /* ══════════════════════════════════════════
        HERO — scroll-driven fade + parallax
@@ -646,6 +682,7 @@
       .nav { top: 20px; left: 20px; right: 20px; }
       .brand-logo { width: 48px; }
       .nav-items { display: none; }
+      .nav-toggle { display: flex; }
       .hero-sequence { height: auto; }
       .hero-stage { position: relative; height: auto; min-height: 100vh; }
       .hero-content { padding: 110px 22px 52px; }
@@ -690,7 +727,22 @@
       <a href="articles.html">Articles</a>
     <a href="contact.html">Contact</a>
     </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navDrawer">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <div class="nav-drawer" id="navDrawer">
+    <a href="founder.html">The Founder</a>
+    <a href="campaigns.html">Campaigns</a>
+    <a href="studio.html">Studio</a>
+    <a href="experiences.html">Experiences</a>
+    <a href="engine.html">Engine</a>
+    <a href="lab.html">Lab</a>
+    <a href="proof.html">Proof</a>
+    <a href="articles.html">Articles</a>
+    <a href="contact.html">Contact</a>
+  </div>
 
   <main>
     <!-- ══ HERO ══ -->
@@ -889,14 +941,54 @@
   </main>
 
   <script>
+    /* ── Mobile nav toggle ── */
+    (function () {
+      var toggle = document.getElementById("navToggle");
+      var drawer = document.getElementById("navDrawer");
+      if (!toggle || !drawer) return;
+      toggle.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var open = drawer.classList.toggle("is-open");
+        toggle.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      drawer.querySelectorAll("a").forEach(function (a) {
+        a.addEventListener("click", function () {
+          drawer.classList.remove("is-open");
+          toggle.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+        });
+      });
+      document.addEventListener("click", function (e) {
+        if (!drawer.contains(e.target) && !toggle.contains(e.target)) {
+          drawer.classList.remove("is-open");
+          toggle.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+        }
+      });
+    })();
+
     /* ── Preloader ── */
     (function () {
       var pre = document.getElementById("preloader");
       var seen = sessionStorage.getItem("cn_preloader_v3");
       if (seen) { pre.classList.add("is-hidden"); return; }
-      window.addEventListener("load", function () {
-        setTimeout(function () { pre.classList.add("is-hidden"); sessionStorage.setItem("cn_preloader_v3", "1"); }, 1100);
-      });
+      var hidden = false;
+      function hide() {
+        if (hidden) return;
+        hidden = true;
+        pre.classList.add("is-hidden");
+        sessionStorage.setItem("cn_preloader_v3", "1");
+      }
+      /* Clear as soon as critical layout (hero text) is ready — don't wait
+         for every off-screen background image sitewide to finish loading. */
+      if (document.readyState === "interactive" || document.readyState === "complete") {
+        setTimeout(hide, 350);
+      } else {
+        document.addEventListener("DOMContentLoaded", function () { setTimeout(hide, 350); });
+      }
+      /* Safety net in case DOMContentLoaded is unexpectedly delayed */
+      setTimeout(hide, 1200);
     })();
 
     /* ── Hero text reveal on load ── */

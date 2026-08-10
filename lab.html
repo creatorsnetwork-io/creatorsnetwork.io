@@ -3,8 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lab — Creators Network</title>
-  <meta name="description" content="Lab at Creators Network — the strange ideas go here first." />
+  <title>Lab — Where Untested Ideas Get Tried First | Creators Network</title>
+  <meta name="description" content="The experimental corner of Creators Network, for ideas too early or too odd to pitch anywhere else." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://creatorsnetwork.io/lab.html" />
+  <meta property="og:title" content="Lab — Where Untested Ideas Get Tried First | Creators Network" />
+  <meta property="og:description" content="The experimental corner of Creators Network, for ideas too early or too odd to pitch anywhere else." />
+  <meta name="twitter:card" content="summary_large_image" />
   <style>
     :root {
       --black: #030406;
@@ -47,6 +52,35 @@
     }
     .nav-items a.is-current { color: var(--teal); }
     .nav-items a:hover { color: rgba(244,244,241,1); }
+    .nav-toggle {
+      display: none; pointer-events: auto;
+      width: 42px; height: 42px; flex-direction: column;
+      align-items: center; justify-content: center; gap: 5px;
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(3,4,6,.35); backdrop-filter: blur(18px);
+      cursor: pointer;
+    }
+    .nav-toggle span {
+      display: block; width: 18px; height: 1px; background: #f4f4f1;
+      transition: transform .3s ease, opacity .3s ease;
+    }
+    .nav-toggle.is-open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .nav-toggle.is-open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.is-open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+    .nav-drawer {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 150;
+      background: rgba(3,4,6,.97); border-bottom: 1px solid rgba(255,255,255,.11);
+      padding: 96px 26px 26px; display: flex; flex-direction: column; gap: 4px;
+      transform: translateY(-100%); opacity: 0; pointer-events: none;
+      transition: transform .35s ease, opacity .35s ease;
+    }
+    .nav-drawer.is-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .nav-drawer a {
+      font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+      color: rgba(244,244,241,.85); padding: 14px 2px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .nav-drawer a:hover { color: #3dd8c5; }
 
     /* ── Reveal ── */
     .reveal {
@@ -338,6 +372,7 @@
       .nav { top: 20px; left: 20px; right: 20px; }
       .brand-logo { width: 48px; }
       .nav-items { display: none; }
+      .nav-toggle { display: flex; }
       .hero-content { padding: calc(12vh + 160px) 22px 0; }
       .philosophy { padding: 9vh 22px 26vh; }
       .philosophy p { font-size: clamp(19px, 5vw, 24px); }
@@ -770,7 +805,21 @@
       <a href="articles.html">Articles</a>
     <a href="contact.html">Contact</a>
     </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navDrawer">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="founder.html">The Founder</a>
+    <a href="campaigns.html">Campaigns</a>
+    <a href="studio.html">Studio</a>
+    <a href="experiences.html">Experiences</a>
+    <a href="engine.html">Engine</a>
+    <a href="lab.html">Lab</a>
+    <a href="proof.html">Proof</a>
+    <a href="articles.html">Articles</a>
+    <a href="contact.html">Contact</a>
+  </div>
 
   <main>
     <!-- ══ ABSTRACT WORLD ══ -->
@@ -958,30 +1007,7 @@
         <h2 class="journal-head reveal">The journal</h2>
         <p class="journal-sub reveal reveal-stagger">Thinking in public. Selected pieces from the team; the archive is migrating over.</p>
 
-        <a class="journal-item reveal" href="#">
-          <h3>The Creator Economy: Where's the Money in 2025?</h3>
-          <span class="journal-meta">Creator economy</span>
-        </a>
-        <a class="journal-item reveal" href="#">
-          <h3>The Power of Micro-Influencers: Why Small Creators Are Winning</h3>
-          <span class="journal-meta">Influencer marketing</span>
-        </a>
-        <a class="journal-item reveal" href="#">
-          <h3>Inside the Mind of a Social Media Manager</h3>
-          <span class="journal-meta">Agency life</span>
-        </a>
-        <a class="journal-item reveal" href="#">
-          <h3>The Psychology Behind Why Some Posts Go Viral</h3>
-          <span class="journal-meta">Strategy</span>
-        </a>
-        <a class="journal-item reveal" href="#">
-          <h3>Is AI Replacing Human Creativity? The Truth Behind Humans vs. Machines</h3>
-          <span class="journal-meta">AI × Creativity</span>
-        </a>
-        <a class="journal-item reveal" href="#">
-          <h3>The First-Ever Brand Collab Happened in 1765</h3>
-          <span class="journal-meta">History of influence</span>
-        </a>
+        <div id="journal-list"></div>
       </div>
     </section>
 
@@ -1639,11 +1665,12 @@
     window.CN_initVideoStrip = function(trackId) {
       var track = document.getElementById(trackId || 'video-track');
       if (!track) return;
+      var isTouch = !window.matchMedia('(hover: hover)').matches;
       track.querySelectorAll('.video-slot[data-idx]').forEach(function(slot) {
         var idx = Number(slot.getAttribute('data-idx'));
         var video = track.__cnVideos && track.__cnVideos[idx];
         if (video && video.sourceType === 'cloudflare' && video.videoUrlOrId) {
-          slot.addEventListener('mouseenter', function() {
+          function startPreview() {
             if (slot.querySelector('.cn-hover-frame')) return;
             // Native <video> instead of Cloudflare's iframe -- always muted here, so there's
             // no browser permission to fight; this part never had a sound problem.
@@ -1652,14 +1679,16 @@
             v.muted = true;
             v.loop = true;
             v.playsInline = true;
+            v.setAttribute('playsinline', '');
+            v.setAttribute('muted', '');
             v.setAttribute('webkit-playsinline', '');
             v.setAttribute('disablepictureinpicture', '');
             v.preload = 'auto';
             slot.appendChild(v);
             window.CN_attachHls(v, video.videoUrlOrId);
             slot.classList.add('playing');
-          });
-          slot.addEventListener('mouseleave', function() {
+          }
+          function stopPreview() {
             var v = slot.querySelector('.cn-hover-frame');
             if (v) {
               if (v.__cnHls) v.__cnHls.destroy();
@@ -1667,7 +1696,19 @@
               v.remove();
             }
             slot.classList.remove('playing');
-          });
+          }
+          slot.addEventListener('mouseenter', startPreview);
+          slot.addEventListener('mouseleave', stopPreview);
+          if (isTouch) {
+            slot.addEventListener('touchstart', function(event) {
+              if (!slot.classList.contains('playing')) {
+                startPreview();
+                event.preventDefault();
+              }
+              // If already playing, let the tap fall through to the click handler
+              // below so a second tap opens the fullscreen feed.
+            }, { passive: false });
+          }
         }
         slot.addEventListener('click', function() {
           if (track.__cnVideos && track.__cnVideos.length && window.CN_openFeed) {
@@ -1767,17 +1808,51 @@
               var wHead = workInner.querySelector('.work-head');
               var headHtml = wHead ? wHead.outerHTML : '';
               workInner.innerHTML = headHtml + res.featuredCaseStudies.map(function(cs, i) {
-                return '<div class="work-item reveal">' +
+                var href = cs.slug ? ('/case/' + esc(cs.slug)) : 'proof.html';
+                return '<a class="work-item reveal" href="' + href + '">' +
                   '<span class="work-num">' + String(i+1).padStart(2,'0') + '</span>' +
                   '<div>' +
                     '<h3>' + esc(cs.title) + '</h3>' +
                     '<span class="work-client">' + esc(cs.clientName) + '</span>' +
                     (cs.oneLinerSummary ? '<p>' + esc(cs.oneLinerSummary) + '</p>' : '') +
                   '</div>' +
-                '</div>';
+                '</a>';
               }).join('');
             }
           }
+        })
+        .catch(function () {});
+    })();
+  </script>
+
+  <!-- ── Sanity CMS: journal teaser (latest 6 articles) ── -->
+  <script>
+    (function () {
+      var PROJECT = 'yodi9k1k', DATASET = 'production';
+      function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+      var q = encodeURIComponent(
+        '*[_type=="article"] | order(publishDate desc) [0..5] {' +
+          'title,' +
+          '"slug":slug.current,' +
+          'publishDate,' +
+          'tags,' +
+          '"heroImageUrl":heroImage.asset->url,' +
+          '"excerpt":bodyContent[0].children[0].text' +
+        '}'
+      );
+      fetch('https://' + PROJECT + '.apicdn.sanity.io/v2021-06-07/data/query/' + DATASET + '?query=' + q)
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          var articles = d.result;
+          var list = document.getElementById('journal-list');
+          if (!list || !articles || !articles.length) return;
+          list.innerHTML = articles.map(function (article) {
+            var tag = (article.tags && article.tags.length) ? article.tags[0] : '';
+            return '<a class="journal-item reveal" href="/articles/' + esc(article.slug) + '">' +
+              '<h3>' + esc(article.title) + '</h3>' +
+              (tag ? '<span class="journal-meta">' + esc(tag) + '</span>' : '') +
+            '</a>';
+          }).join('');
         })
         .catch(function () {});
     })();
@@ -2044,6 +2119,35 @@
           track.__scrollT = setTimeout(updateCounter, 80);
         };
       };
+    })();
+  </script>
+
+  <!-- ── Mobile hamburger nav ── -->
+  <script>
+    (function () {
+      var toggle = document.getElementById("navToggle");
+      var drawer = document.getElementById("navDrawer");
+      if (!toggle || !drawer) return;
+      toggle.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var open = drawer.classList.toggle("is-open");
+        toggle.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      drawer.querySelectorAll("a").forEach(function (a) {
+        a.addEventListener("click", function () {
+          drawer.classList.remove("is-open");
+          toggle.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+        });
+      });
+      document.addEventListener("click", function (e) {
+        if (!drawer.contains(e.target) && !toggle.contains(e.target)) {
+          drawer.classList.remove("is-open");
+          toggle.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+        }
+      });
     })();
   </script>
 </body>
