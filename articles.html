@@ -3,8 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title id="meta-title">Articles — Creators Network</title>
+  <title id="meta-title">Journal — Creators Network</title>
   <meta name="description" id="meta-desc" content="Thinking out loud from the people at Creators Network — on influencer marketing, brand strategy, events, and the creator economy." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://creatorsnetwork.io/articles.html" />
+  <meta property="og:title" content="Journal — Creators Network" />
+  <meta property="og:description" content="Thinking out loud from the people at Creators Network — on influencer marketing, brand strategy, events, and the creator economy." />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta property="og:image" id="og-image" content="" />
   <style>
     :root {
@@ -58,6 +63,41 @@
     }
     .nav-items a:hover { color: var(--soft-white); }
     .nav-items a.is-current { color: var(--teal); }
+
+    /* ── Mobile nav toggle + drawer ── */
+    .nav-toggle {
+      display: none; pointer-events: auto;
+      width: 42px; height: 42px; flex-direction: column;
+      align-items: center; justify-content: center; gap: 5px;
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(3,4,6,.35); backdrop-filter: blur(18px);
+      cursor: pointer;
+    }
+    .nav-toggle span {
+      display: block; width: 18px; height: 1px; background: var(--soft-white);
+      transition: transform .3s ease, opacity .3s ease;
+    }
+    .nav-toggle.is-open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .nav-toggle.is-open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.is-open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+    .nav-drawer {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 150;
+      background: rgba(3,4,6,.97); border-bottom: 1px solid var(--line);
+      padding: 96px 26px 26px; display: flex; flex-direction: column; gap: 4px;
+      transform: translateY(-100%); opacity: 0; pointer-events: none;
+      transition: transform .35s ease, opacity .35s ease;
+    }
+    .nav-drawer.is-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .nav-drawer a {
+      font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+      color: rgba(244,244,241,.85); padding: 14px 2px;
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-drawer a:hover { color: var(--teal); }
+    @media (max-width: 860px) {
+      .nav-items { display: none; }
+      .nav-toggle { display: flex; }
+    }
 
     /* ── Reveal ── */
     .reveal {
@@ -267,6 +307,15 @@
       width: calc(100% + 56px); margin: 40px -28px;
       aspect-ratio: 16/9; object-fit: cover; display: block;
     }
+    .article-summary {
+      font-family: var(--serif); font-style: italic;
+      font-size: clamp(17px, 2vw, 20px); line-height: 1.6;
+      color: rgba(244,244,241,.82); margin: 0 0 8px;
+    }
+    .article-pending {
+      font-size: 14px; color: var(--muted); font-style: italic;
+      padding: 18px 0 0;
+    }
 
     /* Article footer */
     .article-footer {
@@ -338,7 +387,22 @@
     <a href="/articles.html" class="is-current">Articles</a>
     <a href="/contact.html">Contact</a>
   </div>
+  <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navDrawer">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<div class="nav-drawer" id="navDrawer">
+  <a href="/founder.html">The Founder</a>
+  <a href="/campaigns.html">Campaigns</a>
+  <a href="/studio.html">Studio</a>
+  <a href="/experiences.html">Experiences</a>
+  <a href="/engine.html">Engine</a>
+  <a href="/lab.html">Lab</a>
+  <a href="/proof.html">Proof</a>
+  <a href="/articles.html">Articles</a>
+  <a href="/contact.html">Contact</a>
+</div>
 
 <!-- ════════════════════════════
      LISTING VIEW
@@ -375,6 +439,7 @@
       <h1 class="article-title" id="article-title"></h1>
       <span class="article-dateline" id="article-dateline"></span>
     </div>
+    <p class="article-summary" id="article-summary" style="display:none"></p>
     <div class="article-body reveal delay-1" id="article-body"></div>
   </div>
 
@@ -421,6 +486,35 @@
       });
     })
     .catch(function() {});
+})();
+</script>
+
+<script>
+/* ── Mobile nav toggle ── */
+(function () {
+  var toggle = document.getElementById("navToggle");
+  var drawer = document.getElementById("navDrawer");
+  if (!toggle || !drawer) return;
+  toggle.addEventListener("click", function (e) {
+    e.stopPropagation();
+    var open = drawer.classList.toggle("is-open");
+    toggle.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  drawer.querySelectorAll("a").forEach(function (a) {
+    a.addEventListener("click", function () {
+      drawer.classList.remove("is-open");
+      toggle.classList.remove("is-open");
+      toggle.setAttribute("aria-expanded", "false");
+    });
+  });
+  document.addEventListener("click", function (e) {
+    if (!drawer.contains(e.target) && !toggle.contains(e.target)) {
+      drawer.classList.remove("is-open");
+      toggle.classList.remove("is-open");
+      toggle.setAttribute("aria-expanded", "false");
+    }
+  });
 })();
 </script>
 
@@ -616,6 +710,8 @@
     // Set loading state
     document.getElementById('article-title').textContent = '';
     document.getElementById('article-body').innerHTML = '<div class="spinner" style="padding:80px 0"></div>';
+    var sumResetEl = document.getElementById('article-summary');
+    if (sumResetEl) { sumResetEl.style.display = 'none'; sumResetEl.textContent = ''; }
 
     var q = encodeURIComponent(
       '*[_type=="article" && slug.current=="' + slug + '"][0]{' +
@@ -656,7 +752,18 @@
         document.getElementById('article-dateline').textContent = fmtDate(a.publishDate) + ' · Creators Network';
 
         // Body
-        document.getElementById('article-body').innerHTML = renderBlocks(a.bodyContent || []);
+        var bodyHtml = renderBlocks(a.bodyContent || []);
+        if (!bodyHtml) {
+          var cached = allArticles.filter(function (r) { return r.slug === slug; })[0];
+          var summary = (cached && cached.excerpt) || '';
+          if (summary) {
+            var sumEl = document.getElementById('article-summary');
+            sumEl.textContent = summary;
+            sumEl.style.display = 'block';
+          }
+          bodyHtml = '<p class="article-pending">The full write-up for this piece is coming soon.</p>';
+        }
+        document.getElementById('article-body').innerHTML = bodyHtml;
 
         // Related
         var related = allArticles.filter(function (r) { return r.slug !== slug; }).slice(0, 2);

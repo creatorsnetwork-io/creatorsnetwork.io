@@ -3,8 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Studio — Creators Network</title>
-  <meta name="description" content="Studio at Creators Network — design that feels intentional." />
+  <title>Studio — Design With Intent | Creators Network</title>
+  <meta name="description" content="Design treated as argument, not decoration. Visual identity and creative work built to hold up under scrutiny, not just look good in a deck." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://creatorsnetwork.io/studio.html" />
+  <meta property="og:title" content="Studio — Design With Intent | Creators Network" />
+  <meta property="og:description" content="Design treated as argument, not decoration. Visual identity and creative work built to hold up under scrutiny, not just look good in a deck." />
+  <meta name="twitter:card" content="summary_large_image" />
   <style>
     :root {
       --black: #030406;
@@ -47,6 +52,36 @@
     }
     .nav-items a.is-current { color: var(--teal); }
     .nav-items a:hover { color: rgba(244,244,241,1); }
+
+    .nav-toggle {
+      display: none; pointer-events: auto;
+      width: 42px; height: 42px; flex-direction: column;
+      align-items: center; justify-content: center; gap: 5px;
+      border: 1px solid var(--line);
+      background: rgba(3,4,6,.35); backdrop-filter: blur(18px);
+      cursor: pointer;
+    }
+    .nav-toggle span {
+      display: block; width: 18px; height: 1px; background: var(--soft-white);
+      transition: transform .3s ease, opacity .3s ease;
+    }
+    .nav-toggle.is-open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .nav-toggle.is-open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.is-open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+    .nav-drawer {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 150;
+      background: rgba(3,4,6,.97); border-bottom: 1px solid var(--line);
+      padding: 96px 26px 26px; display: flex; flex-direction: column; gap: 4px;
+      transform: translateY(-100%); opacity: 0; pointer-events: none;
+      transition: transform .35s ease, opacity .35s ease;
+    }
+    .nav-drawer.is-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    .nav-drawer a {
+      font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+      color: rgba(244,244,241,.85); padding: 14px 2px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .nav-drawer a:hover { color: var(--teal); }
 
     /* ── Reveal ── */
     .reveal {
@@ -228,6 +263,7 @@
       .nav { top: 20px; left: 20px; right: 20px; }
       .brand-logo { width: 48px; }
       .nav-items { display: none; }
+      .nav-toggle { display: flex; }
       .hero-content { padding: calc(12vh + 160px) 22px 0; }
       .philosophy { padding: 9vh 22px 26vh; }
       .philosophy p { font-size: clamp(19px, 5vw, 24px); }
@@ -616,7 +652,48 @@
       <a href="articles.html">Articles</a>
     <a href="contact.html">Contact</a>
     </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navDrawer">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+  <div class="nav-drawer" id="navDrawer">
+    <a href="founder.html">The Founder</a>
+    <a href="campaigns.html">Campaigns</a>
+    <a href="studio.html">Studio</a>
+    <a href="experiences.html">Experiences</a>
+    <a href="engine.html">Engine</a>
+    <a href="lab.html">Lab</a>
+    <a href="proof.html">Proof</a>
+    <a href="articles.html">Articles</a>
+    <a href="contact.html">Contact</a>
+  </div>
+  <script>
+    (function () {
+      var toggle = document.getElementById("navToggle");
+      var drawer = document.getElementById("navDrawer");
+      if (!toggle || !drawer) return;
+      toggle.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var open = drawer.classList.toggle("is-open");
+        toggle.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      });
+      drawer.querySelectorAll("a").forEach(function (a) {
+        a.addEventListener("click", function () {
+          drawer.classList.remove("is-open");
+          toggle.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+        });
+      });
+      document.addEventListener("click", function (e) {
+        if (!drawer.contains(e.target) && !toggle.contains(e.target)) {
+          drawer.classList.remove("is-open");
+          toggle.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+        }
+      });
+    })();
+  </script>
 
   <main>
     <!-- ══ PORTRAIT WORLD ══ -->
@@ -918,11 +995,12 @@
     window.CN_initVideoStrip = function(trackId) {
       var track = document.getElementById(trackId || 'video-track');
       if (!track) return;
+      var isTouch = !window.matchMedia('(hover: hover)').matches;
       track.querySelectorAll('.video-slot[data-idx]').forEach(function(slot) {
         var idx = Number(slot.getAttribute('data-idx'));
         var video = track.__cnVideos && track.__cnVideos[idx];
         if (video && video.sourceType === 'cloudflare' && video.videoUrlOrId) {
-          slot.addEventListener('mouseenter', function() {
+          function startPreview() {
             if (slot.querySelector('.cn-hover-frame')) return;
             // Native <video> instead of Cloudflare's iframe -- always muted here, so there's
             // no browser permission to fight; this part never had a sound problem.
@@ -933,12 +1011,14 @@
             v.playsInline = true;
             v.setAttribute('webkit-playsinline', '');
             v.setAttribute('disablepictureinpicture', '');
+            v.setAttribute('playsinline', '');
+            v.setAttribute('muted', '');
             v.preload = 'auto';
             slot.appendChild(v);
             window.CN_attachHls(v, video.videoUrlOrId);
             slot.classList.add('playing');
-          });
-          slot.addEventListener('mouseleave', function() {
+          }
+          function stopPreview() {
             var v = slot.querySelector('.cn-hover-frame');
             if (v) {
               if (v.__cnHls) v.__cnHls.destroy();
@@ -946,7 +1026,21 @@
               v.remove();
             }
             slot.classList.remove('playing');
-          });
+          }
+          // Desktop hover behavior stays untouched.
+          slot.addEventListener('mouseenter', startPreview);
+          slot.addEventListener('mouseleave', stopPreview);
+          if (isTouch) {
+            // First tap plays the inline preview (like hover) instead of jumping
+            // straight to the fullscreen click handler below. Second tap (once
+            // .playing is set) lets the click through to open fullscreen.
+            slot.addEventListener('touchstart', function(e) {
+              if (!slot.classList.contains('playing')) {
+                startPreview();
+                e.preventDefault();
+              }
+            }, { passive: false });
+          }
         }
         slot.addEventListener('click', function() {
           if (track.__cnVideos && track.__cnVideos.length && window.CN_openFeed) {
