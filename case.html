@@ -6,10 +6,19 @@
   <title id="meta-title">Case Studies — Creators Network</title>
   <meta name="description" id="meta-desc" content="A closer look at select projects: the challenge, the work, and the result." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://creatorsnetwork.io/case.html" />
-  <meta property="og:title" content="Case Studies — Creators Network" />
-  <meta property="og:description" content="A closer look at select projects: the challenge, the work, and the result." />
+  <meta property="og:url" content="https://creatorsnetwork.io/case.html" id="og-url" />
+  <meta property="og:title" content="Case Studies — Creators Network" id="og-title" />
+  <meta property="og:description" content="A closer look at select projects: the challenge, the work, and the result." id="og-desc" />
   <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://creatorsnetwork.io/case.html" id="canonical-link" />
+  <meta property="og:image" content="https://creatorsnetwork.io/assets/og/og-default.jpg" id="og-image" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Case Study — Creators Network" />
+  <meta name="twitter:image" content="https://creatorsnetwork.io/assets/og/og-default.jpg" id="twitter-image" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
   <style>
     :root {
       --black:      #030406;
@@ -181,7 +190,7 @@
       min-height: 60vh; display: grid; place-items: center; text-align: center;
       padding: 120px 28px;
     }
-    .case-notfound h1 { font-family: var(--serif); font-weight: 400; font-size: 28px; margin-bottom: 16px; }
+    .case-notfound .notfound-title { font-family: var(--serif); font-weight: 400; font-size: 28px; margin-bottom: 16px; }
     .case-notfound p { color: var(--muted); font-size: 14px; }
 
     /* ── Social footer (icon-only, matches proof.html) ── */
@@ -228,7 +237,7 @@
 <!-- ── Nav ── -->
 <nav class="nav" aria-label="Primary navigation">
   <a href="/index.html" aria-label="Creators Network home">
-    <img class="brand-logo" src="assets/cn-logo-color.png" alt="Creators Network" />
+    <img class="brand-logo" src="/assets/cn-logo-color.png" alt="Creators Network" />
   </a>
   <div class="nav-items">
     <a href="/founder.html">The Founder</a>
@@ -283,7 +292,7 @@
 
 <div id="case-notfound" class="case-notfound" style="display:none">
   <div>
-    <h1>We couldn't find that case study.</h1>
+    <p class="notfound-title">We couldn't find that case study.</p>
     <p>It may have moved. <a href="/proof.html" style="color:var(--teal);text-decoration:underline;">Back to Proof</a></p>
   </div>
 </div>
@@ -431,9 +440,32 @@
       var c = d.result;
       if (!c) { showNotFound(); return; }
 
-      document.getElementById('meta-title').textContent = (c.seoTitle || c.title || 'Case study') + ' — Creators Network';
+      var fullTitle = (c.seoTitle || c.title || 'Case study') + ' — Creators Network';
+      var fullDesc = c.seoDescription || c.oneLinerSummary || '';
+      var canonicalUrl = 'https://creatorsnetwork.io/case/' + (c.slug || slug);
+
+      document.getElementById('meta-title').textContent = fullTitle;
       var descEl = document.getElementById('meta-desc');
-      if (descEl) descEl.content = c.seoDescription || c.oneLinerSummary || '';
+      if (descEl) descEl.content = fullDesc;
+
+      // Keep og:title / og:description / og:url / og:image / canonical in sync with
+      // the actual case study instead of the generic template defaults — previously
+      // every /case/[slug] page reported og:url as the shared "case.html" template.
+      var ogTitleEl = document.getElementById('og-title');
+      if (ogTitleEl) ogTitleEl.content = fullTitle;
+      var ogDescEl = document.getElementById('og-desc');
+      if (ogDescEl) ogDescEl.content = fullDesc;
+      var ogUrlEl = document.getElementById('og-url');
+      if (ogUrlEl) ogUrlEl.content = canonicalUrl;
+      var canonicalEl = document.getElementById('canonical-link');
+      if (canonicalEl) canonicalEl.href = canonicalUrl;
+      if (c.heroImageUrl) {
+        var ogImgUrl = c.heroImageUrl + '?w=1200&h=630&fit=crop&auto=format';
+        var ogImageEl = document.getElementById('og-image');
+        if (ogImageEl) ogImageEl.content = ogImgUrl;
+        var twitterImageEl = document.getElementById('twitter-image');
+        if (twitterImageEl) twitterImageEl.content = ogImgUrl;
+      }
 
       var heroImg = document.getElementById('case-hero-img');
       if (c.heroImageUrl) {
