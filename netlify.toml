@@ -5,39 +5,51 @@
   directory = "netlify/functions"
   node_bundler = "zisi"
 
+## .html is canonical. These are true 301s (not rewrites) so /studio, /proof,
+## /lab, /contact, /articles and /case collapse into a single indexable URL
+## instead of serving duplicate content at two live paths.
 [[redirects]]
   from = "/studio"
   to = "/studio.html"
-  status = 200
+  status = 301
+  force = true
 
 [[redirects]]
   from = "/proof"
   to = "/proof.html"
-  status = 200
+  status = 301
+  force = true
 
 [[redirects]]
   from = "/lab"
   to = "/lab.html"
-  status = 200
+  status = 301
+  force = true
 
 [[redirects]]
   from = "/contact"
   to = "/contact.html"
-  status = 200
+  status = 301
+  force = true
 
 [[redirects]]
   from = "/articles"
   to = "/articles.html"
-  status = 200
-
-[[redirects]]
-  from = "/articles/*"
-  to = "/articles.html"
-  status = 200
+  status = 301
+  force = true
 
 [[redirects]]
   from = "/case"
   to = "/case.html"
+  status = 301
+  force = true
+
+## Detail-page routing stays a rewrite (200), not a redirect — the browser
+## keeps showing /articles/[slug] or /case/[slug] while Netlify serves the
+## shared template, which reads the slug from the path via JS.
+[[redirects]]
+  from = "/articles/*"
+  to = "/articles.html"
   status = 200
 
 [[redirects]]
