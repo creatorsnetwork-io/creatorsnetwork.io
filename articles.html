@@ -10,7 +10,15 @@
   <meta property="og:title" content="Journal — Creators Network" />
   <meta property="og:description" content="Thinking out loud from the people at Creators Network — on influencer marketing, brand strategy, events, and the creator economy." />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta property="og:image" id="og-image" content="" />
+  <link rel="canonical" href="https://creatorsnetwork.io/articles.html" />
+  <meta property="og:image" id="og-image" content="https://creatorsnetwork.io/assets/og/og-default.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Journal — Creators Network" />
+  <meta name="twitter:image" content="https://creatorsnetwork.io/assets/og/og-default.jpg" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
   <style>
     :root {
       --black:      #030406;
@@ -410,7 +418,7 @@
 <div id="view-listing">
   <header class="listing-header">
     <span class="listing-eyebrow reveal">Perspectives</span>
-    <h1 class="listing-title reveal delay-1">Things worth reading<br>from the people at CN.</h1>
+    <h2 class="listing-title reveal delay-1">Things worth reading<br>from the people at CN.</h2>
     <p class="listing-sub reveal delay-2">On influencer marketing, brand strategy, events, the creator economy — and what it actually looks like to build a boutique agency across two markets.</p>
   </header>
 
@@ -798,7 +806,7 @@
     document.querySelectorAll(scopeSelector || '#view-listing .reveal').forEach(function (el) { io.observe(el); });
   }
 
-  // ── Browser back/forward ─────────────────────────────────────────────────────
+  // ── Browser back/forward ──────────────────────────────────────────────────────
   window.addEventListener('popstate', function (e) {
     if (e.state && e.state.slug) {
       loadArticle(e.state.slug);
