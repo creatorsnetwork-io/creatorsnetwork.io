@@ -1,24 +1,4 @@
-<meta name="twitter:card" content="summary_large_image" />
-  <link rel="canonical" href="https://creatorsnetwork.io/proof.html" />
-  <meta property="og:image" content="https://creatorsnetwork.io/assets/og/og-proof.jpg" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Proof — Client work by Creators Network" />
-  <meta name="twitter:image" content="https://creatorsnetwork.io/assets/og/og-proof.jpg" />
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />.slide p {
-      margin: 0 0 22px; font-size: clamp(14px, 1.4vw, 17px);
-      line-height: 1.6; font-weight: 300; color: rgba(244,244,241,.75);
-    }
-    .pitch-tag {
-      display: inline-block; font-size: 10px; letter-spacing: .14em;
-      text-transform: uppercase; font-weight: 400; color: rgba(244,244,241,.68);
-      border: 1px solid rgba(244,244,241,.28); padding: 4px 10px; border-radius: 2px;
-      margin-bottom: 12px;
-    }<p class="hero-locations reveal reveal-stagger-2" id="hero-locations">India · UAE · Kenya · Austria · Nordic · South Africa · Thailand · Italy · United States</p><span class="pitch-tag">Pitch · Not Awarded</span>
-            <span class="slide-client">Royal Enfield</span><span class="pitch-tag">Pitch · Not Awarded</span>
-              <span class="case-card-client">Royal Enfield</span><!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -30,6 +10,15 @@
   <meta property="og:title" content="Proof — Client Work by Creators Network" />
   <meta property="og:description" content="A look at the work itself: the brief, the approach, and what actually changed for the brand." />
   <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://creatorsnetwork.io/proof.html" />
+  <meta property="og:image" content="https://creatorsnetwork.io/assets/og/og-proof.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Proof — Client work by Creators Network" />
+  <meta name="twitter:image" content="https://creatorsnetwork.io/assets/og/og-proof.jpg" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
   <style>
     :root {
       --black: #030406;
@@ -213,6 +202,12 @@
     .slide p {
       margin: 0 0 22px; font-size: clamp(14px, 1.4vw, 17px);
       line-height: 1.6; font-weight: 300; color: rgba(244,244,241,.75);
+    }
+    .pitch-tag {
+      display: inline-block; font-size: 10px; letter-spacing: .14em;
+      text-transform: uppercase; font-weight: 400; color: rgba(244,244,241,.68);
+      border: 1px solid rgba(244,244,241,.28); padding: 4px 10px; border-radius: 2px;
+      margin-bottom: 12px;
     }
 
     /* ══ CASE LISTING GRID ══ */
@@ -855,7 +850,7 @@
         <div>
           <span class="hero-eyebrow reveal">Selected work, 2020 onwards</span>
           <h1 class="reveal reveal-stagger">Proof</h1>
-          <p class="hero-locations reveal reveal-stagger-2" id="hero-locations">UAE · India · East Africa · Europe</p>
+          <p class="hero-locations reveal reveal-stagger-2" id="hero-locations">India · UAE · Kenya · Austria · Nordic · South Africa · Thailand · Italy · United States</p>
           <span class="hero-years reveal reveal-stagger-2" id="hero-years">2020—</span>
         </div>
       </div>
@@ -992,6 +987,7 @@
         </a>
         <a class="slide" href="case/royal-enfield" style="background-image: url('assets/lab-abstract.jpg');">
           <div class="slide-content">
+            <span class="pitch-tag">Pitch · Not Awarded</span>
             <span class="slide-client">Royal Enfield</span>
             <h3>The pitch that won the room</h3>
             <p>A launch event concept for the Classic 350 that won on story, not budget.</p>
@@ -1044,6 +1040,7 @@
           </a>
           <a class="case-card reveal" href="case/royal-enfield" style="background-image: url('assets/lab-abstract.jpg');">
             <div class="case-card-content">
+              <span class="pitch-tag">Pitch · Not Awarded</span>
               <span class="case-card-client">Royal Enfield</span>
               <h3>The Classic 350 launch pitch</h3>
               <span class="case-card-cta">View case</span>
@@ -1256,8 +1253,10 @@
           if (sliderTrack) {
             sliderTrack.innerHTML = featured.map(function(c) {
               var img = c.heroUrl ? 'url(' + c.heroUrl + ')' : "url('assets/proof-atmosphere.jpg')";
+              var isPitch = c.slug === 'royal-enfield';
               return '<a class="slide" href="case/' + esc(c.slug) + '" style="background-image:' + img + ';">' +
                 '<div class="slide-content">' +
+                  (isPitch ? '<span class="pitch-tag">Pitch · Not Awarded</span>' : '') +
                   '<span class="slide-client">' + esc(c.clientName) + '</span>' +
                   '<h3>' + esc(c.title) + '</h3>' +
                   (c.oneLinerSummary ? '<p>' + esc(c.oneLinerSummary) + '</p>' : '') +
@@ -1275,8 +1274,10 @@
             grid.innerHTML = cases.map(function(c, i) {
               var img = c.heroUrl ? 'url(' + c.heroUrl + ')' : "url('assets/proof-atmosphere.jpg')";
               var delay = i < 6 ? ' reveal-stagger' + (i > 0 ? (i > 1 ? '-' + (i+1) : '') : '') : '';
+              var isPitch = c.slug === 'royal-enfield';
               return '<a class="case-card reveal" href="case/' + esc(c.slug) + '" style="background-image:' + img + ';">' +
                 '<div class="case-card-content">' +
+                  (isPitch ? '<span class="pitch-tag">Pitch · Not Awarded</span>' : '') +
                   '<span class="case-card-client">' + esc(c.clientName) + '</span>' +
                   '<h3>' + esc(c.title) + '</h3>' +
                   '<span class="case-card-cta">View case</span>' +
@@ -1294,6 +1295,8 @@
         // ── Logo wall ──
         function makeLogoHtml(logos) {
           if (!logos || !logos.length) return '';
+          logos = logos.filter(function(l) { return (l.name || '').trim().toLowerCase() !== 'royal enfield'; });
+          if (!logos.length) return '';
           var html = logos.map(function(l) {
             var cls = 'logo-item' + (l.style === 'accent' ? ' logo-accent' : l.style === 'heavy' ? ' logo-heavy' : '');
             return '<span class="' + cls + '">' + esc(l.name) + '</span>';
