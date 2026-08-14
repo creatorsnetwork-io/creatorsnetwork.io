@@ -56,6 +56,12 @@
       display: flex; align-items: center; justify-content: space-between;
       pointer-events: none;
     }
+    .nav::before {
+      content: ''; position: absolute; top: -28px; left: -30px; right: -30px; bottom: -90px;
+      background: linear-gradient(180deg, rgba(3,4,6,.85) 0%, rgba(3,4,6,.7) 45%, rgba(3,4,6,0) 100%);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      z-index: -1; pointer-events: none;
+    }
     .brand-logo { pointer-events: auto; width: 54px; height: auto; display: block; }
     .brand-logo svg { fill: var(--soft-white); }
     .nav-items {
@@ -544,7 +550,7 @@
   }
 
   function showListing() {
-    document.getElementById('view-listing').style.display = 'block';
+    document.getElementById('view-listing').style.display = 'block'; const __bl2 = document.querySelector('.brand-logo'); if (__bl2) __bl2.style.display = '';
     document.getElementById('view-article').style.display = 'none';
     document.getElementById('site-footer').style.display = 'flex';
     document.getElementById('btn-back').style.display = 'none';
@@ -555,7 +561,7 @@
 
   function showArticleView() {
     document.getElementById('view-listing').style.display = 'none';
-    document.getElementById('view-article').style.display = 'block';
+    document.getElementById('view-article').style.display = 'block'; const __bl1 = document.querySelector('.brand-logo'); if (__bl1) __bl1.style.display = 'none';
     document.getElementById('site-footer').style.display = 'flex';
     document.getElementById('btn-back').style.display = 'flex';
     window.scrollTo(0, 0);

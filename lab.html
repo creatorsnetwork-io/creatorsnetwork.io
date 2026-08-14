@@ -47,6 +47,12 @@
       display: flex; align-items: center; justify-content: space-between;
       pointer-events: none;
     }
+    .nav::before {
+      content: ''; position: absolute; top: -28px; left: -30px; right: -30px; bottom: -90px;
+      background: linear-gradient(180deg, rgba(3,4,6,.85) 0%, rgba(3,4,6,.7) 45%, rgba(3,4,6,0) 100%);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      z-index: -1; pointer-events: none;
+    }
     .brand-logo { pointer-events: auto; width: 54px; height: auto; display: block; }
     .nav-items {
       pointer-events: auto; display: flex; align-items: center;
